@@ -16,10 +16,21 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const [isSignUp, setIsSignUp] = useState(false);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        toast({ title: "Account created!", description: "Now sign in and ask the developer to assign you the admin role." });
+        setIsSignUp(false);
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
@@ -37,7 +48,7 @@ const AdminLogin = () => {
 
       navigate("/admin");
     } catch (err: any) {
-      toast({ title: "Login failed", description: err.message, variant: "destructive" });
+      toast({ title: isSignUp ? "Sign up failed" : "Login failed", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -70,8 +81,11 @@ const AdminLogin = () => {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? (isSignUp ? "Creating account..." : "Signing in...") : (isSignUp ? "Create Account" : "Sign In")}
             </Button>
+            <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="w-full text-sm text-muted-foreground hover:text-primary transition-colors">
+              {isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up"}
+            </button>
           </form>
         </CardContent>
       </Card>
