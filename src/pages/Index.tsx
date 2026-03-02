@@ -19,7 +19,7 @@ import blackClock from "@/assets/black-clock.png";
 
 
 const defaultHeroSlides = [
-  { image: heroImage1, alt: "Mzilikazi Congregation church exterior" },
+  { image: heroImage1, alt: "City Centre Congregation church exterior" },
   { image: heroImage2, alt: "Beautiful church interior with stained glass" },
   { image: heroImage3, alt: "Congregation worshipping together" },
   { image: heroImage4, alt: "Community outreach and fellowship" },
@@ -138,7 +138,7 @@ const Index = () => {
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/10 to-black/25 z-10" />
         <div className="absolute top-6 sm:top-8 left-1/2 -translate-x-1/2 z-20">
-          <img src={roseLogo} alt="Mzilikazi Congregation Rose Logo" className="h-[45px] sm:h-[55px] md:h-[65px] w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" />
+          <img src={roseLogo} alt="City Centre Congregation Rose Logo" className="h-[45px] sm:h-[55px] md:h-[65px] w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" />
         </div>
         <div className="relative z-20 h-full flex items-end justify-center pb-16 sm:pb-20">
           <div className="text-center px-4 max-w-3xl animate-fade-in">
@@ -164,9 +164,9 @@ const Index = () => {
       {/* Welcome Title Section */}
       <section className="py-8 sm:py-12 bg-muted">
         <div className="container mx-auto px-4 text-center">
-          <img src={roseLogo} alt="Mzilikazi Congregation Rose Logo" className="h-[60px] sm:h-[80px] md:h-[100px] w-auto mx-auto mb-3 object-contain" />
+          <img src={roseLogo} alt="City Centre Congregation Rose Logo" className="h-[60px] sm:h-[80px] md:h-[100px] w-auto mx-auto mb-3 object-contain" />
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tight">
-            {t.home_hero_title_prefix} ELCZ Mzilikazi {t.home_hero_title_suffix}
+            {t.home_hero_title_prefix} ELCZ City Centre {t.home_hero_title_suffix}
           </h1>
           <p className="mt-3 text-lg sm:text-xl md:text-2xl text-foreground/80 font-serif font-semibold leading-relaxed max-w-2xl mx-auto">
             {t.home_hero_subtitle}
@@ -195,7 +195,7 @@ const Index = () => {
           </div>
           <div className="text-center mt-8 flex items-center justify-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4 text-primary" />
-            <span>Stand 44038, Mzilikazi, Bulawayo, Zimbabwe</span>
+            <span>City Centre, Bulawayo, Zimbabwe</span>
           </div>
         </div>
       </section>
