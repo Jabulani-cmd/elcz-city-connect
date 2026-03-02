@@ -117,7 +117,7 @@ const AdminHomePrayers = () => {
               </div>
               <div>
                 <Label>Address</Label>
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} required placeholder="e.g. Stand 12345, Mzilikazi" />
+                <Input value={address} onChange={(e) => setAddress(e.target.value)} required placeholder="e.g. Stand 12345, City Centre" />
               </div>
               <div>
                 <Label>Notes (optional)</Label>
