@@ -10,20 +10,10 @@ import useEmblaCarousel from "embla-carousel-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { supabase } from "@/integrations/supabase/client";
-import heroImage1 from "@/assets/hero-church.jpg";
-import heroImage2 from "@/assets/hero-church-2.jpg";
-import heroImage3 from "@/assets/hero-church-3.jpg";
-import heroImage4 from "@/assets/hero-church-4.jpg";
 import roseLogo from "@/assets/umplogo2.png";
 import blackClock from "@/assets/black-clock.png";
 
 
-const defaultHeroSlides = [
-  { image: heroImage1, alt: "City Centre Congregation church exterior" },
-  { image: heroImage2, alt: "Beautiful church interior with stained glass" },
-  { image: heroImage3, alt: "Congregation worshipping together" },
-  { image: heroImage4, alt: "Community outreach and fellowship" },
-];
 
 
 const Index = () => {
@@ -46,8 +36,6 @@ const Index = () => {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setHeroSlides(data.map((img: any) => ({ image: img.image_url, alt: img.alt_text })));
-        } else {
-          setHeroSlides(defaultHeroSlides);
         }
         setSlidesLoaded(true);
       });
@@ -125,7 +113,7 @@ const Index = () => {
     <Layout>
       {/* Hero Carousel */}
       <section className="relative h-[70vh] sm:h-[80vh] lg:h-[85vh] min-h-[450px] overflow-hidden">
-        {slidesLoaded && heroSlides.length > 0 && (
+        {slidesLoaded && heroSlides.length > 0 ? (
           <div className="absolute inset-0" ref={emblaRef}>
             <div className="flex h-full">
               {heroSlides.map((slide, index) => (
@@ -135,6 +123,8 @@ const Index = () => {
               ))}
             </div>
           </div>
+        ) : (
+          <div className="absolute inset-0 bg-primary/20" />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/10 to-black/25 z-10" />
         <div className="absolute top-6 sm:top-8 left-1/2 -translate-x-1/2 z-20">
