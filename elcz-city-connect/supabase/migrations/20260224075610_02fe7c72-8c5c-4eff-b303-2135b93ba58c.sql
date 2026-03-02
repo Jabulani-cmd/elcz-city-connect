@@ -1,0 +1,1 @@
+ALTER TABLE public.members ADD COLUMN baptized boolean NOT NULL DEFAULT false;

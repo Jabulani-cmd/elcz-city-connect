@@ -1,0 +1,1 @@
+ALTER TABLE public.members ADD COLUMN confirmed_in_church boolean NOT NULL DEFAULT false;
