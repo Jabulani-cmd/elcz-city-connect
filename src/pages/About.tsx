@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 
 const leaders = [
-  { name: "Rev. M. Ndlovu", role: "Pastor in Charge" },
+  { name: "Rev. M.P. Dube", role: "Pastor in Charge" },
   { name: "Mrs. P. Ngwenya", role: "Chairperson" },
   { name: "Mr. P. Ndou", role: "Vice-Chairperson" },
   { name: "Mrs. T. Dube", role: "Secretary" },
