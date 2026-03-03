@@ -208,7 +208,7 @@ const Index = () => {
           )}
           <SectionHeading title={t.home_pastor_title} />
           <blockquote className="text-lg md:text-xl text-muted-foreground italic leading-relaxed">{t.home_pastor_quote}</blockquote>
-          <p className="mt-6 font-display font-semibold text-foreground">{t.home_pastor_name}</p>
+         <p className="mt-6 font-display font-semibold text-foreground">Rev. M.P. Dube</p>
           <p className="text-sm text-muted-foreground">{t.home_senior_pastor}</p>
         </div>
       </section>
