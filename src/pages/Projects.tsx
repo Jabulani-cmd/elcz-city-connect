@@ -20,6 +20,21 @@ const Projects = () => {
     },
   });
 
+  const { data: allPhotos } = useQuery({
+    queryKey: ["project-photos"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_photos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getPhotos = (projectId: string) =>
+    allPhotos?.filter((p) => p.project_id === projectId) || [];
+
   return (
     <Layout>
       <section className="bg-gradient-purple py-12 sm:py-20 text-primary-foreground">
@@ -40,8 +55,21 @@ const Projects = () => {
                 const percent = project.target_amount > 0
                   ? Math.min(100, (Number(project.amount_raised) / Number(project.target_amount)) * 100)
                   : 0;
+                const photos = getPhotos(project.id);
                 return (
-                  <Card key={project.id} className="shadow-soft border-border hover:shadow-medium transition-shadow">
+                  <Card key={project.id} className="shadow-soft border-border hover:shadow-medium transition-shadow overflow-hidden">
+                    {photos.length > 0 && (
+                      <div className="grid grid-cols-2 gap-0.5">
+                        {photos.slice(0, 4).map((photo, i) => (
+                          <img
+                            key={photo.id}
+                            src={photo.image_url}
+                            alt={photo.caption || project.title}
+                            className={`w-full object-cover ${photos.length === 1 ? 'col-span-2 h-48' : 'h-28'}`}
+                          />
+                        ))}
+                      </div>
+                    )}
                     <CardContent className="p-6">
                       <span className="inline-block text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mb-3">
                         {project.status}
