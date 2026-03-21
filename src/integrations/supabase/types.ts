@@ -167,6 +167,59 @@ export type Database = {
         }
         Relationships: []
       }
+      counseling_sessions: {
+        Row: {
+          action_items: string | null
+          counselor_id: string | null
+          created_at: string
+          id: string
+          member_id: string | null
+          next_session_date: string | null
+          notes: string | null
+          session_date: string
+          session_type: string
+          status: string
+          topics: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          action_items?: string | null
+          counselor_id?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string | null
+          next_session_date?: string | null
+          notes?: string | null
+          session_date: string
+          session_type?: string
+          status?: string
+          topics?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          action_items?: string | null
+          counselor_id?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string | null
+          next_session_date?: string | null
+          notes?: string | null
+          session_date?: string
+          session_type?: string
+          status?: string
+          topics?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counseling_sessions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       downloadable_resources: {
         Row: {
           category: string
@@ -203,6 +256,60 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          amount_paid: number | null
+          checked_in: boolean | null
+          created_at: string
+          event_id: string | null
+          guest_email: string | null
+          guest_name: string | null
+          id: string
+          member_id: string | null
+          payment_status: string | null
+          quantity: number | null
+        }
+        Insert: {
+          amount_paid?: number | null
+          checked_in?: boolean | null
+          created_at?: string
+          event_id?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
+          id?: string
+          member_id?: string | null
+          payment_status?: string | null
+          quantity?: number | null
+        }
+        Update: {
+          amount_paid?: number | null
+          checked_in?: boolean | null
+          created_at?: string
+          event_id?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
+          id?: string
+          member_id?: string | null
+          payment_status?: string | null
+          quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_registrations_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           category: string
@@ -238,6 +345,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      families: {
+        Row: {
+          address: string | null
+          created_at: string
+          head_of_household_id: string | null
+          home_phone: string | null
+          id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          head_of_household_id?: string | null
+          home_phone?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          head_of_household_id?: string | null
+          home_phone?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "families_head_of_household_id_fkey"
+            columns: ["head_of_household_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gallery_photos: {
         Row: {
@@ -298,6 +443,135 @@ export type Database = {
           video_url?: string
         }
         Relationships: []
+      }
+      giving_funds: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      giving_pledges: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          fund_id: string | null
+          id: string
+          member_id: string | null
+          pledge_amount: number
+          pledge_frequency: string | null
+          start_date: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          fund_id?: string | null
+          id?: string
+          member_id?: string | null
+          pledge_amount: number
+          pledge_frequency?: string | null
+          start_date: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          fund_id?: string | null
+          id?: string
+          member_id?: string | null
+          pledge_amount?: number
+          pledge_frequency?: string | null
+          start_date?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giving_pledges_fund_id_fkey"
+            columns: ["fund_id"]
+            isOneToOne: false
+            referencedRelation: "giving_funds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "giving_pledges_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      giving_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          fund_id: string | null
+          id: string
+          is_recurring: boolean | null
+          member_id: string | null
+          payment_method: string | null
+          status: string
+          transaction_date: string
+          transaction_ref: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fund_id?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          member_id?: string | null
+          payment_method?: string | null
+          status?: string
+          transaction_date?: string
+          transaction_ref?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fund_id?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          member_id?: string | null
+          payment_method?: string | null
+          status?: string
+          transaction_date?: string
+          transaction_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giving_transactions_fund_id_fkey"
+            columns: ["fund_id"]
+            isOneToOne: false
+            referencedRelation: "giving_funds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "giving_transactions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       home_prayer_locations: {
         Row: {
@@ -373,6 +647,7 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           email: string | null
+          family_id: string | null
           first_name: string
           gender: string | null
           id: string
@@ -390,6 +665,7 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          family_id?: string | null
           first_name: string
           gender?: string | null
           id?: string
@@ -407,6 +683,7 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          family_id?: string | null
           first_name?: string
           gender?: string | null
           id?: string
@@ -417,7 +694,15 @@ export type Database = {
           phone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ministry_photos: {
         Row: {
@@ -445,6 +730,130 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ministry_teams: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          leader_id: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          leader_id?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          leader_id?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministry_teams_leader_id_fkey"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          id: string
+          is_read: boolean
+          link: string | null
+          message: string | null
+          sent_at: string
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          sent_at?: string
+          title: string
+          type?: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          sent_at?: string
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      pastoral_notes: {
+        Row: {
+          author_id: string | null
+          content: string
+          created_at: string
+          follow_up_date: string | null
+          id: string
+          is_confidential: boolean
+          member_id: string | null
+          note_type: string
+          tags: string[] | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          created_at?: string
+          follow_up_date?: string | null
+          id?: string
+          is_confidential?: boolean
+          member_id?: string | null
+          note_type?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          created_at?: string
+          follow_up_date?: string | null
+          id?: string
+          is_confidential?: boolean
+          member_id?: string | null
+          note_type?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pastoral_notes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prayer_requests: {
         Row: {
@@ -502,6 +911,36 @@ export type Database = {
           preacher_name?: string
           service_date?: string
           service_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -571,6 +1010,279 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          member_id: string | null
+          role: string | null
+          schedule_id: string | null
+          status: string
+          team_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_id?: string | null
+          role?: string | null
+          schedule_id?: string | null
+          status?: string
+          team_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_id?: string | null
+          role?: string | null
+          schedule_id?: string | null
+          status?: string
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_assignments_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "service_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_assignments_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sermon_series: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sermons: {
+        Row: {
+          application_points: string[] | null
+          audio_url: string | null
+          created_at: string
+          date_preached: string | null
+          draft_content: string | null
+          id: string
+          illustrations: string | null
+          outline: string | null
+          published_content: string | null
+          scripture_references: string[] | null
+          series_id: string | null
+          service_type: string | null
+          slides_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          application_points?: string[] | null
+          audio_url?: string | null
+          created_at?: string
+          date_preached?: string | null
+          draft_content?: string | null
+          id?: string
+          illustrations?: string | null
+          outline?: string | null
+          published_content?: string | null
+          scripture_references?: string[] | null
+          series_id?: string | null
+          service_type?: string | null
+          slides_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          application_points?: string[] | null
+          audio_url?: string | null
+          created_at?: string
+          date_preached?: string | null
+          draft_content?: string | null
+          id?: string
+          illustrations?: string | null
+          outline?: string | null
+          published_content?: string | null
+          scripture_references?: string[] | null
+          series_id?: string | null
+          service_type?: string | null
+          slides_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sermons_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "sermon_series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_plans: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          element_type: string
+          id: string
+          notes: string | null
+          schedule_id: string | null
+          song_id: string | null
+          sort_order: number
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          element_type?: string
+          id?: string
+          notes?: string | null
+          schedule_id?: string | null
+          song_id?: string | null
+          sort_order?: number
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          element_type?: string
+          id?: string
+          notes?: string | null
+          schedule_id?: string | null
+          song_id?: string | null
+          sort_order?: number
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_plans_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "service_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plans_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "song_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_schedules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          service_date: string
+          service_time: string | null
+          service_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          service_date: string
+          service_time?: string | null
+          service_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          service_date?: string
+          service_time?: string | null
+          service_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      song_library: {
+        Row: {
+          artist: string | null
+          ccli_number: string | null
+          chord_chart_url: string | null
+          created_at: string
+          id: string
+          key: string | null
+          lyrics: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          artist?: string | null
+          ccli_number?: string | null
+          chord_chart_url?: string | null
+          created_at?: string
+          id?: string
+          key?: string | null
+          lyrics?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          artist?: string | null
+          ccli_number?: string | null
+          chord_chart_url?: string | null
+          created_at?: string
+          id?: string
+          key?: string | null
+          lyrics?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -589,6 +1301,57 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_assignments: {
+        Row: {
+          availability: string | null
+          created_at: string
+          id: string
+          member_id: string | null
+          role: string | null
+          skills: string[] | null
+          status: string
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string | null
+          role?: string | null
+          skills?: string[] | null
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string | null
+          role?: string | null
+          skills?: string[] | null
+          status?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_assignments_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -602,9 +1365,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_pastor: { Args: never; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "pastor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -732,7 +1496,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "pastor"],
     },
   },
 } as const
