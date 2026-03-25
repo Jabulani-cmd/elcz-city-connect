@@ -24,6 +24,7 @@ const navSections: NavSection[] = [
   {
     label: "Sermons", icon: BookOpen,
     children: [
+      { label: "AI Sermon Builder", icon: Sparkles, path: "/pastor/sermons/ai-builder" },
       { label: "Sermon Builder", icon: PenTool, path: "/pastor/sermons/builder" },
       { label: "Sermon Series", icon: Library, path: "/pastor/sermons/series" },
       { label: "Sermon Library", icon: BookOpen, path: "/pastor/sermons/library" },
