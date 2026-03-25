@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronRight, FileText, PenTool, Library, HandHeart,
   ClipboardList, MapPin, UserPlus, UsersRound, Clock, ListMusic,
   Megaphone, Bell, Send, CalendarDays, PieChart, TrendingUp,
-  Import, BookOpenCheck, ScrollText, Milestone
+  Import, BookOpenCheck, ScrollText, Milestone, Sparkles
 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ const navSections: NavSection[] = [
   {
     label: "Sermons", icon: BookOpen,
     children: [
+      { label: "AI Sermon Builder", icon: Sparkles, path: "/pastor/sermons/ai-builder" },
       { label: "Sermon Builder", icon: PenTool, path: "/pastor/sermons/builder" },
       { label: "Sermon Series", icon: Library, path: "/pastor/sermons/series" },
       { label: "Sermon Library", icon: BookOpen, path: "/pastor/sermons/library" },

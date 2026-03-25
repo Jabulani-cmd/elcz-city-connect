@@ -46,6 +46,7 @@ import ReportsPage from "./pages/pastor/ReportsPage";
 import ChurchSettings from "./pages/pastor/ChurchSettings";
 import PlaceholderPage from "./pages/pastor/PlaceholderPage";
 import BibleReader from "./pages/pastor/BibleReader";
+import AISermonBuilder from "./pages/pastor/AISermonBuilder";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
             {/* Pastor Portal */}
             <Route path="/pastor/login" element={<PastorLogin />} />
             <Route path="/pastor" element={<PastorPage><PastorDashboard /></PastorPage>} />
+            <Route path="/pastor/sermons/ai-builder" element={<PastorPage><AISermonBuilder /></PastorPage>} />
             <Route path="/pastor/sermons/builder" element={<PastorPage><SermonBuilder /></PastorPage>} />
             <Route path="/pastor/sermons/series" element={<PastorPage><SermonSeries /></PastorPage>} />
             <Route path="/pastor/sermons/library" element={<PastorPage><SermonLibrary /></PastorPage>} />
