@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, BookOpen, Heart, Users, UserCheck, Music, Church,
+  LayoutDashboard, BookOpen, Heart, Users, UserCheck, Music, Church, Home,
   MessageSquare, Calendar, DollarSign, BarChart3, Settings, LogOut,
   ChevronDown, ChevronRight, FileText, PenTool, Library, HandHeart,
   ClipboardList, MapPin, UserPlus, UsersRound, Clock, ListMusic,
