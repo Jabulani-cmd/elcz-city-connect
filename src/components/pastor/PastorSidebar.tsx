@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, BookOpen, Heart, Users, UserCheck, Music, Church,
+  LayoutDashboard, BookOpen, Heart, Users, UserCheck, Music, Church, Home,
   MessageSquare, Calendar, DollarSign, BarChart3, Settings, LogOut,
   ChevronDown, ChevronRight, FileText, PenTool, Library, HandHeart,
   ClipboardList, MapPin, UserPlus, UsersRound, Clock, ListMusic,
@@ -219,7 +219,15 @@ export default function PastorSidebar({ collapsed, onToggle }: { collapsed: bool
       </nav>
 
       {/* Footer */}
-      <div className="p-2 border-t border-border">
+      <div className="p-2 border-t border-border space-y-0.5">
+        <Link
+          to="/"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted hover:text-foreground w-full transition-colors"
+          title={collapsed ? "Back Home" : undefined}
+        >
+          <Home className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span>Back Home</span>}
+        </Link>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive w-full transition-colors"
