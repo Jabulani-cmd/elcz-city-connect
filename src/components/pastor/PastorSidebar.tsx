@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronRight, FileText, PenTool, Library, HandHeart,
   ClipboardList, MapPin, UserPlus, UsersRound, Clock, ListMusic,
   Megaphone, Bell, Send, CalendarDays, PieChart, TrendingUp,
-  Import, BookOpenCheck, ScrollText, Milestone
+  Import, BookOpenCheck, ScrollText, Milestone, Sparkles
 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
