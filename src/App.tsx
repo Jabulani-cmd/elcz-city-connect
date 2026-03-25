@@ -45,6 +45,7 @@ import AnnouncementsPage from "./pages/pastor/AnnouncementsPage";
 import ReportsPage from "./pages/pastor/ReportsPage";
 import ChurchSettings from "./pages/pastor/ChurchSettings";
 import PlaceholderPage from "./pages/pastor/PlaceholderPage";
+import BibleReader from "./pages/pastor/BibleReader";
 
 const queryClient = new QueryClient();
 
