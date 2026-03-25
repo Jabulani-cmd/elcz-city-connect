@@ -36,6 +36,7 @@ const Footer = () => {
                 { to: "/livestream", label: t.nav_livestream },
                 { to: "/preaching-schedule", label: t.nav_preaching_plan },
                 { to: "/home-prayers", label: t.nav_home_prayers },
+                { to: "/pastor/login", label: "Pastor Portal" },
               ].map((link) => (
                 <li key={link.to}><Link to={link.to} className="text-primary-foreground/70 hover:text-accent transition-colors">{link.label}</Link></li>
               ))}
