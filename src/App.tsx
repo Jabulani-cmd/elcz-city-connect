@@ -45,6 +45,7 @@ import AnnouncementsPage from "./pages/pastor/AnnouncementsPage";
 import ReportsPage from "./pages/pastor/ReportsPage";
 import ChurchSettings from "./pages/pastor/ChurchSettings";
 import PlaceholderPage from "./pages/pastor/PlaceholderPage";
+import BibleReader from "./pages/pastor/BibleReader";
 
 const queryClient = new QueryClient();
 
@@ -97,7 +98,7 @@ const App = () => (
             <Route path="/pastor/volunteers/scheduler" element={<PastorPage><PlaceholderPage title="Service Scheduler" /></PastorPage>} />
             <Route path="/pastor/services/plans" element={<PastorPage><PlaceholderPage title="Service Plan Builder" /></PastorPage>} />
             <Route path="/pastor/services/songs" element={<PastorPage><SongLibrary /></PastorPage>} />
-            <Route path="/pastor/resources/bible" element={<PastorPage><PlaceholderPage title="Bible Reader" /></PastorPage>} />
+            <Route path="/pastor/resources/bible" element={<PastorPage><BibleReader /></PastorPage>} />
             <Route path="/pastor/resources/order" element={<PastorPage><PlaceholderPage title="Order of Service" /></PastorPage>} />
             <Route path="/pastor/resources/almanac" element={<PastorPage><PlaceholderPage title="Liturgical Almanac" /></PastorPage>} />
             <Route path="/pastor/communication/announcements" element={<PastorPage><AnnouncementsPage /></PastorPage>} />

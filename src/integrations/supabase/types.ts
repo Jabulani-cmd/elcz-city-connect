@@ -41,6 +41,78 @@ export type Database = {
         }
         Relationships: []
       }
+      bible_bookmarks: {
+        Row: {
+          bible_version: string
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          title: string | null
+          user_id: string
+          verse: number | null
+        }
+        Insert: {
+          bible_version?: string
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          title?: string | null
+          user_id: string
+          verse?: number | null
+        }
+        Update: {
+          bible_version?: string
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          title?: string | null
+          user_id?: string
+          verse?: number | null
+        }
+        Relationships: []
+      }
+      bible_highlights: {
+        Row: {
+          bible_version: string
+          book: string
+          chapter: number
+          color: string
+          created_at: string
+          id: string
+          note: string | null
+          user_id: string
+          verse: number
+          verse_end: number | null
+        }
+        Insert: {
+          bible_version?: string
+          book: string
+          chapter: number
+          color?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          user_id: string
+          verse: number
+          verse_end?: number | null
+        }
+        Update: {
+          bible_version?: string
+          book?: string
+          chapter?: number
+          color?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          user_id?: string
+          verse?: number
+          verse_end?: number | null
+        }
+        Relationships: []
+      }
       carousel_images: {
         Row: {
           alt_text: string
