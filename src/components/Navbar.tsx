@@ -10,7 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslation } from "@/hooks/useTranslation";
-import logo from "@/assets/church-cross-logo-new.jpg";
+
+const CrossLogo = () => (
+  <div className="relative w-[50px] h-[50px] flex items-center justify-center shrink-0">
+    {/* Vertical bar */}
+    <div className="absolute w-[8px] h-[40px] bg-cross-blue rounded-sm" />
+    {/* Horizontal bar */}
+    <div className="absolute w-[32px] h-[8px] bg-cross-blue rounded-sm" style={{ top: '10px' }} />
+    {/* Center circle */}
+    <div className="absolute w-[12px] h-[12px] bg-gold rounded-full" style={{ top: '12px' }} />
+  </div>
+);
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,33 +56,30 @@ const Navbar = () => {
     links.some((link) => location.pathname === link.to);
 
   const linkClass = (path: string) =>
-    `px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+    `px-3 py-2 text-[16px] font-medium transition-colors cursor-pointer ${
       location.pathname === path
-        ? "text-primary font-semibold"
-        : "text-foreground/80 hover:text-primary hover:bg-muted"
+        ? "text-btn-blue font-semibold"
+        : "text-white hover:text-btn-blue-border"
     }`;
 
   const mobileLinkClass = (path: string) =>
     `block px-4 py-3 text-sm font-medium rounded-md transition-colors ${
       location.pathname === path
-        ? "text-primary bg-primary/5 font-semibold"
-        : "text-foreground/80 hover:text-primary hover:bg-muted"
+        ? "text-btn-blue bg-navy-light font-semibold"
+        : "text-white/80 hover:text-btn-blue-border hover:bg-navy-light"
     }`;
 
   return (
-    <nav className="sticky top-0 z-50 bg-white backdrop-blur-md border-b border-border shadow-soft">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
-          <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <img src={logo} alt="City Centre Congregation Logo" className="h-[50px] w-[50px] sm:h-[60px] sm:w-[60px] lg:h-[70px] lg:w-[70px] object-contain shrink-0" />
-            <div className="flex flex-col leading-tight min-w-0">
-              <span className="text-base sm:text-lg lg:text-xl font-serif font-extrabold tracking-wide text-primary leading-tight">ELCZ - City Centre Congregation</span>
-              <span className="text-[10px] sm:text-xs font-serif tracking-[0.15em] sm:tracking-[0.2em] uppercase text-muted-foreground">Bulawayo</span>
-            </div>
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] lg:w-[calc(100%-336px)] max-w-[1030px]">
+      <div className="bg-navy/95 backdrop-blur-[10px] rounded-[50px] shadow-header px-4 lg:px-6">
+        <div className="flex items-center justify-between h-[70px]">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <CrossLogo />
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-6 mx-auto">
             {topNavLinks.map((link) => (
               <Link key={link.to} to={link.to} className={linkClass(link.to)}>
                 {link.label}
@@ -83,20 +90,20 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-[16px] font-medium transition-colors ${
                     isActiveDropdown(worshipLinks)
-                      ? "text-primary font-semibold"
-                      : "text-foreground/80 hover:text-primary hover:bg-muted"
+                      ? "text-btn-blue font-semibold"
+                      : "text-white hover:text-btn-blue-border"
                   }`}
                 >
                   {t.nav_worship}
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-3 w-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" className="bg-navy border-navy-light">
                 {worshipLinks.map((link) => (
                   <DropdownMenuItem key={link.to} asChild>
-                    <Link to={link.to} className={`w-full ${location.pathname === link.to ? "font-semibold text-primary" : ""}`}>
+                    <Link to={link.to} className={`w-full text-white hover:text-btn-blue ${location.pathname === link.to ? "font-semibold text-btn-blue" : ""}`}>
                       {link.label}
                     </Link>
                   </DropdownMenuItem>
@@ -108,20 +115,20 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-[16px] font-medium transition-colors ${
                     isActiveDropdown(mediaLinks)
-                      ? "text-primary font-semibold"
-                      : "text-foreground/80 hover:text-primary hover:bg-muted"
+                      ? "text-btn-blue font-semibold"
+                      : "text-white hover:text-btn-blue-border"
                   }`}
                 >
                   {t.nav_media}
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-3 w-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" className="bg-navy border-navy-light">
                 {mediaLinks.map((link) => (
                   <DropdownMenuItem key={link.to} asChild>
-                    <Link to={link.to} className={`w-full ${location.pathname === link.to ? "font-semibold text-primary" : ""}`}>
+                    <Link to={link.to} className={`w-full text-white hover:text-btn-blue ${location.pathname === link.to ? "font-semibold text-btn-blue" : ""}`}>
                       {link.label}
                     </Link>
                   </DropdownMenuItem>
@@ -134,32 +141,38 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-
-            <Link to="/admin/login" className={linkClass("/admin/login")}>
-              {t.nav_admin}
-            </Link>
-
-            <LanguageSelector />
           </div>
 
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          {/* Right side: CTA + Language + Mobile toggle */}
+          <div className="flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2">
+              <LanguageSelector />
+              <Link
+                to="/register"
+                className="bg-btn-blue hover:bg-btn-blue-hover text-white font-semibold text-[16px] px-6 py-3 rounded-[24px] transition-colors"
+              >
+                Join Now
+              </Link>
+            </div>
+
+            <Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-navy-light" onClick={() => setIsOpen(!isOpen)}>
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Nav */}
         {isOpen && (
-          <div className="lg:hidden pb-4 animate-fade-in">
+          <div className="lg:hidden pb-4 animate-fade-in border-t border-navy-light/30 mt-1">
             {topNavLinks.map((link) => (
               <Link key={link.to} to={link.to} onClick={() => setIsOpen(false)} className={mobileLinkClass(link.to)}>
                 {link.label}
               </Link>
             ))}
 
-            {/* Mobile Worship Accordion */}
             <button
               onClick={() => setMobileWorshipOpen(!mobileWorshipOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-muted rounded-md transition-colors"
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-white/80 hover:text-btn-blue-border hover:bg-navy-light rounded-md transition-colors"
             >
               {t.nav_worship}
               <ChevronDown className={`h-4 w-4 transition-transform ${mobileWorshipOpen ? "rotate-180" : ""}`} />
@@ -174,10 +187,9 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Mobile Media Accordion */}
             <button
               onClick={() => setMobileMediaOpen(!mobileMediaOpen)}
-              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-muted rounded-md transition-colors"
+              className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-white/80 hover:text-btn-blue-border hover:bg-navy-light rounded-md transition-colors"
             >
               {t.nav_media}
               <ChevronDown className={`h-4 w-4 transition-transform ${mobileMediaOpen ? "rotate-180" : ""}`} />
@@ -202,7 +214,16 @@ const Navbar = () => {
               {t.nav_admin}
             </Link>
 
-            <div className="px-4 pt-2"><LanguageSelector /></div>
+            <div className="px-4 pt-3 flex flex-col gap-2">
+              <LanguageSelector />
+              <Link
+                to="/register"
+                className="bg-btn-blue hover:bg-btn-blue-hover text-white font-semibold text-sm text-center px-6 py-3 rounded-[24px] transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Join Now
+              </Link>
+            </div>
           </div>
         )}
       </div>
