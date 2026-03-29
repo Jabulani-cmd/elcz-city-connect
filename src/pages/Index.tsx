@@ -15,8 +15,6 @@ import heroImage2 from "@/assets/hero-church-2.jpg";
 import heroImage3 from "@/assets/hero-church-3.jpg";
 import heroImage4 from "@/assets/hero-church-4.jpg";
 import roseLogo from "@/assets/umplogo2.png";
-import blackClock from "@/assets/black-clock.png";
-
 
 const defaultHeroSlides = [
   { image: heroImage1, alt: "City Centre Congregation church exterior" },
@@ -25,19 +23,17 @@ const defaultHeroSlides = [
   { image: heroImage4, alt: "Community outreach and fellowship" },
 ];
 
-
 const Index = () => {
   const { t } = useTranslation();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
-  const [heroSlides, setHeroSlides] = useState<{image: string; alt: string}[]>([]);
+  const [heroSlides, setHeroSlides] = useState<{ image: string; alt: string }[]>([]);
   const [slidesLoaded, setSlidesLoaded] = useState(false);
   const [pastorImageUrl, setPastorImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch carousel images from DB
     supabase
       .from("carousel_images")
       .select("*")
@@ -75,7 +71,6 @@ const Index = () => {
         setUpcomingEvents([sundayService, ...dbEvents]);
       });
 
-    // Fetch pastor photo from storage
     supabase.storage.from("leader-photos").list().then(({ data }) => {
       if (data) {
         const pastorFile = data.find((f) =>
@@ -123,54 +118,76 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Hero Carousel */}
-      <section className="relative h-[70vh] sm:h-[80vh] lg:h-[85vh] min-h-[450px] overflow-hidden">
-        {slidesLoaded && heroSlides.length > 0 && (
-          <div className="absolute inset-0" ref={emblaRef}>
-            <div className="flex h-full">
-              {heroSlides.map((slide, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0 relative h-full">
-                  <img src={slide.image} alt={slide.alt} className="absolute inset-0 w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/10 to-black/25 z-10" />
-        <div className="absolute top-6 sm:top-8 left-1/2 -translate-x-1/2 z-20">
-          <img src={roseLogo} alt="City Centre Congregation Rose Logo" className="h-[45px] sm:h-[55px] md:h-[65px] w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" />
-        </div>
-        <div className="relative z-20 h-full flex items-end justify-center pb-16 sm:pb-20">
-          <div className="text-center px-4 max-w-3xl animate-fade-in">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm sm:text-base px-6 sm:px-8 shadow-medium">
-                <Link to="/register">{t.home_join_us}</Link>
-              </Button>
-              <Button asChild size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white/20 text-sm sm:text-base px-6 sm:px-8 font-semibold">
-                <Link to="/livestream">{t.home_watch_live}</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-          {heroSlides.map((_, index) => (
-            <button key={index} onClick={() => emblaApi?.scrollTo(index)}
-              className={`w-3 h-3 rounded-full transition-all ${selectedIndex === index ? "bg-primary-foreground scale-110" : "bg-primary-foreground/40 hover:bg-primary-foreground/60"}`}
-              aria-label={`Go to slide ${index + 1}`} />
-          ))}
-        </div>
-      </section>
+      {/* Hero Section — Navy gradient with carousel image */}
+      <section className="relative min-h-[100vh] bg-gradient-navy overflow-hidden">
+        {/* Content overlay */}
+        <div className="relative z-10 flex flex-col items-center text-center pt-[130px] pb-0 px-4">
+          {/* Lutheran Rose Badge */}
+          <img
+            src={roseLogo}
+            alt="Lutheran Rose Emblem"
+            className="w-[60px] h-[70px] sm:w-[80px] sm:h-[90px] mb-6 object-contain drop-shadow-lg"
+          />
 
-      {/* Welcome Title Section */}
-      <section className="py-8 sm:py-12 bg-muted">
-        <div className="container mx-auto px-4 text-center">
-          <img src={roseLogo} alt="City Centre Congregation Rose Logo" className="h-[60px] sm:h-[80px] md:h-[100px] w-auto mx-auto mb-3 object-contain" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tight">
-            {t.home_hero_title_prefix} ELCZ City Centre {t.home_hero_title_suffix}
+          {/* Main Heading */}
+          <h1 className="text-[40px] sm:text-[56px] lg:text-[72px] font-bold text-white leading-[1.1] max-w-[900px] mb-6 tracking-tight font-display">
+            Welcome to ELCZ City Centre Congregation
           </h1>
-          <p className="mt-3 text-lg sm:text-xl md:text-2xl text-foreground/80 font-serif font-semibold leading-relaxed max-w-2xl mx-auto">
-            {t.home_hero_subtitle}
+
+          {/* Subheading */}
+          <p className="text-[16px] sm:text-[18px] lg:text-[22px] font-normal text-white/70 leading-[1.5] max-w-[700px] mb-10">
+            A place of worship, community, and spiritual growth in the heart of Bulawayo.
           </p>
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <Link
+              to="/register"
+              className="bg-btn-blue hover:bg-btn-blue-hover text-white font-semibold text-[16px] px-8 py-[14px] rounded-lg shadow-btn-blue transition-all hover:shadow-lg min-w-[160px] text-center"
+            >
+              {t.home_join_us}
+            </Link>
+            <Link
+              to="/livestream"
+              className="bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 text-white font-semibold text-[16px] px-8 py-[14px] rounded-lg transition-all min-w-[160px] text-center"
+            >
+              {t.home_watch_live}
+            </Link>
+          </div>
+
+          {/* Hero Carousel Image */}
+          {slidesLoaded && heroSlides.length > 0 && (
+            <div className="w-full max-w-[1000px] mx-auto rounded-t-2xl overflow-hidden">
+              <div ref={emblaRef} className="overflow-hidden">
+                <div className="flex">
+                  {heroSlides.map((slide, index) => (
+                    <div key={index} className="flex-[0_0_100%] min-w-0">
+                      <img
+                        src={slide.image}
+                        alt={slide.alt}
+                        className="w-full h-[200px] sm:h-[260px] lg:h-[320px] object-cover object-center"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Carousel dots */}
+              <div className="flex gap-2 justify-center py-3 bg-navy-deep/80">
+                {heroSlides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => emblaApi?.scrollTo(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      selectedIndex === index
+                        ? "bg-btn-blue scale-110"
+                        : "bg-white/30 hover:bg-white/50"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -194,7 +211,7 @@ const Index = () => {
             ))}
           </div>
           <div className="text-center mt-8 flex items-center justify-center gap-2 text-muted-foreground">
-            <MapPin className="h-4 w-4 text-primary" />
+            <MapPin className="h-4 w-4 text-btn-blue" />
             <span>City Centre, Bulawayo, Zimbabwe</span>
           </div>
         </div>
@@ -204,11 +221,11 @@ const Index = () => {
       <section className="py-10 sm:py-16 bg-background">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           {pastorImageUrl && (
-            <img src={pastorImageUrl} alt="Rev. M. Ndlovu - Pastor in Charge" className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover mx-auto mb-6 shadow-medium border-4 border-primary/20" />
+            <img src={pastorImageUrl} alt="Rev. M.P. Dube - Pastor in Charge" className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover mx-auto mb-6 shadow-medium border-4 border-btn-blue/20" />
           )}
           <SectionHeading title={t.home_pastor_title} />
           <blockquote className="text-lg md:text-xl text-muted-foreground italic leading-relaxed">{t.home_pastor_quote}</blockquote>
-         <p className="mt-6 font-display font-semibold text-foreground">Rev. M.P. Dube</p>
+          <p className="mt-6 font-display font-semibold text-foreground">Rev. M.P. Dube</p>
           <p className="text-sm text-muted-foreground">{t.home_senior_pastor}</p>
         </div>
       </section>
@@ -222,8 +239,8 @@ const Index = () => {
               announcements.map((a) => (
                 <Card key={a.id} className="shadow-soft border-border hover:shadow-medium transition-shadow">
                   <CardContent className="p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
-                    <div className="bg-accent/10 rounded-lg p-2.5 sm:p-3 shrink-0">
-                      <Megaphone className="h-5 w-5 text-accent" />
+                    <div className="bg-btn-blue/10 rounded-lg p-2.5 sm:p-3 shrink-0">
+                      <Megaphone className="h-5 w-5 text-btn-blue" />
                     </div>
                     <div className="min-w-0">
                       <h3 className="font-display font-semibold text-foreground text-sm sm:text-base">{a.title}</h3>
@@ -247,7 +264,6 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <SectionHeading title={t.home_events_title} subtitle={t.home_events_subtitle} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Calendar Widget */}
             <Card className="shadow-soft border-border flex justify-center items-start p-4">
               <CalendarWidget
                 mode="multiple"
@@ -255,7 +271,6 @@ const Index = () => {
                 className="pointer-events-auto"
               />
             </Card>
-            {/* Event List */}
             <div className="flex flex-col gap-4">
               {upcomingEvents.map((e) => {
                 const parsedDate = new Date(e.date);
@@ -263,25 +278,25 @@ const Index = () => {
                 const monthStr = hasDate ? parsedDate.toLocaleString("en", { month: "short" }).toUpperCase() : "";
                 const dayStr = hasDate ? parsedDate.getDate().toString() : "";
                 return (
-                <Card key={e.title} className="shadow-soft hover:shadow-medium transition-shadow border-border">
-                  <CardContent className="p-5 flex items-start gap-4">
-                    <div className="bg-primary/10 rounded-xl w-14 h-14 shrink-0 flex flex-col items-center justify-center overflow-hidden">
-                      {hasDate ? (
-                        <>
-                          <span className="text-[10px] font-bold text-primary-foreground bg-primary w-full text-center py-0.5">{monthStr}</span>
-                          <span className="text-lg font-bold text-primary leading-none mt-0.5">{dayStr}</span>
-                        </>
-                      ) : (
-                        <span className="text-2xl">{"recurringIcon" in e ? (e as any).recurringIcon : "📅"}</span>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-display font-semibold text-foreground">{e.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{e.date} · {e.time}</p>
-                      <span className="inline-block mt-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{e.category}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                  <Card key={e.title} className="shadow-soft hover:shadow-medium transition-shadow border-border">
+                    <CardContent className="p-5 flex items-start gap-4">
+                      <div className="bg-btn-blue/10 rounded-xl w-14 h-14 shrink-0 flex flex-col items-center justify-center overflow-hidden">
+                        {hasDate ? (
+                          <>
+                            <span className="text-[10px] font-bold text-white bg-btn-blue w-full text-center py-0.5">{monthStr}</span>
+                            <span className="text-lg font-bold text-btn-blue leading-none mt-0.5">{dayStr}</span>
+                          </>
+                        ) : (
+                          <span className="text-2xl">{"recurringIcon" in e ? (e as any).recurringIcon : "📅"}</span>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-display font-semibold text-foreground">{e.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{e.date} · {e.time}</p>
+                        <span className="inline-block mt-2 text-xs bg-btn-blue/10 text-btn-blue px-2 py-0.5 rounded-full">{e.category}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
@@ -299,7 +314,7 @@ const Index = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl mx-auto">
             {quickLinks.map((l) => (
               <Link key={l.to} to={l.to} className="group">
-                <Card className="text-center shadow-soft hover:shadow-purple transition-all border-border group-hover:border-primary/30 h-full">
+                <Card className="text-center shadow-soft hover:shadow-medium transition-all border-border group-hover:border-btn-blue/30 h-full">
                   <CardContent className="pt-6">
                     <img src={roseLogo} alt="" className="h-20 w-20 mx-auto mb-3 object-contain group-hover:scale-110 transition-transform" />
                     <h3 className="font-display font-semibold text-foreground text-sm">{l.label}</h3>
@@ -311,13 +326,14 @@ const Index = () => {
           </div>
         </div>
       </section>
+
       {/* Appointments CTA */}
       <section className="py-12 bg-card">
         <div className="container mx-auto px-4 text-center max-w-2xl">
           <img src={roseLogo} alt="Rose Logo" className="h-[98px] w-[98px] mx-auto mb-4 object-contain" />
           <h2 className="font-display text-2xl font-bold text-foreground mb-2">{t.home_explore_appointments}</h2>
           <p className="text-muted-foreground mb-6">{t.home_explore_appointments_desc}</p>
-          <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-purple-light font-semibold">
+          <Button asChild size="lg" className="bg-btn-blue hover:bg-btn-blue-hover text-white font-semibold shadow-btn-blue">
             <Link to="/appointments">{t.appointments_book_title}</Link>
           </Button>
         </div>

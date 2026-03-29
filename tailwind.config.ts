@@ -51,19 +51,19 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        purple: {
-          DEFAULT: "hsl(var(--purple))",
-          light: "hsl(var(--purple-light))",
-          lighter: "hsl(var(--purple-lighter))",
-          dark: "hsl(var(--purple-dark))",
-          deep: "hsl(var(--purple-deep))",
+        navy: {
+          DEFAULT: "hsl(var(--navy))",
+          deep: "hsl(var(--navy-deep))",
+          light: "hsl(var(--navy-light))",
         },
-        grey: {
-          DEFAULT: "hsl(var(--grey))",
-          light: "hsl(var(--grey-light))",
-          lighter: "hsl(var(--grey-lighter))",
-          dark: "hsl(var(--grey-dark))",
+        "btn-blue": {
+          DEFAULT: "hsl(var(--btn-blue))",
+          hover: "hsl(var(--btn-blue-hover))",
+          border: "hsl(var(--btn-blue-border))",
         },
+        gold: "hsl(var(--gold))",
+        "cross-blue": "hsl(var(--cross-blue))",
+        "badge-red": "hsl(var(--badge-red))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
