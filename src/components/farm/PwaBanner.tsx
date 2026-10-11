@@ -1,5 +1,6 @@
 import { Download, RefreshCw, Share, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { usePwa } from "@/lib/pwa";
@@ -23,15 +24,21 @@ export function PwaBanner() {
           <button aria-label="Later" onClick={pwa.dismissUpdate} className="p-1 opacity-70"><X className="h-4 w-4" /></button>
         </div>
       )}
-      {!pwa.installed && !hidden && (pwa.canInstall || pwa.ios) && (
+      {!pwa.installed && !hidden && (
         <div className="mb-4 flex items-start gap-3 rounded-2xl border bg-card p-3 shadow-sm">
           <img src="/icon-192.png" alt="" className="h-12 w-12 rounded-xl" />
           <div className="min-w-0 flex-1">
             <div className="font-semibold">Install FarmHelper</div>
-            {pwa.canInstall
-              ? <p className="text-sm text-muted-foreground">Add it to your home screen for one-tap access and offline use in the field.</p>
-              : <p className="text-sm text-muted-foreground">Tap <Share className="inline h-4 w-4 align-text-bottom" /> Share, then <b>Add to Home Screen</b>, for one-tap access and offline use.</p>}
-            {pwa.canInstall && <Button size="sm" className="mt-2" onClick={async () => { if (await pwa.install()) toast.success("Installed"); }}><Download className="mr-1.5 h-4 w-4" />Install app</Button>}
+            {pwa.canInstall ? (
+              <>
+                <p className="text-sm text-muted-foreground">Add it to your home screen for one-tap access and offline use in the field.</p>
+                <Button size="sm" className="mt-2" onClick={async () => { if (await pwa.install()) toast.success("Installed"); }}><Download className="mr-1.5 h-4 w-4" />Install app</Button>
+              </>
+            ) : pwa.ios ? (
+              <p className="text-sm text-muted-foreground">Tap <Share className="inline h-4 w-4 align-text-bottom" /> Share, then <b>Add to Home Screen</b>, for one-tap access and offline use.</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Use your browser menu (⋮) → <b>Install app</b> / <b>Add to Home screen</b>. Not showing? <Link to="/install" className="font-medium text-primary underline">Check why</Link>.</p>
+            )}
           </div>
           <button aria-label="Dismiss" onClick={dismiss} className="p-1 text-muted-foreground"><X className="h-4 w-4" /></button>
         </div>

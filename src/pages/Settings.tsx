@@ -1,5 +1,6 @@
 import { Download, Plus, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Empty, PageHeader, Panel, nativeSelect } from "@/components/farm/kit";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -93,6 +94,7 @@ export default function Settings() {
           : pwa.canInstall ? <><p className="mb-3 text-sm text-muted-foreground">Install FarmHelper for one-tap access, full-screen use and offline recording in the field.</p><Button size="lg" onClick={() => pwa.install()}><Download className="mr-1.5 h-4 w-4" />Install app</Button></>
           : pwa.ios ? <p className="text-sm text-muted-foreground">On iPhone/iPad: open this site in <b>Safari</b>, tap the Share button, then <b>Add to Home Screen</b>.</p>
           : <p className="text-sm text-muted-foreground">{pwa.blocker}</p>}
+        {!pwa.installed && <Button asChild variant="outline" className="mt-3"><Link to="/install">Check install problems</Link></Button>}
       </Panel>
 
       {cloudEnabled ? (

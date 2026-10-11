@@ -196,3 +196,14 @@ describe("migration of data saved by early versions", () => {
     expect(getState().farms.some((f) => f.id === "demo-farm")).toBe(true);
   });
 });
+
+describe("preview environment detection", () => {
+  it("flags embedded frames and Lovable preview hosts only", async () => {
+    const { isPreviewEnvironment } = await import("./env");
+    expect(isPreviewEnvironment("id-preview--abc.lovable.app", false)).toBe(true);
+    expect(isPreviewEnvironment("abc.lovableproject.com", false)).toBe(true);
+    expect(isPreviewEnvironment("anything.com", true)).toBe(true);
+    expect(isPreviewEnvironment("farmhelper.lovable.app", false)).toBe(false);
+    expect(isPreviewEnvironment("farm.example.com", false)).toBe(false);
+  });
+});
