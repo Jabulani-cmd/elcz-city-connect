@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { registerSW } from "virtual:pwa-register";
+import { isPreviewEnvironment } from "./env";
 
 type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 
@@ -9,14 +10,29 @@ let updateSW: ((reload?: boolean) => Promise<void>) | null = null;
 let needRefresh = false;
 let offlineReady = false;
 
+export { isPreviewEnvironment };
+
+/** `caches` does not exist in insecure contexts or some embedded frames, so never reference it bare. */
+async function clearCaches() {
+  const store = (globalThis as { caches?: CacheStorage }).caches;
+  if (!store) return;
+  await Promise.all((await store.keys()).map((k) => store.delete(k)));
+}
+
 if (typeof window !== "undefined") {
   window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e as InstallEvent; subs.forEach((f) => f()); });
   window.addEventListener("appinstalled", () => { deferred = null; subs.forEach((f) => f()); });
-  updateSW = registerSW({
-    onNeedRefresh() { needRefresh = true; subs.forEach((f) => f()); },
-    onOfflineReady() { offlineReady = true; subs.forEach((f) => f()); },
-    onRegisterError() { /* offline caching is a bonus; the app still works online */ },
-  });
+  if (isPreviewEnvironment()) {
+    // remove anything an earlier build registered here so the preview always shows the latest code
+    void navigator.serviceWorker?.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))).catch(() => undefined);
+    void clearCaches();
+  } else {
+    updateSW = registerSW({
+      onNeedRefresh() { needRefresh = true; subs.forEach((f) => f()); },
+      onOfflineReady() { offlineReady = true; subs.forEach((f) => f()); },
+      onRegisterError() { /* offline caching is a bonus; the app still works online */ },
+    });
+  }
 }
 
 const isStandalone = () =>
@@ -30,7 +46,7 @@ export async function refreshApp() {
   try {
     const regs = (await navigator.serviceWorker?.getRegistrations()) ?? [];
     await Promise.all(regs.map((r) => r.unregister()));
-    await Promise.all((await caches.keys()).map((k) => caches.delete(k)));
+    await clearCaches();
   } finally {
     location.reload();
   }

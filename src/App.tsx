@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/farm/AppShell";
@@ -24,10 +24,13 @@ const Notifications = lazy(() => import("@/pages/Notifications"));
 const Documents = lazy(() => import("@/pages/Documents"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const Install = lazy(() => import("@/pages/Install"));
 
 /** With a Supabase project configured the app requires sign-in; without one it runs locally on the device. */
 function Gate({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
+  const { pathname } = useLocation();
+  if (pathname === "/install") return <Suspense fallback={<Splash />}><Install /></Suspense>; // reachable before sign-in
   if (!cloudEnabled) return <>{children}</>;
   if (auth.status === "loading") return <Splash />;
   if (auth.status === "recovery") return <ResetPassword />;
