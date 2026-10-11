@@ -1,4 +1,4 @@
-import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, MoreHorizontal, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, MoreHorizontal, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useS
 import { useOnline, useSyncStatus } from "@/lib/sync";
 import { cloudEnabled } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
+import { usePwa } from "@/lib/pwa";
 import type { Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { nativeSelect } from "./kit";
@@ -155,6 +156,7 @@ export function AppShell() {
   const online = useOnline();
   const navigate = useNavigate();
   const loc = useLocation();
+  const pwa = usePwa();
   const [params, setParams] = useSearchParams();
   const writable = user.role !== "Viewer";
   useEffect(() => { // “Quick record” app shortcut
@@ -201,6 +203,7 @@ export function AppShell() {
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <Brand />
           <NavList onNavigate={() => setOpen(false)} />
+          {pwa.canInstall && <div className="px-3 pb-2"><button onClick={() => { void pwa.install(); setOpen(false); }} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg bg-sidebar-primary px-3 text-sm font-semibold text-sidebar-primary-foreground"><Download className="h-5 w-5" />Install app</button></div>}
           <div className="px-5 pb-6 pt-2 text-xs text-sidebar-foreground/60">
             {user.name} · {cloudEnabled ? user.role : `role on this device: ${user.role}`}
             {cloudEnabled && <button className="mt-2 block text-sm font-medium text-sidebar-foreground underline" onClick={() => { void signOut(); }}>Sign out</button>}

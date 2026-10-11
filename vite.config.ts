@@ -17,38 +17,18 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "prompt",
-      includeAssets: ["icon.svg", "apple-touch-icon.png", "favicon-32.png"],
-      manifest: {
-        id: "/",
-        name: "FarmHelper – Farm Management",
-        short_name: "FarmHelper",
-        description: "One platform to manage the entire farm: crops, livestock, finance, staff and reports. Works offline.",
-        lang: "en",
-        start_url: "/?source=pwa",
-        scope: "/",
-        display: "standalone",
-        orientation: "portrait",
-        background_color: "#f3f6ef",
-        theme_color: "#14532d",
-        categories: ["business", "productivity", "lifestyle"],
-        icons: [
-          { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-          { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-          { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-        ],
-        shortcuts: [
-          { name: "Quick record", short_name: "Record", url: "/?quick=1", icons: [{ src: "/icon-192.png", sizes: "192x192" }] },
-          { name: "Herd", short_name: "Herd", url: "/livestock/herd", icons: [{ src: "/icon-192.png", sizes: "192x192" }] },
-          { name: "Tasks", short_name: "Tasks", url: "/tasks", icons: [{ src: "/icon-192.png", sizes: "192x192" }] },
-          { name: "Notifications", short_name: "Alerts", url: "/notifications", icons: [{ src: "/icon-192.png", sizes: "192x192" }] },
-        ],
-      },
+      // The manifest is a static file in /public (linked from index.html) so it is also served by the dev server and
+      // editor previews; the plugin only adds the offline service worker to production builds.
+      manifest: false,
+      registerType: "autoUpdate",
+      injectRegister: false,
       workbox: {
         // precache the whole app shell, including lazy route chunks and fonts, so every screen opens offline
         globPatterns: ["**/*.{js,css,html,svg,png,woff2,webmanifest}"],
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       devOptions: { enabled: false },
