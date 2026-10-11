@@ -5,7 +5,10 @@ import { VitePWA } from "vite-plugin-pwa";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
+const BUILD_ID = `${(process.env.GITHUB_SHA ?? process.env.COMMIT_REF ?? "").slice(0, 7) || "build"} · ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC`;
+
 export default defineConfig(({ mode }) => ({
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
   server: {
     host: "::",
     port: 8080,

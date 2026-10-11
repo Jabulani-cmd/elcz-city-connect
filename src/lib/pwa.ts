@@ -23,6 +23,19 @@ const isStandalone = () =>
   typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true);
 const isIos = () => typeof navigator !== "undefined" && /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
 
+export const BUILD_ID = typeof __BUILD_ID__ === "string" ? __BUILD_ID__ : "dev";
+
+/** Remove the offline cache and service worker, then reload to fetch the newest version. Saved farm data is not touched. */
+export async function refreshApp() {
+  try {
+    const regs = (await navigator.serviceWorker?.getRegistrations()) ?? [];
+    await Promise.all(regs.map((r) => r.unregister()));
+    await Promise.all((await caches.keys()).map((k) => caches.delete(k)));
+  } finally {
+    location.reload();
+  }
+}
+
 /** Why the browser can't offer “Install” right now, in plain words (empty when it can or already is installed). */
 export function installBlocker(canInstall: boolean): string {
   if (typeof window === "undefined" || isStandalone() || canInstall) return "";
