@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cloudEnabled } from "@/integrations/supabase/client";
 import { createFarm, loadDemo, setUser } from "@/lib/store";
 import { nativeSelect } from "./kit";
 
@@ -36,9 +37,9 @@ export function Onboarding() {
           </div>
           <Button type="submit" size="lg" className="h-12 w-full text-base">Create my farm</Button>
         </form>
-        <div className="mt-4 border-t pt-4 text-center">
+        {!cloudEnabled && <div className="mt-4 border-t pt-4 text-center">
           <button type="button" className="text-sm text-muted-foreground underline" onClick={loadDemo}>Just looking? Explore with sample data</button>
-        </div>
+        </div>}
         <p className="mt-3 text-center text-xs text-muted-foreground">You can add land, animals, crops and staff after this. More details can be edited any time in Settings.</p>
       </div>
     </div>

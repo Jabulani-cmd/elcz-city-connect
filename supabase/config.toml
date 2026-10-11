@@ -1,1 +1,5 @@
-project_id = "iakxbadawldjyshqlxzd"
+# Link your own project before deploying:  supabase link --project-ref <your-project-ref>
+# (the previous project reference belonged to the old church website and has been removed)
+
+[functions.farm-ai]
+verify_jwt = true

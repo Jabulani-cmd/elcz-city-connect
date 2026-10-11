@@ -42,13 +42,33 @@ Business rules live in `src/lib/rules.ts` (e.g. a purchase creates the animal an
 - Agriculture and Livestock are separate modules sharing finance, employees, inventory, reports, notifications and users.
 - `supabase/migrations` – relational schema (all the entities in the brief), role-based RLS, audit triggers.
 
-## Status — what is and isn't connected
+## Going to production (accounts, teams, cloud sync)
 
-Built and working in the browser: everything above, using on-device storage.
+Without configuration the app runs **local-only** (no sign-in, data stays on the device). With a Supabase project it becomes a multi-user app: email/password sign-in, per-user roles enforced by the database, and background sync between devices.
 
-Not connected yet (needs a backend you configure):
-- **Sign-in and per-user enforcement.** Roles are enforced in the UI and in the SQL policies, but the app has no login yet, so the role selector in Settings is a preview, not a security boundary.
-- **Cloud sync.** The outbox and `registerSyncAdapter` are in place; no adapter pushes to the Supabase schema yet.
-- **AI photo analysis.** Deploy `supabase/functions/farm-ai` (secrets `ANTHROPIC_API_KEY`, `AI_MODEL`) and set `VITE_AI_ENDPOINT` / `VITE_AI_KEY`. Until then the AI screens use a built-in offline symptom guide (text only, no photo analysis). All AI output is labelled as advice, not a diagnosis.
-- **Email / SMS sending** (preferences are saved) and IoT, satellite, marketplace and payment integrations from the roadmap.
-- **Encryption at rest and automatic backups** come from the hosted database; the app offers manual backup/restore.
+1. **Create a Supabase project** (supabase.com). In *Authentication → URL Configuration* set the Site URL to your published app URL (used by confirmation and password-reset emails).
+2. **Create the database.** Apply the migrations in `supabase/migrations` in order (`supabase link --project-ref <ref>` then `supabase db push`, or paste them into the SQL editor):
+   - `…_farm_core.sql` – profiles, farms, membership, roles, invitations, helper functions
+   - `…_farm_tables.sql` – 39 data tables **generated from `src/lib/schema.ts`** (`npx vite-node scripts/gen-schema.ts` regenerates it after you change fields), with row-level security
+   - `…_storage_audit.sql` – private `farm-files` bucket for receipts/documents and the audit trail
+3. **Point the app at it.** Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (Project Settings → API) in `.env`, or in Lovable via its Supabase integration. The publishable (anon) key is safe in the browser; row-level security is what protects the data.
+4. **Optional – AI photo analysis.** `supabase functions deploy farm-ai`, set secrets `ANTHROPIC_API_KEY` and `AI_MODEL`, and set `VITE_AI_ENDPOINT=https://<ref>.supabase.co/functions/v1/farm-ai`. Signed-in users' tokens are sent automatically.
+5. **Backups.** Turn on daily backups / point-in-time recovery in *Database → Backups*.
+
+How it behaves:
+- The first person to sign up and create a farm becomes its **Owner**. Owners invite others by email under *Settings → Team & access* and pick a role (Farm Manager, Veterinarian, Agronomist, Employee, Accountant, Viewer). The invited person creates an account with that email and the farm appears.
+- Permissions are checked by the database (`can_write` in `farm_core.sql`), not just hidden in the UI, and mirror `src/lib/permissions.ts`. Farms are isolated from each other.
+- Everything is saved on the device first and uploaded in the background (also after reconnecting). Edits made offline sync later; deletions are soft so other devices learn about them. If the server refuses a change (e.g. no permission) it is listed in *Settings → Data* instead of silently disappearing.
+- Sign-in survives going offline; the first load of a new device needs a connection.
+- Data previously saved on a device (before sign-in) can be uploaded to the account from a banner shown after sign-in. Sample data is never uploaded.
+
+## Status — what is and isn't done
+
+Done and tested: all modules above; sign-in, roles, team invitations, sync engine (unit-tested with a fake server), the SQL (tested on PostgreSQL 16: isolation between farms, per-role writes, invitations, last-owner protection, audit, and every field of the sample farm fits its table), and the browser client against a mock Supabase backend.
+
+Not verified against a live Supabase project (none was available while building) – do a quick pass after step 3 above: sign up, create a farm, add an animal, then sign in on a second device.
+
+Still to do:
+- Email/SMS sending (preferences are saved; push works while the app is open) and IoT, satellite, marketplace and payment integrations from the roadmap.
+- Realtime push updates (devices currently sync on change, on focus/reconnect and every minute).
+- Conflict handling is "last write wins" per record.
