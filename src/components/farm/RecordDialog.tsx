@@ -35,7 +35,7 @@ export function RecordDialog({ resource, open, row, defaults, onClose, onSaved, 
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] max-sm:bottom-0 max-sm:top-auto max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{title ?? (row ? `Edit ${res.singular}` : `Add ${res.singular}`)}</DialogTitle>
           <DialogDescription>{res.help ?? "Fields marked * are required."}</DialogDescription>

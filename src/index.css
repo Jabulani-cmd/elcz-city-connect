@@ -67,6 +67,23 @@
   * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
   }
+  html { -webkit-text-size-adjust: 100%; }
+  h1, h2, h3 { letter-spacing: -0.015em; }
+  /* iOS zooms into inputs below 16px; keep them readable on phones */
+  @media (max-width: 767px) { input, select, textarea { font-size: 16px !important; } }
+}
+
+@layer utilities {
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .mb-tabbar { margin-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+  .bg-hero { background: radial-gradient(120% 140% at 0% 0%, hsl(142 55% 30%) 0%, hsl(142 60% 18%) 55%, hsl(150 55% 12%) 100%); }
+  .glass { background: hsl(var(--background) / 0.82); backdrop-filter: saturate(160%) blur(14px); -webkit-backdrop-filter: saturate(160%) blur(14px); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
 }

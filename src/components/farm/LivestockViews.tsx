@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -161,7 +162,7 @@ export function MortalityAnalytics() {
   const data = groupSum(deaths, keyers[dim], () => 1).sort((a, b) => (dim === "Month" || dim === "Year" ? a.name.localeCompare(b.name) : b.value - a.value));
   return (
     <Panel title="Mortality analysis" className="mb-5" action={
-      <select aria-label="Group deaths by" className={`${nativeSelect} w-auto`} value={dim} onChange={(e) => setDim(e.target.value)}>
+      <select aria-label="Group deaths by" className={cn(nativeSelect, "w-auto")} value={dim} onChange={(e) => setDim(e.target.value)}>
         {Object.keys(keyers).map((k) => <option key={k} value={k}>By {k.toLowerCase()}</option>)}
       </select>}>
       <div className="grid gap-4 md:grid-cols-[1fr_14rem]">

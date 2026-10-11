@@ -25,14 +25,14 @@ export function QuickRecord({ open, onClose }: { open: boolean; onClose: () => v
   return (
     <>
       <Dialog open={open && !resource} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="pb-[max(1.5rem,env(safe-area-inset-bottom))] max-sm:bottom-0 max-sm:top-auto max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl sm:max-w-md">
           <DialogHeader>
             <DialogTitle>What did you do?</DialogTitle>
             <DialogDescription>Pick one — it takes under a minute.</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
             {actions.map((a) => (
-              <button key={a.resource} onClick={() => setResource(a.resource)} className="flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-xl border bg-card p-3 text-sm font-semibold transition-colors hover:bg-muted active:scale-[0.98]">
+              <button key={a.resource} onClick={() => setResource(a.resource)} className="flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-2xl border bg-card p-3 shadow-sm text-sm font-semibold transition-colors hover:bg-muted active:scale-[0.98]">
                 <a.icon className="h-7 w-7 text-primary" />{a.label}
               </button>
             ))}

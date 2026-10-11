@@ -11,6 +11,7 @@ import { aiConfigured } from "@/lib/ai";
 import { ACCESS, ROLE_DESCRIPTIONS } from "@/lib/permissions";
 import { clearDemoData, createFarm, getState, resetAll, setUser, updateFarm, useFarm, usePendingCount, useRows, useStore, useUser } from "@/lib/store";
 import { hasSyncAdapter } from "@/lib/sync";
+import { usePwa } from "@/lib/pwa";
 import { ROLES, type Farm, type Role, type Section } from "@/lib/types";
 
 const FARM_TYPES = ["Crops", "Livestock", "Mixed (crops & livestock)", "Ranch", "Dairy", "Poultry", "Other"];
@@ -48,6 +49,7 @@ export default function Settings() {
   const audit = useRows("audit");
   const demo = useStore((s) => s.demo);
   const [name, setName] = useState(user.name);
+  const pwa = usePwa();
 
   const backup = () => {
     const blob = new Blob([JSON.stringify(getState(), null, 2)], { type: "application/json" });
@@ -72,6 +74,13 @@ export default function Settings() {
     <div className="space-y-6">
       <PageHeader title="Settings" actions={<Button size="lg" onClick={() => { createFarm({ name: "New farm" }); toast.success("New farm created – fill in its details"); }}><Plus className="mr-1.5 h-4 w-4" />Add a farm</Button>} />
       {farm && <Panel title="Farm details"><FarmForm farm={farm} /></Panel>}
+
+      <Panel title="Install on your phone">
+        {pwa.installed ? <p className="text-sm text-muted-foreground">FarmHelper is installed on this device and works offline.</p>
+          : pwa.canInstall ? <><p className="mb-3 text-sm text-muted-foreground">Install FarmHelper for one-tap access, full-screen use and offline recording in the field.</p><Button size="lg" onClick={() => pwa.install()}><Download className="mr-1.5 h-4 w-4" />Install app</Button></>
+          : pwa.ios ? <p className="text-sm text-muted-foreground">On iPhone/iPad: tap the Share button in Safari, then <b>Add to Home Screen</b>.</p>
+          : <p className="text-sm text-muted-foreground">Open this site in Chrome, Edge or Safari on your phone and choose “Install app” / “Add to Home Screen” from the browser menu.</p>}
+      </Panel>
 
       <Panel title="Your role">
         <div className="grid gap-3 sm:grid-cols-2">

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Banknote, Percent, PiggyBank, TrendingDown, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -57,7 +58,7 @@ function Overview() {
         <Panel title="Expenses by category"><PieCard data={groupSum(exp, (r) => r.category, (r) => toNum(r.amount))} /></Panel>
       </div>
       <Panel title="Profitability" action={
-        <select aria-label="Group by" className={`${nativeSelect} w-auto`} value={dim} onChange={(e) => setDim(e.target.value as ProfitDimension)}>{PROFIT_DIMENSIONS.map((d) => <option key={d} value={d}>By {d.toLowerCase()}</option>)}</select>}>
+        <select aria-label="Group by" className={cn(nativeSelect, "w-auto")} value={dim} onChange={(e) => setDim(e.target.value as ProfitDimension)}>{PROFIT_DIMENSIONS.map((d) => <option key={d} value={d}>By {d.toLowerCase()}</option>)}</select>}>
         <p className="mb-3 text-xs text-muted-foreground">Records without a {dim.toLowerCase()} tag appear as “Unassigned”. Tag income and expenses when you enter them to see profit per crop, field, animal, herd, pasture or feedlot.</p>
         <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="py-2">{dim}</th><th className="text-right">Income</th><th className="text-right">Expenses</th><th className="text-right">Profit</th></tr></thead>
           <tbody className="divide-y">{table.map((r) => <tr key={r.name}><td className="py-2">{r.name}</td><td className="text-right tabular-nums">{fmtMoney(r.income)}</td><td className="text-right tabular-nums">{fmtMoney(r.expenses)}</td><td className={`text-right font-semibold tabular-nums ${r.profit < 0 ? "text-danger" : "text-success"}`}>{fmtMoney(r.profit)}</td></tr>)}</tbody></table></div>

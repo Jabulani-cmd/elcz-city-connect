@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Download, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -82,7 +83,7 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
           <Input aria-label={`Search ${res.title}`} className="h-11 pl-9 md:h-10" placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {res.filter && (
-          <select aria-label={res.filter.label} className={`${nativeSelect} w-auto`} value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <select aria-label={res.filter.label} className={cn(nativeSelect, "w-auto")} value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="">All {res.filter.label.toLowerCase()}</option>
             {filterOptions.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>

@@ -1,6 +1,6 @@
-import { Bell, BarChart3, Boxes, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Menu, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, type LucideIcon } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, MoreHorizontal, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { computeAlerts } from "@/lib/alerts";
@@ -10,6 +10,7 @@ import { useOnline } from "@/lib/sync";
 import type { Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { nativeSelect } from "./kit";
+import { PwaBanner } from "./PwaBanner";
 import { QuickRecord } from "./QuickRecord";
 
 export const NAV: { to: string; label: string; section: Section; icon: LucideIcon }[] = [
@@ -77,14 +78,58 @@ function FarmSwitcher() {
   const farm = useFarm();
   const navigate = useNavigate();
   return (
-    <select aria-label="Switch farm" className={cn(nativeSelect, "h-10 max-w-[11rem] sm:max-w-xs")} value={farm?.id ?? ""}
-      onChange={(e) => {
-        if (e.target.value === "__new") { createFarm({ name: "New farm" }); navigate("/settings"); }
-        else setActiveFarm(e.target.value);
-      }}>
-      {farms.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-      <option value="__new">+ Add a farm…</option>
-    </select>
+    <label className="relative flex min-w-0 items-center">
+      <span className="sr-only">Switch farm</span>
+      <select className="h-10 max-w-[13rem] cursor-pointer appearance-none truncate rounded-full border bg-card pl-3.5 pr-8 text-sm font-semibold shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-xs" value={farm?.id ?? ""}
+        onChange={(e) => {
+          if (e.target.value === "__new") { createFarm({ name: "New farm" }); navigate("/settings"); }
+          else setActiveFarm(e.target.value);
+        }}>
+        {farms.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+        <option value="__new">+ Add a farm…</option>
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-muted-foreground" />
+    </label>
+  );
+}
+
+const TABS = [
+  { to: "/", label: "Home", icon: LayoutDashboard, section: "dashboard" as Section, end: true },
+  { to: "/livestock", label: "Livestock", icon: PawPrint, section: "livestock" as Section },
+  { to: "/agriculture", label: "Crops", icon: Sprout, section: "agriculture" as Section },
+  { to: "/tasks", label: "Tasks", icon: ListChecks, section: "tasks" as Section },
+];
+
+function TabBar({ onMore, onQuick, canRecord }: { onMore: () => void; onQuick: () => void; canRecord: boolean }) {
+  const role = useUser().role;
+  const alerts = useAlertCount();
+  const tabs = TABS.filter((t) => canRead(role, t.section));
+  const left = tabs.slice(0, 2);
+  const right = tabs.slice(2, 4);
+  const item = (t: (typeof TABS)[number]) => (
+    <NavLink key={t.to} to={t.to} end={t.end} className={({ isActive }) => cn("relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition-colors", isActive ? "text-primary" : "text-muted-foreground")}>
+      {({ isActive }) => (<>
+        <span className={cn("flex h-7 w-14 items-center justify-center rounded-full transition-colors", isActive && "bg-primary/10")}><t.icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.4 : 2} /></span>
+        {t.label}
+      </>)}
+    </NavLink>
+  );
+  return (
+    <nav aria-label="Primary" className="glass fixed inset-x-0 bottom-0 z-40 border-t pb-safe md:hidden">
+      <div className="mx-auto flex max-w-lg items-end px-1">
+        {left.map(item)}
+        {canRecord ? (
+          <div className="flex flex-1 justify-center">
+            <button onClick={onQuick} aria-label="Quick record" className="-mt-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95"><Plus className="h-7 w-7" /></button>
+          </div>
+        ) : <NavLink to="/notifications" className="flex flex-1 flex-col items-center py-2 text-[11px] text-muted-foreground"><span className="flex h-7 w-14 items-center justify-center"><Bell className="h-[22px] w-[22px]" /></span>Alerts</NavLink>}
+        {right.map(item)}
+        <button onClick={onMore} className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium text-muted-foreground">
+          <span className="relative flex h-7 w-14 items-center justify-center"><MoreHorizontal className="h-[22px] w-[22px]" />{alerts > 0 && <span className="absolute right-3 top-0 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-background" />}</span>
+          More
+        </button>
+      </div>
+    </nav>
   );
 }
 
@@ -93,9 +138,14 @@ export function AppShell() {
   const [quick, setQuick] = useState(false);
   const user = useUser();
   const alerts = useAlertCount();
+  const online = useOnline();
   const navigate = useNavigate();
   const loc = useLocation();
+  const [params, setParams] = useSearchParams();
   const writable = user.role !== "Viewer";
+  useEffect(() => { // “Quick record” app shortcut
+    if (params.get("quick") === "1") { setQuick(writable); params.delete("quick"); setParams(params, { replace: true }); }
+  }, [params, setParams, writable]);
   return (
     <div className="min-h-screen md:grid md:grid-cols-[17rem_1fr]">
       <aside className="sticky top-0 hidden h-screen overflow-y-auto bg-sidebar md:block">
@@ -103,32 +153,38 @@ export function AppShell() {
         <NavList />
       </aside>
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-2 border-b bg-background/95 px-3 py-2 backdrop-blur sm:px-5">
-          <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu" onClick={() => setOpen(true)}><Menu className="h-6 w-6" /></Button>
-          <FarmSwitcher />
-          <div className="ml-auto flex items-center gap-2">
-            <SyncBadge />
-            <span className="hidden rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary lg:inline">{user.role}</span>
-            <Button variant="ghost" size="icon" className="relative" aria-label={`Notifications (${alerts})`} onClick={() => navigate("/notifications")}>
-              <Bell className="h-5 w-5" />
-              {alerts > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold text-white">{alerts}</span>}
-            </Button>
+        <header className="glass sticky top-0 z-30 border-b pt-safe">
+          <div className="flex items-center gap-2 px-3 py-2 sm:px-5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground md:hidden"><Sprout className="h-5 w-5" /></div>
+            <FarmSwitcher />
+            <div className="ml-auto flex items-center gap-2">
+              <SyncBadge />
+              <span className="hidden rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary lg:inline">{user.role}</span>
+              <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full" aria-label={`Notifications (${alerts})`} onClick={() => navigate("/notifications")}>
+                <Bell className="h-5 w-5" />
+                {alerts > 0 && <span className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold text-white ring-2 ring-background">{alerts}</span>}
+              </Button>
+            </div>
           </div>
+          {!online && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 py-1.5 text-xs font-medium"><WifiOff className="h-3.5 w-3.5" />Offline – everything you record is saved on this device</div>}
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-28 sm:p-6 md:pb-8" key={loc.pathname.split("/")[1]}>
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={loc.pathname.split("/")[1]}>
+          <PwaBanner />
           <Outlet />
         </main>
       </div>
+      <TabBar onMore={() => setOpen(true)} onQuick={() => setQuick(true)} canRecord={writable} />
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-72 overflow-y-auto border-sidebar-border bg-sidebar p-0 text-sidebar-foreground [&>button]:text-sidebar-foreground">
+        <SheetContent side="left" className="w-[85vw] max-w-xs overflow-y-auto border-sidebar-border bg-sidebar p-0 pt-safe text-sidebar-foreground [&>button]:text-sidebar-foreground">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <Brand />
           <NavList onNavigate={() => setOpen(false)} />
+          <div className="px-5 pb-6 pt-2 text-xs text-sidebar-foreground/60">{user.name} · role on this device: {user.role}</div>
         </SheetContent>
       </Sheet>
       {writable && (
         <>
-          <Button size="lg" className="fixed bottom-5 right-5 z-40 h-14 rounded-full px-5 text-base shadow-lg" onClick={() => setQuick(true)} aria-label="Quick record">
+          <Button size="lg" className="fixed bottom-6 right-6 z-40 hidden h-14 rounded-full px-5 text-base shadow-lg md:inline-flex" onClick={() => setQuick(true)} aria-label="Quick record">
             <Plus className="mr-1.5 h-5 w-5" />Quick record
           </Button>
           <QuickRecord open={quick} onClose={() => setQuick(false)} />

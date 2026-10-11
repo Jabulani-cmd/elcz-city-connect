@@ -2,13 +2,15 @@ import { AlertTriangle, Baby, Banknote, Beef, Droplets, HeartPulse, Leaf, Map, S
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { BarCard, LineCard, PieCard } from "@/components/farm/charts";
-import { Empty, nativeSelect, PageHeader, Panel, StatCard } from "@/components/farm/kit";
+import { Empty, nativeSelect, Panel, StatCard } from "@/components/farm/kit";
+import { RecordDialog } from "@/components/farm/RecordDialog";
 import { Progress } from "@/components/ui/progress";
 import { groupSum, herdSeries, inRange, latestWeights } from "@/lib/analytics";
 import { addDays, fmtMoney, fmtNum, herdCounts, lastMonths, round, sum, toNum, todayISO } from "@/lib/calc";
 import { farmKpis } from "@/lib/finance";
 import { cropCost, cropRevenue, labelOf } from "@/lib/schema";
-import { useFarm, useRows } from "@/lib/store";
+import { useFarm, useRows, useUser } from "@/lib/store";
+import { canWrite } from "@/lib/permissions";
 import type { Row } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SEV_STYLE, SEV_TEXT, useAlerts } from "@/components/farm/alertUi";
@@ -36,6 +38,9 @@ export default function Dashboard() {
   const pastures = useRows("pastures");
   const alerts = useAlerts();
   const [range, setRange] = useState<keyof typeof RANGES>("all");
+  const user = useUser();
+  const tasksAll = useRows("tasks");
+  const [recording, setRecording] = useState<string | null>(null);
 
   const today = todayISO();
   const period = range === "year" ? { from: `${today.slice(0, 4)}-01-01` } : range === "d30" ? { from: addDays(today, -30) } : {};
@@ -65,11 +70,32 @@ export default function Dashboard() {
   const cashFlow = sum(inc.filter((r) => r.paymentStatus !== "Outstanding"), "amount") - sum(exp.filter((r) => r.paymentStatus !== "Outstanding"), "amount");
   const cropRev = crops.reduce((s, c) => s + cropRevenue(c), 0);
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   if (!farm) return <Empty>No farm yet. Add one in Settings.</Empty>;
   return (
     <div className="space-y-6">
-      <PageHeader title={farm.name} description={[farm.location, farm.farmType].filter(Boolean).join(" · ")} actions={
-        <select aria-label="Period" className={`${nativeSelect} w-auto`} value={range} onChange={(e) => setRange(e.target.value as keyof typeof RANGES)}>{Object.entries(RANGES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>} />
+      <section aria-label="Summary" className="bg-hero relative -mx-4 -mt-4 overflow-hidden rounded-b-3xl px-5 pb-6 pt-6 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:p-7">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+        <p className="text-sm text-white/75">{greeting}{user.name && user.name !== "Farm Owner" ? `, ${user.name.split(" ")[0]}` : ""}</p>
+        <h1 className="mt-0.5 text-2xl font-bold sm:text-3xl">{farm.name}</h1>
+        <p className="text-sm text-white/70">{[farm.location, farm.farmType].filter(Boolean).join(" · ")}</p>
+        <div className="mt-5 grid grid-cols-3 gap-2 sm:max-w-xl">
+          {[["Animals", herd.total, "/livestock/herd"], ["Alerts", alerts.filter((a) => a.severity !== "info").length, "/notifications"], ["Tasks today", tasksAll.filter((t) => t.status !== "Done" && t.dueDate <= today).length, "/tasks"]].map(([l, v, to]) => (
+            <Link key={String(l)} to={String(to)} className="rounded-2xl bg-white/10 p-3 backdrop-blur transition-colors active:bg-white/20"><div className="text-2xl font-bold tabular-nums">{v}</div><div className="text-xs text-white/75">{l}</div></Link>
+          ))}
+        </div>
+        {canWrite(user.role, "livestock") && (
+          <div className="scrollbar-none -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+            {[["weights", "Weigh"], ["health", "Treat"], ["vaccinations", "Vaccinate"], ["feedUsage", "Feed used"], ["expenses", "Expense"]].map(([r, l]) => (
+              <button key={r} onClick={() => setRecording(r)} className="shrink-0 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[hsl(142_60%_18%)] shadow-sm transition-transform active:scale-95">+ {l}</button>
+            ))}
+          </div>
+        )}
+      </section>
+      <div className="flex justify-end">
+        <select aria-label="Period" className={cn(nativeSelect, "w-auto")} value={range} onChange={(e) => setRange(e.target.value as keyof typeof RANGES)}>{Object.entries(RANGES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+      </div>
 
       <section aria-label="Alerts">
         <div className="mb-2 flex items-center justify-between"><h2 className="text-lg font-semibold">Needs your attention</h2><Link to="/notifications" className="text-sm text-primary underline">See all ({alerts.length})</Link></div>
@@ -158,6 +184,7 @@ export default function Dashboard() {
           </Panel>
         </div>
       </section>
+      {recording && <RecordDialog resource={recording} open onClose={() => setRecording(null)} />}
     </div>
   );
 }

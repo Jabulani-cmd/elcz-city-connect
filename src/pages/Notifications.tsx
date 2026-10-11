@@ -38,8 +38,8 @@ export default function Notifications() {
       <PageHeader title="Notifications" description="Everything that needs your attention, worked out automatically from your records."
         actions={<Button variant="outline" onClick={() => unread.forEach((a) => upsert("prefs", { type: "read", alertId: a.id }))} disabled={!unread.length}><CheckCheck className="mr-1.5 h-4 w-4" />Mark all read</Button>} />
       <div className="mb-3 flex flex-wrap gap-2">
-        <select aria-label="Type" className={`${nativeSelect} w-auto`} value={kind} onChange={(e) => setKind(e.target.value)}><option value="">All types</option>{NOTIFICATION_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
-        <select aria-label="Urgency" className={`${nativeSelect} w-auto`} value={sev} onChange={(e) => setSev(e.target.value)}><option value="">All urgency</option><option value="danger">Urgent</option><option value="warning">Soon</option><option value="info">Upcoming</option></select>
+        <select aria-label="Type" className={cn(nativeSelect, "w-auto")} value={kind} onChange={(e) => setKind(e.target.value)}><option value="">All types</option>{NOTIFICATION_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
+        <select aria-label="Urgency" className={cn(nativeSelect, "w-auto")} value={sev} onChange={(e) => setSev(e.target.value)}><option value="">All urgency</option><option value="danger">Urgent</option><option value="warning">Soon</option><option value="info">Upcoming</option></select>
       </div>
       {list.length === 0 ? <Empty><Bell className="mx-auto mb-2 h-6 w-6" />You’re all caught up.</Empty> : (
         <ul className="space-y-2">

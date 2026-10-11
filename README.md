@@ -13,6 +13,10 @@ npm run build
 
 On first launch a demo farm ("Green Valley Farm") is loaded so every screen has data. Remove it under **Settings → Data**.
 
+## Installable app (PWA)
+
+FarmHelper is a Progressive Web App: install it from the browser (Android/desktop "Install app", iOS Safari Share → Add to Home Screen) and it opens full-screen like a native app. A service worker precaches the whole app so every screen opens with no signal; changes are saved on the device. Includes app shortcuts (Quick record, Herd, Tasks, Alerts), an install prompt, and an "Update available" bar when a new version is deployed. Needs HTTPS in production (localhost works for testing).
+
 ## What's in it
 
 | Area | Highlights |

@@ -11,7 +11,7 @@ export function ModulePage({ title, description, base, items, current }: { title
   const groups = [...new Set(items.map((i) => i.group ?? ""))];
   const pill = (i: ModuleItem) => (
     <Link key={i.id} to={`${base}/${i.id}`} aria-current={i.id === active.id ? "page" : undefined}
-      className={cn("shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors lg:flex lg:rounded-lg lg:border-0 lg:px-3 lg:py-2", i.id === active.id ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted lg:bg-transparent")}>
+      className={cn("shrink-0 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm font-medium shadow-sm lg:shadow-none transition-colors lg:flex lg:rounded-lg lg:border-0 lg:px-3 lg:py-2", i.id === active.id ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted lg:bg-transparent")}>
       {i.label}
     </Link>
   );
@@ -19,7 +19,7 @@ export function ModulePage({ title, description, base, items, current }: { title
     <div>
       <PageHeader title={title} description={description} />
       <div className="lg:grid lg:grid-cols-[13rem_1fr] lg:gap-6">
-        <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-2 lg:hidden" role="navigation" aria-label={`${title} sections`}>{items.map(pill)}</div>
+        <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none lg:hidden" role="navigation" aria-label={`${title} sections`}>{items.map(pill)}</div>
         <nav className="sticky top-20 hidden self-start lg:block" aria-label={`${title} sections`}>
           {groups.map((g) => (
             <div key={g} className="mb-3">
