@@ -111,14 +111,14 @@ export default function Settings() {
           <Button variant="outline" asChild><label className="cursor-pointer"><Upload className="mr-1.5 h-4 w-4" />Restore backup<input type="file" accept="application/json" className="sr-only" onChange={(e) => restore(e.target.files?.[0])} /></label></Button>
           {demo && (
             <AlertDialog>
-              <AlertDialogTrigger asChild><Button variant="outline">Remove demo farm</Button></AlertDialogTrigger>
-              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Remove the demo farm?</AlertDialogTitle><AlertDialogDescription>The sample farm and all its records are deleted. Farms you created are kept.{getState().farms.length <= 1 ? " You will then need to add your own farm." : ""}</AlertDialogDescription></AlertDialogHeader>
-                <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => { clearDemoData(); if (!getState().farms.length) createFarm({ name: "My farm" }); toast.success("Demo data removed"); }}>Remove</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+              <AlertDialogTrigger asChild><Button variant="outline">Remove sample farm</Button></AlertDialogTrigger>
+              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Remove the sample farm?</AlertDialogTitle><AlertDialogDescription>The sample farm and all its records are deleted. Farms you created are kept.</AlertDialogDescription></AlertDialogHeader>
+                <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => { clearDemoData(); toast.success("Sample farm removed"); }}>Remove</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
             </AlertDialog>
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild><Button variant="outline" className="text-danger">Erase everything</Button></AlertDialogTrigger>
-            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Erase all data on this device?</AlertDialogTitle><AlertDialogDescription>Every farm and record on this device is deleted and the demo farm is restored. Download a backup first if you might need it.</AlertDialogDescription></AlertDialogHeader>
+            <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Erase all data on this device?</AlertDialogTitle><AlertDialogDescription>Every farm and record on this device is deleted and you start again from the setup screen. Download a backup first if you might need it.</AlertDialogDescription></AlertDialogHeader>
               <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className="bg-danger hover:bg-danger/90" onClick={() => { resetAll(); toast.success("Reset"); }}>Erase</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
           </AlertDialog>
         </div>

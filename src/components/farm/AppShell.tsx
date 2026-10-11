@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { computeAlerts } from "@/lib/alerts";
 import { canRead } from "@/lib/permissions";
-import { createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
+import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
 import { useOnline } from "@/lib/sync";
 import type { Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { nativeSelect } from "./kit";
+import { Onboarding } from "./Onboarding";
 import { PwaBanner } from "./PwaBanner";
 import { QuickRecord } from "./QuickRecord";
 
@@ -134,6 +135,8 @@ function TabBar({ onMore, onQuick, canRecord }: { onMore: () => void; onQuick: (
 }
 
 export function AppShell() {
+  const farmCount = useFarms().length;
+  const isDemo = useFarm()?.id === "demo-farm";
   const [open, setOpen] = useState(false);
   const [quick, setQuick] = useState(false);
   const user = useUser();
@@ -146,6 +149,7 @@ export function AppShell() {
   useEffect(() => { // “Quick record” app shortcut
     if (params.get("quick") === "1") { setQuick(writable); params.delete("quick"); setParams(params, { replace: true }); }
   }, [params, setParams, writable]);
+  if (farmCount === 0) return <Onboarding />;
   return (
     <div className="min-h-screen md:grid md:grid-cols-[17rem_1fr]">
       <aside className="sticky top-0 hidden h-screen overflow-y-auto bg-sidebar md:block">
@@ -169,6 +173,12 @@ export function AppShell() {
           {!online && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 py-1.5 text-xs font-medium"><WifiOff className="h-3.5 w-3.5" />Offline – everything you record is saved on this device</div>}
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={loc.pathname.split("/")[1]}>
+          {isDemo && (
+            <div role="note" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
+              <span><b>Sample data.</b> You’re looking at a demo farm, not your own records.</span>
+              <Button size="sm" onClick={() => { clearDemoData(); }}>Remove &amp; start my farm</Button>
+            </div>
+          )}
           <PwaBanner />
           <Outlet />
         </main>

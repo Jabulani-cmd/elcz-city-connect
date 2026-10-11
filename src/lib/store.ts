@@ -28,7 +28,7 @@ function load(): State {
   } catch {
     /* storage unavailable or corrupt – fall through to a fresh state */
   }
-  return seedDemo(emptyState());
+  return emptyState();
 }
 
 let state: State = load();
@@ -144,8 +144,18 @@ export function clearDemoData() {
   set({ ...state, farms, data, demo: false, outbox: [], activeFarmId: farms[0]?.id ?? "" });
 }
 
+/** Erase everything on this device; the app returns to first-run setup. */
 export function resetAll() {
-  set(seedDemo(emptyState()));
+  set(emptyState());
+}
+
+/** Optional sample farm for trying the app out. Never loaded automatically. */
+export function loadDemo() {
+  if (state.farms.some((f) => f.id === "demo-farm")) return set({ ...state, activeFarmId: "demo-farm" });
+  const demo = seedDemo(emptyState());
+  const data: State["data"] = { ...state.data };
+  for (const [k, rows] of Object.entries(demo.data)) data[k] = [...(data[k] ?? []), ...rows];
+  set({ ...state, farms: [...state.farms, ...demo.farms], data, activeFarmId: "demo-farm", demo: true });
 }
 
 export function markSynced(ids: string[]) {
