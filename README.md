@@ -15,7 +15,16 @@ On first launch a demo farm ("Green Valley Farm") is loaded so every screen has 
 
 ## Installable app (PWA)
 
-FarmHelper is a Progressive Web App: install it from the browser (Android/desktop "Install app", iOS Safari Share → Add to Home Screen) and it opens full-screen like a native app. A service worker precaches the whole app so every screen opens with no signal; changes are saved on the device. Includes app shortcuts (Quick record, Herd, Tasks, Alerts), an install prompt, and an "Update available" bar when a new version is deployed. Needs HTTPS in production (localhost works for testing).
+FarmHelper is a Progressive Web App: it installs to the home screen, opens full-screen like a native app and works offline.
+
+**To install, open the app's own published `https://` address** (not an editor/preview frame and not a private/incognito window):
+- **Android / Chrome, Edge:** tap the *Install app* card (or *More → Install app*, or the browser menu → *Install app*).
+- **iPhone / iPad:** open in **Safari** → Share → *Add to Home Screen*.
+- **Desktop:** install icon in the address bar.
+
+Settings → *Install on your phone* tells you exactly why installing isn't offered (for example "inside another page" or "not https").
+
+How it works: `public/manifest.webmanifest` (static, so it is also served by dev servers/previews) + a service worker generated at build time (`vite-plugin-pwa`) that precaches the whole app, so every screen opens with no signal; changes are saved on the device and sync later. It updates itself silently when a new version is deployed. App shortcuts: Quick record, Herd, Tasks, Alerts. The service worker only exists in production builds, so offline behaviour must be tested with `npm run build && npm run preview`.
 
 ## What's in it
 
