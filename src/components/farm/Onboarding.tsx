@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { cloudEnabled } from "@/lib/supabaseClient";
+import { useAuth } from "@/lib/auth";
 import { createFarm, loadDemo, setUser } from "@/lib/store";
 import { nativeSelect } from "./kit";
 
@@ -12,7 +13,8 @@ const TYPES = ["Crops", "Livestock", "Mixed (crops & livestock)", "Ranch", "Dair
 
 /** First-run setup: create the real farm. Sample data is a separate, optional choice. */
 export function Onboarding() {
-  const [f, setF] = useState({ owner: "", name: "", location: "", farmType: "Mixed (crops & livestock)", sizeHa: "" });
+  const auth = useAuth();
+  const [f, setF] = useState({ owner: auth.name ?? "", name: "", location: "", farmType: "Mixed (crops & livestock)", sizeHa: "" });
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: e.target.value }));
   const submit = () => {
     if (!f.name.trim()) return toast.error("Please enter your farm’s name");

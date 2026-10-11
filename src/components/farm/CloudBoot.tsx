@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { getFile } from "@/lib/files";
 import { useAuth } from "@/lib/auth";
 import { supabaseRemote } from "@/lib/remote";

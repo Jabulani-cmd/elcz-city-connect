@@ -1,4 +1,4 @@
-import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, MoreHorizontal, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, LogOut, MoreHorizontal, UserRound, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { computeAlerts } from "@/lib/alerts";
 import { canRead } from "@/lib/permissions";
 import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
 import { useOnline, useSyncStatus } from "@/lib/sync";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { cloudEnabled } from "@/lib/supabaseClient";
 import { signOut } from "@/lib/auth";
 import { usePwa } from "@/lib/pwa";
 import type { Section } from "@/lib/types";
@@ -16,6 +16,7 @@ import { nativeSelect } from "./kit";
 import { Onboarding } from "./Onboarding";
 import { PwaBanner } from "./PwaBanner";
 import { AdoptLocalBanner } from "./AdoptLocalBanner";
+import { AccountMenu } from "./AccountMenu";
 import { QuickRecord } from "./QuickRecord";
 
 export const NAV: { to: string; label: string; section: Section; icon: LucideIcon }[] = [
@@ -168,6 +169,10 @@ export function AppShell() {
       <aside className="sticky top-0 hidden h-screen overflow-y-auto bg-sidebar md:block">
         <Brand />
         <NavList />
+        <div className="border-t border-sidebar-border p-3">
+          <NavLink to="/account" className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><UserRound className="h-5 w-5" />My account</NavLink>
+          <button onClick={() => { void signOut(); }} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><LogOut className="h-5 w-5" />Sign out</button>
+        </div>
       </aside>
       <div className="flex min-w-0 flex-col">
         <header className="glass sticky top-0 z-30 border-b pt-safe">
@@ -181,6 +186,7 @@ export function AppShell() {
                 <Bell className="h-5 w-5" />
                 {alerts > 0 && <span className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold text-white ring-2 ring-background">{alerts}</span>}
               </Button>
+              <AccountMenu />
             </div>
           </div>
           {!online && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 py-1.5 text-xs font-medium"><WifiOff className="h-3.5 w-3.5" />Offline – everything you record is saved on this device</div>}
@@ -205,8 +211,9 @@ export function AppShell() {
           <NavList onNavigate={() => setOpen(false)} />
           {pwa.canInstall && <div className="px-3 pb-2"><button onClick={() => { void pwa.install(); setOpen(false); }} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg bg-sidebar-primary px-3 text-sm font-semibold text-sidebar-primary-foreground"><Download className="h-5 w-5" />Install app</button></div>}
           <div className="px-5 pb-6 pt-2 text-xs text-sidebar-foreground/60">
-            {user.name} · {cloudEnabled ? user.role : `role on this device: ${user.role}`}
-            {cloudEnabled && <button className="mt-2 block text-sm font-medium text-sidebar-foreground underline" onClick={() => { void signOut(); }}>Sign out</button>}
+            {user.name} · {user.role}
+            <NavLink to="/account" onClick={() => setOpen(false)} className="mt-3 flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"><UserRound className="h-5 w-5" />My account &amp; password</NavLink>
+            <button className="mt-1 flex min-h-[44px] w-full items-center gap-3 rounded-lg bg-sidebar-accent px-3 text-sm font-semibold text-sidebar-accent-foreground" onClick={() => { void signOut(); }}><LogOut className="h-5 w-5" />Sign out</button>
           </div>
         </SheetContent>
       </Sheet>

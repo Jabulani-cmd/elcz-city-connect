@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { aiConfigured } from "@/lib/ai";
 import { TeamPanel } from "@/components/farm/TeamPanel";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { PeoplePanel } from "@/components/farm/PeoplePanel";
+import { cloudEnabled } from "@/lib/supabaseClient";
 import { signOut, useAuth } from "@/lib/auth";
 import { ACCESS, ROLE_DESCRIPTIONS } from "@/lib/permissions";
 import { clearDemoData, clearFailed, createFarm, getState, resetAll, retryFailed, setUser, updateFarm, useFarm, usePendingCount, useRows, useStore, useUser } from "@/lib/store";
@@ -80,7 +81,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" actions={<Button size="lg" onClick={() => { createFarm({ name: "New farm" }); toast.success("New farm created – fill in its details"); }}><Plus className="mr-1.5 h-4 w-4" />Add a farm</Button>} />
+      <PageHeader title="Settings" actions={<><Button asChild variant="outline" size="lg"><Link to="/account">My account &amp; password</Link></Button><Button size="lg" onClick={() => { createFarm({ name: "New farm" }); toast.success("New farm created – fill in its details"); }}><Plus className="mr-1.5 h-4 w-4" />Add a farm</Button></>} />
       {farm && <Panel title="Farm details">{cloudEnabled && user.role !== "Owner" && user.role !== "Farm Manager" ? <p className="text-sm text-muted-foreground">Only the owner or farm manager can edit farm details.</p> : <FarmForm farm={farm} />}</Panel>}
 
       <Panel title="App version">
@@ -97,29 +98,7 @@ export default function Settings() {
         {!pwa.installed && <Button asChild variant="outline" className="mt-3"><Link to="/install">Check install problems</Link></Button>}
       </Panel>
 
-      {cloudEnabled ? (
-        <>
-          <Panel title="Your account">
-            <dl className="grid gap-2 text-sm sm:grid-cols-3">
-              <div><dt className="text-xs text-muted-foreground">Name</dt><dd>{auth.name}</dd></div>
-              <div><dt className="text-xs text-muted-foreground">Email</dt><dd className="truncate">{auth.email}</dd></div>
-              <div><dt className="text-xs text-muted-foreground">Your role on this farm</dt><dd>{user.role} <span className="text-xs text-muted-foreground">– {ROLE_DESCRIPTIONS[user.role]}</span></dd></div>
-            </dl>
-            <Button variant="outline" className="mt-4" onClick={() => { if (pending === 0 || confirm(`${pending} change${pending === 1 ? " is" : "s are"} not uploaded yet. They stay on this device and upload next time you sign in. Sign out now?`)) void signOut(); }}>Sign out</Button>
-          </Panel>
-          <TeamPanel />
-        </>
-      ) : (
-      <Panel title="Your role">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div><Label className="mb-1.5 block text-sm">Your name</Label><Input className="h-11 md:h-10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setUser({ name: name.trim() || user.name })} /></div>
-          <div><Label className="mb-1.5 block text-sm">Role on this device</Label>
-            <select className={nativeSelect} value={user.role} onChange={(e) => setUser({ role: e.target.value as Role })}>{ROLES.map((r) => <option key={r}>{r}</option>)}</select>
-            <p className="mt-1 text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[user.role]}</p></div>
-        </div>
-        <p className="mt-3 rounded-lg bg-warning/10 p-3 text-xs">Switching roles here lets you preview what each person will see. Real sign-in and per-user enforcement happen on the server (see <code>supabase/migrations</code>) – this on-device role is not a security boundary.</p>
-      </Panel>
-      )}
+      {cloudEnabled ? <TeamPanel /> : user.role === "Owner" && <PeoplePanel />}
 
       <Panel title="What each role can do">
         <div className="overflow-x-auto"><table className="w-full text-sm">

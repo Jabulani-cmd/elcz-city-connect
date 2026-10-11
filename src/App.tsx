@@ -6,8 +6,9 @@ import { AppShell } from "@/components/farm/AppShell";
 import { Guard } from "@/components/farm/Guard";
 import { AuthScreen, ResetPassword, Splash } from "@/components/farm/AuthScreen";
 import { CloudBoot } from "@/components/farm/CloudBoot";
-import { cloudEnabled } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { LocalBoot } from "@/components/farm/LocalBoot";
+import { LocalLogin, LocalSetup } from "@/components/farm/LocalAuthScreens";
+import { authMode, useAuth } from "@/lib/auth";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Agriculture = lazy(() => import("@/pages/Agriculture"));
@@ -24,18 +25,19 @@ const Notifications = lazy(() => import("@/pages/Notifications"));
 const Documents = lazy(() => import("@/pages/Documents"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const Account = lazy(() => import("@/pages/Account"));
 const Install = lazy(() => import("@/pages/Install"));
 
-/** With a Supabase project configured the app requires sign-in; without one it runs locally on the device. */
+/** The app always opens at a sign-in page. With a Supabase project: cloud accounts. Without: accounts stored on this device. */
 function Gate({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
   const { pathname } = useLocation();
   if (pathname === "/install") return <Suspense fallback={<Splash />}><Install /></Suspense>; // reachable before sign-in
-  if (!cloudEnabled) return <>{children}</>;
   if (auth.status === "loading") return <Splash />;
   if (auth.status === "recovery") return <ResetPassword />;
-  if (auth.status === "signedOut") return <AuthScreen />;
-  return <CloudBoot>{children}</CloudBoot>;
+  if (auth.status === "setup") return <LocalSetup />;
+  if (auth.status === "signedOut") return authMode === "cloud" ? <AuthScreen /> : <LocalLogin />;
+  return authMode === "cloud" ? <CloudBoot>{children}</CloudBoot> : <LocalBoot>{children}</LocalBoot>;
 }
 
 const App = () => (
@@ -64,6 +66,7 @@ const App = () => (
             <Route path="reports" element={<Guard section="reports"><Reports /></Guard>} />
             <Route path="notifications" element={<Guard section="notifications"><Notifications /></Guard>} />
             <Route path="documents" element={<Guard section="documents"><Documents /></Guard>} />
+            <Route path="account" element={<Account />} />
             <Route path="settings" element={<Guard section="settings"><Settings /></Guard>} />
             <Route path="*" element={<NotFound />} />
           </Route>
