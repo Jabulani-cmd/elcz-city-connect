@@ -230,6 +230,13 @@ export function resetAll() {
   set(emptyState());
 }
 
+/** Wipe the farm data saved on this device (including stored files), whoever is signed in. */
+export function eraseLocalData() {
+  try { localStorage.removeItem(LOCAL_KEY); indexedDB.deleteDatabase("farmhelper-files"); } catch { /* ignore */ }
+  state = emptyState();
+  listeners.forEach((l) => l());
+}
+
 /** Optional sample farm for trying the app out. Local mode only – sample data is never uploaded. */
 export function loadDemo() {
   if (state.farms.some((f) => f.id === "demo-farm")) return set({ ...state, activeFarmId: "demo-farm" });

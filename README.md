@@ -51,9 +51,17 @@ Business rules live in `src/lib/rules.ts` (e.g. a purchase creates the animal an
 - Agriculture and Livestock are separate modules sharing finance, employees, inventory, reports, notifications and users.
 - `supabase/migrations` – relational schema (all the entities in the brief), role-based RLS, audit triggers.
 
+## Sign-in and sign-out
+
+The app **always opens at a sign-in page** and has Sign out in the account menu (top-right avatar), the *More* menu and the desktop sidebar. "Keep me signed in on this device" is off by default, so a closed and reopened app asks for the password again; tick it on a personal phone to skip that.
+
+- **Without a cloud project** (default): accounts live on the device. The first run asks you to create the owner account (existing farm data on the device is kept and protected by it); the owner adds staff under *Settings → People who can sign in* with a role each. Passwords are stored only as salted PBKDF2 hashes. This keeps other people out of the app on a shared phone; it does **not** encrypt the farm records, and there is no password recovery (forgetting the owner password means erasing the device data). Staff phones don't share data.
+- **With a Supabase project**: real accounts (email + password, reset by email), roles enforced by the database, data shared across devices — see below.
+- Everyone can reach **My account** (`/account`) to change their password and sign out; Settings is owner-only.
+
 ## Going to production (accounts, teams, cloud sync)
 
-Without configuration the app runs **local-only** (no sign-in, data stays on the device). With a Supabase project it becomes a multi-user app: email/password sign-in, per-user roles enforced by the database, and background sync between devices.
+Without configuration the app runs **local-only** (device accounts, data stays on the device). With a Supabase project it becomes a multi-user app: email/password sign-in, per-user roles enforced by the database, and background sync between devices.
 
 1. **Create a Supabase project** (supabase.com). In *Authentication → URL Configuration* set the Site URL to your published app URL (used by confirmation and password-reset emails).
 2. **Create the database.** Apply the migrations in `supabase/migrations` in order (`supabase link --project-ref <ref>` then `supabase db push`, or paste them into the SQL editor):

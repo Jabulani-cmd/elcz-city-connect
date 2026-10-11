@@ -16,7 +16,7 @@ const friendly = (e: unknown) => {
   return m;
 };
 
-function Shell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+export function Shell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   return (
     <div className="bg-hero flex min-h-screen items-center justify-center p-4 pt-safe">
       <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl sm:p-8">
@@ -44,6 +44,7 @@ export function AuthScreen() {
   const [f, setF] = useState({ name: "", email: "", password: "" });
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const [keep, setKeep] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: e.target.value }));
 
   const submit = async () => {
@@ -52,8 +53,8 @@ export function AuthScreen() {
     if (mode === "up" && !f.name.trim()) return toast.error("Please enter your name");
     setBusy(true);
     try {
-      if (mode === "in") await signIn(f.email, f.password);
-      else if (mode === "up") { if (!(await signUp(f.email, f.password, f.name))) setNote("Account created. Check your email for a confirmation link, then sign in."); }
+      if (mode === "in") await signIn(f.email, f.password, keep);
+      else if (mode === "up") { if (!(await signUp(f.email, f.password, f.name, keep))) setNote("Account created. Check your email for a confirmation link, then sign in."); }
       else { await sendPasswordReset(f.email); setNote("If that email has an account, a reset link is on its way."); }
     } catch (e) { toast.error(friendly(e)); } finally { setBusy(false); }
   };
@@ -67,6 +68,7 @@ export function AuthScreen() {
           {mode === "up" && <div><Label htmlFor="au-name" className="mb-1.5 block">Your name</Label><Input id="au-name" className="h-12 text-base" autoComplete="name" value={f.name} onChange={set("name")} /></div>}
           <div><Label htmlFor="au-email" className="mb-1.5 block">Email</Label><Input id="au-email" type="email" className="h-12 text-base" autoComplete="email" inputMode="email" value={f.email} onChange={set("email")} /></div>
           {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} /></div>}
+          {mode !== "forgot" && <KeepSignedIn checked={keep} onChange={setKeep} />}
           <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
           <div className="flex flex-col items-center gap-2 text-sm">
             {mode === "in" && <><button type="button" className="text-muted-foreground underline" onClick={() => setMode("forgot")}>Forgot your password?</button><button type="button" className="font-medium text-primary underline" onClick={() => setMode("up")}>New here? Create an account</button></>}
@@ -89,5 +91,14 @@ export function ResetPassword() {
         <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>Save password</Button>
       </form>
     </Shell>
+  );
+}
+
+export function KeepSignedIn({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex min-h-[44px] cursor-pointer items-center gap-3 text-sm">
+      <input type="checkbox" className="h-5 w-5 accent-[hsl(var(--primary))]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span>Keep me signed in on this device<span className="block text-xs text-muted-foreground">Leave off on shared phones – you’ll sign in each time you open the app.</span></span>
+    </label>
   );
 }
