@@ -43,10 +43,21 @@ export function emptyState(): State {
   return { version: 2, farms: [], activeFarmId: "", data: {}, outbox: [], user: { name: "Farm Owner", role: "Owner" }, demo: false, roles: {}, failed: [], cursors: {}, lastSyncAt: "", adoptedLocal: false };
 }
 
+/** Early versions auto-loaded a sample farm ("Green Valley Farm"). Remove it from data saved by those versions; real farms are kept. */
+export function migrate(s: State): State {
+  if ((s.version ?? 1) >= 2) return s;
+  const demoIds = new Set(s.farms.filter((f) => f.id.startsWith("demo-")).map((f) => f.id));
+  const data: State["data"] = {};
+  for (const [k, rows] of Object.entries(s.data ?? {})) data[k] = rows.filter((r) => !demoIds.has(r.farmId));
+  const farms = s.farms.filter((f) => !demoIds.has(f.id));
+  return { ...s, version: 2, farms, data, demo: false, outbox: (s.outbox ?? []).filter((o) => !demoIds.has(o.rowId) && !String(o.rowId).startsWith("demo-")),
+    activeFarmId: farms.some((f) => f.id === s.activeFarmId) ? s.activeFarmId : farms[0]?.id ?? "" };
+}
+
 function readKey(key: string): State | null {
   try {
     const raw = localStorage.getItem(key);
-    if (raw) return { ...emptyState(), ...JSON.parse(raw) };
+    if (raw) return migrate({ ...emptyState(), ...JSON.parse(raw) });
   } catch {
     /* storage unavailable or corrupt */
   }

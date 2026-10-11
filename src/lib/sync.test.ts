@@ -172,3 +172,27 @@ describe("sync engine", () => {
     for (const [c, t] of Object.entries(TABLES)) expect(COLLECTION_OF_TABLE[t]).toBe(c);
   });
 });
+
+describe("migration of data saved by early versions", () => {
+  it("removes the auto-loaded sample farm but keeps real farms", async () => {
+    const { attachLocal } = await import("./store");
+    const demo = seedDemo({ ...getState() });
+    const real = { id: crypto.randomUUID(), name: "Real farm", location: "", latitude: "", longitude: "", sizeHa: 1, farmType: "Mixed", manager: "", phone: "", email: "", registration: "", description: "", agriHa: 0, pastureHa: 0, createdAt: "x" } as Farm;
+    const animal = { id: crypto.randomUUID(), farmId: real.id, createdAt: "x", updatedAt: "x", tag: "R1" };
+    localStorage.setItem("farmhelper.v1", JSON.stringify({ ...demo, version: 1, farms: [...demo.farms, real], activeFarmId: "demo-farm", data: { ...demo.data, animals: [...demo.data.animals, animal] } }));
+    attachLocal();
+    const s = getState();
+    expect(s.farms.map((f) => f.name)).toEqual(["Real farm"]);
+    expect(s.activeFarmId).toBe(real.id);
+    expect(s.demo).toBe(false);
+    expect(Object.values(s.data).flat().every((r) => r.farmId === real.id)).toBe(true);
+    expect(s.data.animals.map((a) => a.tag)).toEqual(["R1"]);
+  });
+  it("does not touch sample data a user explicitly loaded in the current version", async () => {
+    const { attachLocal, loadDemo, resetAll } = await import("./store");
+    resetAll(); loadDemo();
+    localStorage.setItem("farmhelper.v1", JSON.stringify(getState()));
+    attachLocal();
+    expect(getState().farms.some((f) => f.id === "demo-farm")).toBe(true);
+  });
+});
