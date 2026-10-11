@@ -20,7 +20,7 @@ export function seedDemo(base: State): State {
   };
 
   const farm: Farm = {
-    id: farmId, name: "Green Valley Farm (demo)", location: "Matopos, Bulawayo, Zimbabwe", latitude: "-20.4200", longitude: "28.5000",
+    id: farmId, name: "Green Valley Farm (sample)", location: "Matopos, Bulawayo, Zimbabwe", latitude: "-20.4200", longitude: "28.5000",
     sizeHa: 420, farmType: "Mixed (crops & livestock)", manager: "Tendai Moyo", phone: "+263 77 000 0000", email: "office@greenvalley.example",
     registration: "REG-2019-0457", description: "Demonstration farm with sample data. Remove it in Settings when you are ready to add your own.",
     agriHa: 120, pastureHa: 260, createdAt: stamp,

@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { computeAlerts } from "@/lib/alerts";
 import { canRead } from "@/lib/permissions";
-import { createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
-import { useOnline } from "@/lib/sync";
+import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
+import { useOnline, useSyncStatus } from "@/lib/sync";
+import { cloudEnabled } from "@/integrations/supabase/client";
+import { signOut } from "@/lib/auth";
 import type { Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { nativeSelect } from "./kit";
+import { Onboarding } from "./Onboarding";
 import { PwaBanner } from "./PwaBanner";
+import { AdoptLocalBanner } from "./AdoptLocalBanner";
 import { QuickRecord } from "./QuickRecord";
 
 export const NAV: { to: string; label: string; section: Section; icon: LucideIcon }[] = [
@@ -64,11 +68,19 @@ function Brand() {
 function SyncBadge() {
   const online = useOnline();
   const pending = usePendingCount();
+  const sync = useSyncStatus();
+  let text: string;
+  let title: string;
+  let warn = false;
+  if (!cloudEnabled) { text = online ? "Online · saved on device" : "Offline · saved on device"; title = "Changes are saved on this device. Cloud sync is not set up."; warn = !online; }
+  else if (!online) { text = `Offline · ${pending} waiting`; title = "You are offline. Changes are saved on this device and will upload when you reconnect."; warn = true; }
+  else if (sync.state === "syncing") { text = "Syncing…"; title = "Syncing with the cloud"; }
+  else if (sync.state === "error") { text = pending ? `Sync problem · ${pending} waiting` : "Sync problem"; title = sync.error || "Could not reach the server. Will retry."; warn = true; }
+  else if (pending > 0) { text = `${pending} to upload`; title = "Waiting to sync"; }
+  else { text = "Synced"; title = "Everything is saved to the cloud"; }
   return (
-    <span title={online ? "Changes are saved on this device. Cloud sync is not connected yet." : "You are offline. Everything you record is saved on this device."}
-      className={cn("hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium sm:inline-flex", online ? "text-muted-foreground" : "border-warning/50 bg-warning/10 text-foreground")}>
-      {online ? <Cloud className="h-3.5 w-3.5" /> : <CloudOff className="h-3.5 w-3.5" />}
-      {online ? "Online" : "Offline"} · {pending} saved on device
+    <span title={title} className={cn("hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium sm:inline-flex", warn ? "border-warning/50 bg-warning/10 text-foreground" : "text-muted-foreground")}>
+      {online ? <Cloud className="h-3.5 w-3.5" /> : <CloudOff className="h-3.5 w-3.5" />}{text}
     </span>
   );
 }
@@ -134,6 +146,8 @@ function TabBar({ onMore, onQuick, canRecord }: { onMore: () => void; onQuick: (
 }
 
 export function AppShell() {
+  const farmCount = useFarms().length;
+  const isDemo = useFarm()?.id === "demo-farm";
   const [open, setOpen] = useState(false);
   const [quick, setQuick] = useState(false);
   const user = useUser();
@@ -146,6 +160,7 @@ export function AppShell() {
   useEffect(() => { // “Quick record” app shortcut
     if (params.get("quick") === "1") { setQuick(writable); params.delete("quick"); setParams(params, { replace: true }); }
   }, [params, setParams, writable]);
+  if (farmCount === 0) return <Onboarding />;
   return (
     <div className="min-h-screen md:grid md:grid-cols-[17rem_1fr]">
       <aside className="sticky top-0 hidden h-screen overflow-y-auto bg-sidebar md:block">
@@ -169,7 +184,14 @@ export function AppShell() {
           {!online && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 py-1.5 text-xs font-medium"><WifiOff className="h-3.5 w-3.5" />Offline – everything you record is saved on this device</div>}
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={loc.pathname.split("/")[1]}>
+          {isDemo && (
+            <div role="note" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
+              <span><b>Sample data.</b> You’re looking at a demo farm, not your own records.</span>
+              <Button size="sm" onClick={() => { clearDemoData(); }}>Remove &amp; start my farm</Button>
+            </div>
+          )}
           <PwaBanner />
+          <AdoptLocalBanner />
           <Outlet />
         </main>
       </div>
@@ -179,7 +201,10 @@ export function AppShell() {
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <Brand />
           <NavList onNavigate={() => setOpen(false)} />
-          <div className="px-5 pb-6 pt-2 text-xs text-sidebar-foreground/60">{user.name} · role on this device: {user.role}</div>
+          <div className="px-5 pb-6 pt-2 text-xs text-sidebar-foreground/60">
+            {user.name} · {cloudEnabled ? user.role : `role on this device: ${user.role}`}
+            {cloudEnabled && <button className="mt-2 block text-sm font-medium text-sidebar-foreground underline" onClick={() => { void signOut(); }}>Sign out</button>}
+          </div>
         </SheetContent>
       </Sheet>
       {writable && (

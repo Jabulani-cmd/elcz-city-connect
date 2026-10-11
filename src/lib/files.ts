@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 /** Tiny IndexedDB blob store so receipts/photos don't fill localStorage. */
 const DB = "farmhelper-files";
 const STORE = "blobs";
@@ -19,7 +21,7 @@ const tx = async <T,>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRe
   });
 };
 
-export type StoredFile = { fileId: string; name: string; type: string; size: number };
+export type StoredFile = { fileId: string; name: string; type: string; size: number; /** location in cloud storage once uploaded */ path?: string };
 
 export async function saveFile(file: File): Promise<StoredFile> {
   const fileId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -27,11 +29,16 @@ export async function saveFile(file: File): Promise<StoredFile> {
   return { fileId, name: file.name, type: file.type, size: file.size };
 }
 
-export const getFile = (fileId: string) => tx<File | undefined>("readonly", (s) => s.get(fileId));
+export const getFile = (fileId: string) => tx<Blob | undefined>("readonly", (s) => s.get(fileId));
 export const deleteFile = (fileId: string) => tx("readwrite", (s) => s.delete(fileId));
 
 export async function openStored(f: StoredFile) {
-  const blob = await getFile(f.fileId);
+  let blob: Blob | undefined = await getFile(f.fileId);
+  if (!blob && f.path && supabase) {
+    const { data, error } = await supabase.storage.from("farm-files").download(f.path);
+    if (error || !data) throw new Error("Couldn’t download this file – check your connection");
+    blob = data;
+  }
   if (!blob) throw new Error("File not found on this device");
   const url = URL.createObjectURL(blob);
   window.open(url, "_blank");

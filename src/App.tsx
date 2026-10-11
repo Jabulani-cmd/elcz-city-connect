@@ -4,6 +4,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/farm/AppShell";
 import { Guard } from "@/components/farm/Guard";
+import { AuthScreen, ResetPassword, Splash } from "@/components/farm/AuthScreen";
+import { CloudBoot } from "@/components/farm/CloudBoot";
+import { cloudEnabled } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Agriculture = lazy(() => import("@/pages/Agriculture"));
@@ -21,10 +25,21 @@ const Documents = lazy(() => import("@/pages/Documents"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
+/** With a Supabase project configured the app requires sign-in; without one it runs locally on the device. */
+function Gate({ children }: { children: React.ReactNode }) {
+  const auth = useAuth();
+  if (!cloudEnabled) return <>{children}</>;
+  if (auth.status === "loading") return <Splash />;
+  if (auth.status === "recovery") return <ResetPassword />;
+  if (auth.status === "signedOut") return <AuthScreen />;
+  return <CloudBoot>{children}</CloudBoot>;
+}
+
 const App = () => (
   <TooltipProvider>
     <Toaster richColors position="top-center" />
     <BrowserRouter>
+      <Gate>
       <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading…</div>}>
         <Routes>
           <Route element={<AppShell />}>
@@ -51,6 +66,7 @@ const App = () => (
           </Route>
         </Routes>
       </Suspense>
+      </Gate>
     </BrowserRouter>
   </TooltipProvider>
 );

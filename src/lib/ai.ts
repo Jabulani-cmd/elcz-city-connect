@@ -31,6 +31,8 @@ export type AiInput = {
   history?: string;
 };
 
+import { getAccessToken } from "./auth";
+
 const ENDPOINT = import.meta.env.VITE_AI_ENDPOINT as string | undefined;
 const KEY = import.meta.env.VITE_AI_KEY as string | undefined;
 
@@ -39,9 +41,10 @@ export const aiConfigured = () => !!ENDPOINT;
 export async function analyze(input: AiInput): Promise<AiResult> {
   if (ENDPOINT && navigator.onLine) {
     try {
+      const token = (await getAccessToken()) ?? KEY;
       const res = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(KEY ? { Authorization: `Bearer ${KEY}`, apikey: KEY } : {}) },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(KEY ? { apikey: KEY } : {}) },
         body: JSON.stringify(input),
       });
       if (!res.ok) throw new Error(`AI service returned ${res.status}`);
