@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { cloudEnabled } from "@/lib/supabaseClient";
 import { adoptLocalData, dismissAdopt, localDeviceData, useStore } from "@/lib/store";
 
 /** Offers to move farm data saved on this device (from before sign-in) into the signed-in account. */

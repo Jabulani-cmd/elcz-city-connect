@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 /** Tiny IndexedDB blob store so receipts/photos don't fill localStorage. */
 const DB = "farmhelper-files";

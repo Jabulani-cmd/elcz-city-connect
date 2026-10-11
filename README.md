@@ -63,6 +63,10 @@ The app **always opens at a sign-in page** and has Sign out in the account menu 
 
 Without configuration the app runs **local-only** (device accounts, data stays on the device). With a Supabase project it becomes a multi-user app: email/password sign-in, per-user roles enforced by the database, and background sync between devices.
 
+**Using Lovable (easiest):** in Lovable open *Integrations → Supabase* and connect (Lovable Cloud, or your own Supabase project). Lovable then sets `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for you – these are the names the app reads. Then run the three SQL files from `supabase/migrations` in order (ask Lovable to run them, or paste each into the Supabase **SQL editor**; `…_farm_core.sql` creates a trigger on `auth.users`, which the SQL editor allows if Lovable's migration tool refuses). Finally set the Site URL (step 1 below). The app's Supabase client lives in `src/lib/supabaseClient.ts` on purpose: Lovable regenerates `src/integrations/supabase/*`, so don't move it back there.
+
+**Or by hand:**
+
 1. **Create a Supabase project** (supabase.com). In *Authentication → URL Configuration* set the Site URL to your published app URL (used by confirmation and password-reset emails).
 2. **Create the database.** Apply the migrations in `supabase/migrations` in order (`supabase link --project-ref <ref>` then `supabase db push`, or paste them into the SQL editor):
    - `…_farm_core.sql` – profiles, farms, membership, roles, invitations, helper functions

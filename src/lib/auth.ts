@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { cloudEnabled, supabase } from "@/integrations/supabase/client";
+import { cloudEnabled, supabase } from "@/lib/supabaseClient";
 import { authStorage, dropStalePersistentSession, setKeepSignedIn } from "./authStorage";
 import { addAccount, listAccounts, setAccountPassword, verifyAccount, wipeAccounts, type LocalAccount } from "./localAuth";
 import type { Role } from "./types";

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { cloudEnabled } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/auth";
 import { createFarm, loadDemo, setUser } from "@/lib/store";
 import { nativeSelect } from "./kit";

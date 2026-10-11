@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { aiConfigured } from "@/lib/ai";
 import { TeamPanel } from "@/components/farm/TeamPanel";
 import { PeoplePanel } from "@/components/farm/PeoplePanel";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { cloudEnabled } from "@/lib/supabaseClient";
 import { signOut, useAuth } from "@/lib/auth";
 import { ACCESS, ROLE_DESCRIPTIONS } from "@/lib/permissions";
 import { clearDemoData, clearFailed, createFarm, getState, resetAll, retryFailed, setUser, updateFarm, useFarm, usePendingCount, useRows, useStore, useUser } from "@/lib/store";

@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { ROLE_FROM_DB, ROLE_TO_DB } from "./tables";
 import type { Role } from "./types";
 

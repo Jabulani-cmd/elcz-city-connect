@@ -7,7 +7,7 @@ import { computeAlerts } from "@/lib/alerts";
 import { canRead } from "@/lib/permissions";
 import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
 import { useOnline, useSyncStatus } from "@/lib/sync";
-import { cloudEnabled } from "@/integrations/supabase/client";
+import { cloudEnabled } from "@/lib/supabaseClient";
 import { signOut } from "@/lib/auth";
 import { usePwa } from "@/lib/pwa";
 import type { Section } from "@/lib/types";
