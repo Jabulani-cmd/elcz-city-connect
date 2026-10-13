@@ -41,6 +41,12 @@ export default defineConfig(({ mode }) => ({
             handler: "StaleWhileRevalidate",
             options: { cacheName: "farmhelper-storage", expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
           },
+          {
+            // map tiles already viewed stay available on patchy data
+            urlPattern: ({ url }) => url.hostname === "tile.openstreetmap.org",
+            handler: "CacheFirst",
+            options: { cacheName: "farmhelper-map-tiles", expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 14 }, cacheableResponse: { statuses: [0, 200] } },
+          },
         ],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },

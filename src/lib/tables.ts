@@ -10,7 +10,7 @@ export const TABLES: Record<string, string> = {
   appointments: "vet_appointments", feed: "feed_inventory", feedUsage: "feed_consumption", feedlot: "feedlot_records",
   purchases: "livestock_purchases", sales: "livestock_sales", breeding: "breeding_records", births: "birth_records", mortality: "mortality_records",
   employees: "employees", attendance: "attendance", performance: "performance_reviews", payroll: "salary_payments", tasks: "tasks",
-  income: "income", expenses: "expenses", budgets: "budgets", inventory: "inventory", documents: "documents", mapItems: "map_features",
+  income: "income", expenses: "expenses", budgets: "budgets", inventory: "inventory", documents: "documents", mapItems: "map_features", positions: "positions",
   prefs: "notification_prefs",
 };
 
@@ -24,7 +24,7 @@ export const WRITE_AREAS: Record<string, string[]> = {
   diseases: ["livestock"], quarantine: ["livestock"], appointments: ["livestock"], feed: ["livestock", "inventory"], feedUsage: ["livestock", "inventory"],
   feedlot: ["livestock"], purchases: ["livestock"], sales: ["livestock"], breeding: ["livestock"], births: ["livestock"], mortality: ["livestock"],
   employees: ["employees"], attendance: ["employees"], performance: ["employees"], payroll: ["employees"], tasks: ["tasks"],
-  income: ["finance"], expenses: ["finance"], budgets: ["finance"], inventory: ["inventory"], documents: ["documents"], mapItems: ["map"], prefs: ["notifications"],
+  income: ["finance"], expenses: ["finance"], budgets: ["finance"], inventory: ["inventory"], documents: ["documents"], mapItems: ["map"], positions: ["map", "tasks", "livestock"], prefs: ["notifications"],
 };
 
 /** Extra record types that live in resources without a schema entry. */
