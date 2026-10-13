@@ -30,6 +30,13 @@ if (typeof window !== "undefined") {
     updateSW = registerSW({
       onNeedRefresh() { needRefresh = true; subs.forEach((f) => f()); },
       onOfflineReady() { offlineReady = true; subs.forEach((f) => f()); },
+      // re-check for a new version hourly and whenever the app is reopened, so long-lived installed sessions still get updates
+      onRegisteredSW(_url, reg) {
+        if (!reg) return;
+        const check = () => { if (navigator.onLine) void reg.update().catch(() => undefined); };
+        setInterval(check, 60 * 60 * 1000);
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
+      },
       onRegisterError() { /* offline caching is a bonus; the app still works online */ },
     });
   }
