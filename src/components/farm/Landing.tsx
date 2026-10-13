@@ -1,6 +1,7 @@
 import { BarChart3, Boxes, Check, ChevronRight, Download, PawPrint, Share, Smartphone, Sprout, Users, Wallet, WifiOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FarmPhoto, HeroBackdrop } from "@/components/farm/Media";
+import { FarmingCarousel } from "@/components/farm/FarmingCarousel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
@@ -62,8 +63,7 @@ export function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(150_55%_8%/0.6)] via-[hsl(150_55%_8%/0.35)] to-[hsl(150_55%_8%/0.75)] lg:bg-gradient-to-r lg:from-[hsl(150_55%_8%/0.85)] lg:via-[hsl(150_55%_8%/0.45)] lg:to-[hsl(150_55%_8%/0.1)]" />
         <div className={`${SECTION} relative grid items-center gap-10 pb-24 pt-28 sm:pb-28 sm:pt-36 lg:grid-cols-[1.1fr_0.9fr]`}>
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-semibold backdrop-blur sm:text-sm"><span aria-hidden="true">🇿🇼</span>Made for farmers in Zimbabwe</p>
-            <h1 className="mt-5 text-[2.5rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Run your whole farm from your phone.</h1>
+            <h1 className="text-[2.5rem] font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Run your whole farm from your phone.</h1>
             <p className="mt-5 max-w-xl text-base text-white/85 sm:text-lg">Crops, cattle, goats, poultry, money, stock and workers in one simple app. Works in the field with no network, and installs on Android and iPhone like a real app.</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               {canRegister
@@ -100,6 +100,8 @@ export function Landing() {
           {STATS.map((s) => <li key={s.label} className="px-4 py-5 text-center"><div className="text-2xl font-extrabold text-primary sm:text-3xl">{s.value}</div><div className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{s.label}</div></li>)}
         </ul>
       </section>
+
+      <FarmingCarousel />
 
       <section id="features" className={`${SECTION} scroll-mt-20 py-16 sm:py-24`}>
         <p className="text-sm font-semibold uppercase tracking-wider text-primary">Everything in one place</p>

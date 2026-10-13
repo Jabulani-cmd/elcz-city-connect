@@ -38,5 +38,21 @@ export type LandingMedia = {
 
 export const LANDING_MEDIA: LandingMedia = {};
 
+
+
+export type Slide = Photo & { caption: string };
+
+const COMMONS = "https://commons.wikimedia.org/wiki/File:";
+
+/** Carousel of real farming in Zimbabwe, shown below the stats strip. Files live in /public/media. */
+export const FARMING_SLIDES: Slide[] = [
+  { src: "/media/maize-field.webp", alt: "Farmers tending young maize plants in a field in Zimbabwe", caption: "Feeding young maize, Zimbabwe", credit: "SuSanA Secretariat", license: "CC BY 2.0", sourceUrl: `${COMMONS}Applying_urine_to_the_maize_plants_using_small_dispensers_(5568155364).jpg` },
+  { src: "/media/bull.webp", alt: "A bull walking along a red dirt farm road", caption: "Cattle on the farm road", credit: "Shark2025", license: "CC BY-SA 4.0", sourceUrl: `${COMMONS}Cattle_or_bhuru.jpg` },
+  { src: "/media/bananas.webp", alt: "Farmers loading harvested bananas onto a truck in Zimbabwe", caption: "Banana harvest going to market", credit: "USAID in Africa", license: "Public domain", sourceUrl: `${COMMONS}Banana_farmers,_Zimbabwe_(39695820082).jpg` },
+  { src: "/media/irrigation.webp", alt: "Centre-pivot irrigation over a green field", caption: "Centre-pivot irrigation", credit: "Nicholastapiwa", license: "CC BY-SA 4.0", sourceUrl: `${COMMONS}Farm_irrigation_system.jpg` },
+  { src: "/media/dairy-cattle.webp", alt: "A farm worker spraying dairy cattle in a pen", caption: "Spraying dairy cattle against ticks", credit: "Nicholastapiwa", license: "CC BY-SA 4.0", sourceUrl: `${COMMONS}Dairy_Cattle_fumigation.jpg` },
+  { src: "/media/maize-chopper.webp", alt: "A maize chopping machine on a farm", caption: "Chopping maize for silage", credit: "Sisnoe", license: "CC BY-SA 4.0", sourceUrl: `${COMMONS}Maize_harvest_machine.jpg` },
+];
+
 export const mediaCredits = (): Array<Photo | Clip> =>
-  Object.values(LANDING_MEDIA).filter((m): m is Photo | Clip => !!m);
+  [...Object.values(LANDING_MEDIA).filter((m): m is Photo | Clip => !!m), ...FARMING_SLIDES];
