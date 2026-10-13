@@ -23,15 +23,25 @@ export default defineConfig(({ mode }) => ({
       // The manifest is a static file in /public (linked from index.html) so it is also served by the dev server and
       // editor previews; the plugin only adds the offline service worker to production builds.
       manifest: false,
-      registerType: "autoUpdate",
+      // "prompt": a new version waits until the user taps Update in the in-app bar (PwaBanner), so a half-filled record is never lost to a surprise reload
+      registerType: "prompt",
       injectRegister: false,
       workbox: {
         // precache the whole app shell, including lazy route chunks and fonts, so every screen opens offline
         globPatterns: ["**/*.{js,css,html,svg,png,woff2,webmanifest}"],
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
+        skipWaiting: false,
         clientsClaim: true,
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/rest\//, /^\/auth\//, /^\/functions\//],
+        runtimeCaching: [
+          {
+            // photos/documents uploaded to storage: show the cached copy immediately (patchy networks), refresh quietly
+            urlPattern: ({ url }) => /\/storage\/v1\/object\/(public|sign)\//.test(url.pathname),
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "farmhelper-storage", expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+          },
+        ],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       devOptions: { enabled: false },
