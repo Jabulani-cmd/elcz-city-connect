@@ -57,15 +57,10 @@ export const FARMING_SLIDES: Slide[] = [
 export const mediaCredits = (): Array<Photo | Clip> =>
   [...Object.values(LANDING_MEDIA).filter((m): m is Photo | Clip => !!m), ...FARMING_SLIDES];
 
-import bullAsset from "@/assets/hero-cattle-bull.webp.asset.json";
-import dipAsset from "@/assets/hero-cattle-dip-tank.webp.asset.json";
-import poultryAsset from "@/assets/hero-poultry-farmer.webp.asset.json";
-import tobaccoAsset from "@/assets/hero-tobacco-field.webp.asset.json";
-
 /** Owner-provided photos crossfading behind the hero section. Not listed in the footer credits. */
 export const HERO_BG_SLIDES: Photo[] = [
-  { src: tobaccoAsset.url, alt: "", credit: "Farm owner", license: "Owner-provided photo", sourceUrl: "" },
-  { src: bullAsset.url, alt: "", credit: "Farm owner", license: "Owner-provided photo", sourceUrl: "" },
-  { src: dipAsset.url, alt: "", credit: "Farm owner", license: "Owner-provided photo", sourceUrl: "" },
-  { src: poultryAsset.url, alt: "", credit: "Farm owner", license: "Owner-provided photo", sourceUrl: "" },
+  { src: "/media/hero-tobacco-field.webp", alt: "", credit: "Farm owner", license: "Owner-provided photo", sourceUrl: "" },
+  { src: "/media/hero-cattle-bull.webp", alt: "", credit: "Shark2025", license: "CC BY-SA 4.0", sourceUrl: `${COMMONS}Cattle_or_bhuru.jpg` },
+  { src: "/media/hero-cattle-dip-tank.webp", alt: "", credit: "Nicholastapiwa", license: "CC BY-SA 4.0", sourceUrl: `${COMMONS}Dairy_Cattle_fumigation.jpg` },
+  { src: "/media/hero-poultry-farmer.webp", alt: "", credit: "Farm owner", license: "Owner-provided photo", sourceUrl: "" },
 ];
