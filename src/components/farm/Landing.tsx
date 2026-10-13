@@ -1,6 +1,7 @@
 import { BarChart3, Boxes, Check, ChevronRight, Download, PawPrint, Share, Smartphone, Sprout, Users, Wallet, WifiOff } from "lucide-react";
 import { Link } from "react-router-dom";
-import { FarmPhoto, HeroBackdrop } from "@/components/farm/Media";
+import { FarmPhoto } from "@/components/farm/Media";
+import { HeroBackgroundCarousel } from "@/components/farm/HeroBackgroundCarousel";
 import { FarmingCarousel } from "@/components/farm/FarmingCarousel";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
