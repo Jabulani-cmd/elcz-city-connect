@@ -7,6 +7,7 @@ import { Guard } from "@/components/farm/Guard";
 import { AuthScreen, ResetPassword, Splash } from "@/components/farm/AuthScreen";
 import { CloudBoot } from "@/components/farm/CloudBoot";
 import { LocalBoot } from "@/components/farm/LocalBoot";
+import { Landing } from "@/components/farm/Landing";
 import { LocalLogin, LocalSetup } from "@/components/farm/LocalAuthScreens";
 import { authMode, useAuth } from "@/lib/auth";
 
@@ -35,8 +36,12 @@ function Gate({ children }: { children: React.ReactNode }) {
   if (pathname === "/install") return <Suspense fallback={<Splash />}><Install /></Suspense>; // reachable before sign-in
   if (auth.status === "loading") return <Splash />;
   if (auth.status === "recovery") return <ResetPassword />;
-  if (auth.status === "setup") return <LocalSetup />;
-  if (auth.status === "signedOut") return authMode === "cloud" ? <AuthScreen /> : <LocalLogin />;
+  if (auth.status === "setup" || auth.status === "signedOut") {
+    // visitors land on the home page and choose to sign in or register
+    if (pathname !== "/login" && pathname !== "/signup") return <Landing />;
+    if (auth.status === "setup") return <LocalSetup />;
+    return authMode === "cloud" ? <AuthScreen initialMode={pathname === "/signup" ? "up" : "in"} key={pathname} /> : <LocalLogin />;
+  }
   return authMode === "cloud" ? <CloudBoot>{children}</CloudBoot> : <LocalBoot>{children}</LocalBoot>;
 }
 
@@ -66,6 +71,8 @@ const App = () => (
             <Route path="reports" element={<Guard section="reports"><Reports /></Guard>} />
             <Route path="notifications" element={<Guard section="notifications"><Notifications /></Guard>} />
             <Route path="documents" element={<Guard section="documents"><Documents /></Guard>} />
+            <Route path="login" element={<Navigate to="/" replace />} />
+            <Route path="signup" element={<Navigate to="/" replace />} />
             <Route path="account" element={<Account />} />
             <Route path="settings" element={<Guard section="settings"><Settings /></Guard>} />
             <Route path="*" element={<NotFound />} />
