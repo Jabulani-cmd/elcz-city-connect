@@ -53,7 +53,7 @@ Business rules live in `src/lib/rules.ts` (e.g. a purchase creates the animal an
 
 ## Sign-in and sign-out
 
-The app **always opens at a sign-in page** and has Sign out in the account menu (top-right avatar), the *More* menu and the desktop sidebar. "Keep me signed in on this device" is off by default, so a closed and reopened app asks for the password again; tick it on a personal phone to skip that.
+Signed-out visitors land on a **home page** with Sign in / Create account buttons (the app itself is always behind sign-in), and there is Sign out in the account menu (top-right avatar), the *More* menu and the desktop sidebar. "Keep me signed in on this device" is off by default, so a closed and reopened app asks for the password again; tick it on a personal phone to skip that.
 
 - **Without a cloud project** (default): accounts live on the device. The first run asks you to create the owner account (existing farm data on the device is kept and protected by it); the owner adds staff under *Settings → People who can sign in* with a role each. Passwords are stored only as salted PBKDF2 hashes. This keeps other people out of the app on a shared phone; it does **not** encrypt the farm records, and there is no password recovery (forgetting the owner password means erasing the device data). Staff phones don't share data.
 - **With a Supabase project**: real accounts (email + password, reset by email), roles enforced by the database, data shared across devices — see below.

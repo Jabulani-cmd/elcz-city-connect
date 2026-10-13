@@ -1,4 +1,5 @@
-import { Loader2, Sprout } from "lucide-react";
+import { ArrowLeft, Loader2, Sprout } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,10 +17,11 @@ const friendly = (e: unknown) => {
   return m;
 };
 
-export function Shell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+export function Shell({ title, subtitle, children, home = true }: { title: string; subtitle?: string; children: ReactNode; home?: boolean }) {
   return (
-    <div className="bg-hero flex min-h-screen items-center justify-center p-4 pt-safe">
+    <div className="bg-hero flex min-h-screen flex-col items-center justify-center p-4 pt-safe">
       <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl sm:p-8">
+        {home && <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Home</Link>}
         <div className="mb-5 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"><Sprout className="h-6 w-6" /></div>
           <div><h1 className="text-2xl font-bold">{title}</h1>{subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}</div>
@@ -39,8 +41,8 @@ export function Splash({ children = "Loading…" }: { children?: ReactNode }) {
   );
 }
 
-export function AuthScreen() {
-  const [mode, setMode] = useState<"in" | "up" | "forgot">("in");
+export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }) {
+  const [mode, setMode] = useState<"in" | "up" | "forgot">(initialMode);
   const [f, setF] = useState({ name: "", email: "", password: "" });
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
@@ -85,7 +87,7 @@ export function ResetPassword() {
   const [pw, setPw] = useState("");
   const [busy, setBusy] = useState(false);
   return (
-    <Shell title="Choose a new password">
+    <Shell title="Choose a new password" home={false}>
       <form className="space-y-4" onSubmit={async (e) => { e.preventDefault(); if (pw.length < 8) return toast.error("Password must be at least 8 characters"); setBusy(true); try { await setNewPassword(pw); toast.success("Password updated"); } catch (err) { toast.error(friendly(err)); } finally { setBusy(false); } }}>
         <div><Label htmlFor="rp" className="mb-1.5 block">New password</Label><Input id="rp" type="password" className="h-12 text-base" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} /></div>
         <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>Save password</Button>
