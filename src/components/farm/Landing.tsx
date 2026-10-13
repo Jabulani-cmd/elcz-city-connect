@@ -60,7 +60,7 @@ export function Landing() {
       </header>
 
       <section className="relative isolate overflow-hidden bg-hero pt-safe text-white">
-        <HeroBackdrop clip={m.heroClip} photo={m.hero} />
+        <HeroBackgroundCarousel />
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(150_55%_8%/0.6)] via-[hsl(150_55%_8%/0.35)] to-[hsl(150_55%_8%/0.75)] lg:bg-gradient-to-r lg:from-[hsl(150_55%_8%/0.85)] lg:via-[hsl(150_55%_8%/0.45)] lg:to-[hsl(150_55%_8%/0.1)]" />
         <div className={`${SECTION} relative grid items-center gap-10 pb-24 pt-28 sm:pb-28 sm:pt-36 lg:grid-cols-[1.1fr_0.9fr]`}>
           <div>
