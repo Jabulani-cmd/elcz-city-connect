@@ -18,6 +18,7 @@ import { PwaBanner } from "./PwaBanner";
 import { AdoptLocalBanner } from "./AdoptLocalBanner";
 import { AccountMenu } from "./AccountMenu";
 import { QuickRecord } from "./QuickRecord";
+import { ShiftTracker } from "./ShiftTracker";
 
 export const NAV: { to: string; label: string; section: Section; icon: LucideIcon }[] = [
   { to: "/", label: "Dashboard", section: "dashboard", icon: LayoutDashboard },
@@ -192,6 +193,7 @@ export function AppShell() {
           {!online && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 py-1.5 text-xs font-medium"><WifiOff className="h-3.5 w-3.5" />Offline – everything you record is saved on this device</div>}
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={loc.pathname.split("/")[1]}>
+          <ShiftTracker />
           {isDemo && (
             <div role="note" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
               <span><b>Sample data.</b> You’re looking at a demo farm, not your own records.</span>

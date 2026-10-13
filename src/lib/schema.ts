@@ -284,6 +284,7 @@ export const RESOURCES: Record<string, Resource> = {
       ref("pastureId", "Pasture", "pastures", { half: true }),
       txt("location", "Current location", { half: true }),
       txt("herd", "Herd / group", { half: true }),
+      txt("deviceId", "GPS collar / tag device ID", { half: true, help: "Positions sent by this device appear on the Farm Map. Leave blank if the animal has no tracker." }),
       sel("breedingAnimal", "Breeding animal?", ["No", "Yes"], { def: "No", half: true }),
       date("purchaseDate", "Purchase date", { half: true }),
       money("purchasePrice", "Purchase price", { half: true }),
@@ -677,6 +678,19 @@ export const RESOURCES: Record<string, Resource> = {
       file("file", "File"), area("notes", "Notes"),
     ],
     columns: ["title", "category", "relatedTo", "expiry", "file"], search: ["title", "relatedTo"], filter: { key: "category", label: "Category" },
+  },
+  /** Last known position of an employee (shared from their phone while clocked in) or an animal (collar/tag or manual check-in). One row per subject; the row id is the subject's id. */
+  positions: {
+    collection: "positions", title: "Live positions", singular: "position",
+    fields: [
+      sel("subjectType", "Subject", ["Employee", "Animal"], { required: true, half: true }), txt("name", "Name", { half: true }),
+      num("lat", "Latitude", { required: true, half: true }), num("lng", "Longitude", { required: true, half: true }),
+      num("accuracy", "Accuracy (m)", { half: true }), sel("source", "Source", ["Phone", "Collar / tag", "Manual check-in"], { half: true }),
+      txt("recordedAt", "Recorded at", { half: true }), num("battery", "Device battery (%)", { half: true }),
+      txt("consentAt", "Consent given at", { half: true, help: "Employees only: when they agreed to share their location." }),
+    ],
+    columns: ["name", "subjectType", "source", "recordedAt"], search: ["name"], filter: { key: "subjectType", label: "Subject" },
+    sort: byDateDesc("recordedAt"),
   },
   mapItems: {
     collection: "mapItems", title: "Map features", singular: "map feature",

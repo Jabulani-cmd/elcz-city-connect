@@ -3,3 +3,6 @@
 
 [functions.farm-ai]
 verify_jwt = true
+
+[functions.device-ingest]
+verify_jwt = false

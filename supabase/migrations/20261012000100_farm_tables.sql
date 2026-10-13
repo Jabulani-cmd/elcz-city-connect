@@ -289,6 +289,7 @@ create table public.animals (
   pasture_id uuid references public.pastures(id) on delete set null,
   location text,
   herd text,
+  device_id text,
   breeding_animal text,
   purchase_date date,
   purchase_price numeric,
@@ -946,6 +947,32 @@ create policy map_features_insert on public.map_features for insert with check (
 create policy map_features_update on public.map_features for update using (public.can_write(farm_id, 'map')) with check (public.can_write(farm_id, 'map'));
 -- no delete policy: rows are soft-deleted (deleted_at) so other devices learn about the deletion
 
+create table public.positions (
+  id uuid primary key default gen_random_uuid(),
+  farm_id uuid not null references public.farms(id) on delete cascade,
+  subject_type text,
+  name text,
+  lat numeric,
+  lng numeric,
+  accuracy numeric,
+  source text,
+  recorded_at text,
+  battery numeric,
+  consent_at text,
+  created_by uuid default auth.uid(),
+  extra jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz
+);
+create index on public.positions (farm_id, updated_at);
+create trigger positions_touch before insert or update on public.positions for each row execute function public.touch_row();
+alter table public.positions enable row level security;
+create policy positions_read on public.positions for select using (public.farm_role_of(farm_id) in ('owner','farm_manager') or (public.farm_role_of(farm_id) is not null and subject_type = 'Animal') or created_by = auth.uid());
+create policy positions_insert on public.positions for insert with check (public.can_write(farm_id, 'map') or public.can_write(farm_id, 'tasks') or public.can_write(farm_id, 'livestock'));
+create policy positions_update on public.positions for update using (public.can_write(farm_id, 'map') or public.can_write(farm_id, 'tasks') or public.can_write(farm_id, 'livestock')) with check (public.can_write(farm_id, 'map') or public.can_write(farm_id, 'tasks') or public.can_write(farm_id, 'livestock'));
+-- no delete policy: rows are soft-deleted (deleted_at) so other devices learn about the deletion
+
 create table public.notification_prefs (
   id uuid primary key default gen_random_uuid(),
   farm_id uuid not null references public.farms(id) on delete cascade,
@@ -975,7 +1002,7 @@ create unique index animals_farm_tag_uniq on public.animals (farm_id, lower(tag)
 create or replace function public.farm_changes(f uuid, since timestamptz default null, lim int default 5000) returns jsonb language plpgsql stable as $fn$
 declare t text; r jsonb; res jsonb := '{}'::jsonb; more jsonb := '[]'::jsonb;
 begin
-  foreach t in array array['suppliers','customers','fields','crops','planting_records','fertilizer_records','crop_protection_records','irrigation_records','harvest_records','crop_diagnoses','pastures','animals','weight_records','grazing_records','health_records','vaccination_records','disease_records','quarantine_records','vet_appointments','feed_inventory','feed_consumption','feedlot_records','livestock_purchases','livestock_sales','breeding_records','birth_records','mortality_records','employees','attendance','performance_reviews','salary_payments','tasks','income','expenses','budgets','inventory','documents','map_features','notification_prefs'] loop
+  foreach t in array array['suppliers','customers','fields','crops','planting_records','fertilizer_records','crop_protection_records','irrigation_records','harvest_records','crop_diagnoses','pastures','animals','weight_records','grazing_records','health_records','vaccination_records','disease_records','quarantine_records','vet_appointments','feed_inventory','feed_consumption','feedlot_records','livestock_purchases','livestock_sales','breeding_records','birth_records','mortality_records','employees','attendance','performance_reviews','salary_payments','tasks','income','expenses','budgets','inventory','documents','map_features','positions','notification_prefs'] loop
     execute format('select coalesce(jsonb_agg(to_jsonb(x) order by x.updated_at, x.id), ''[]''::jsonb) from (select * from public.%I where farm_id = $1 and ((($2)::timestamptz is null and deleted_at is null) or updated_at >= ($2)::timestamptz) order by updated_at, id limit $3) x', t) into r using f, since, lim + 1;
     if jsonb_array_length(r) > lim then more := more || to_jsonb(t); r := r - lim; end if;
     if jsonb_array_length(r) > 0 then res := res || jsonb_build_object(t, r); end if;
