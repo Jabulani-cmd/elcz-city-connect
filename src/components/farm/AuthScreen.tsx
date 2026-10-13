@@ -1,3 +1,4 @@
+import { TRIAL_DAYS } from "@/lib/plans";
 import { ArrowLeft, Loader2, Sprout } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, type ReactNode } from "react";
@@ -76,6 +77,7 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
             {mode === "in" && <><button type="button" className="text-muted-foreground underline" onClick={() => setMode("forgot")}>Forgot your password?</button><button type="button" className="font-medium text-primary underline" onClick={() => setMode("up")}>New here? Create an account</button></>}
             {mode !== "in" && <button type="button" className="text-muted-foreground underline" onClick={() => setMode("in")}>Back to sign in</button>}
           </div>
+          {mode === "up" && <p className="rounded-lg bg-primary/10 p-3 text-center text-sm font-medium text-primary">Your {TRIAL_DAYS}-day free trial starts when you create your account. No card needed.</p>}
           {mode === "up" && <p className="text-center text-xs text-muted-foreground">Invited to a farm? Create your account with the same email you were invited with and the farm will appear automatically.</p>}
         </form>
       )}
