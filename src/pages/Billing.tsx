@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { authMode } from "@/lib/auth";
-import { checkPayment, refreshBilling, startCheckout, useBilling, type CheckoutInput, type Plan } from "@/lib/billing";
+import { checkPayment, demoSetTrial, paymentsConfig, refreshBilling, startCheckout, useBilling, type CheckoutInput, type Plan } from "@/lib/billing";
 import { useUser } from "@/lib/store";
 
 const METHODS: { id: CheckoutInput["method"]; label: string; hint: string; phone?: boolean }[] = [
@@ -34,6 +34,8 @@ export default function Billing() {
   const [waiting, setWaiting] = useState<Waiting | null>(null);
   const [params, setParams] = useSearchParams();
   const polling = useRef(false);
+  const [cfg, setCfg] = useState<{ demo: boolean; configured: boolean } | null>(null);
+  useEffect(() => { void paymentsConfig().then(setCfg); }, []);
 
   useEffect(() => { if (farmId) void refreshBilling(farmId); }, [farmId]);
 
@@ -83,6 +85,18 @@ export default function Billing() {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader title="Plan & billing" description="One plan covers the whole farm and everyone on it." />
+      {cfg?.demo && (
+        <div role="note" className="mb-4 rounded-2xl border-2 border-dashed border-warning bg-warning/10 p-4 text-sm">
+          <b>Demo mode: no real money is taken.</b> Payments are pretend so you can see how everything works. For EcoCash or OneMoney use <b>0771234567</b> (succeeds after a few seconds), <b>0773333333</b> (cancelled) or <b>0774444444</b> (not enough money).
+          {owner && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => demoSetTrial(farmId, "expire").then(() => toast.success("Trial ended. Records are now read-only.")).catch((e) => toast.error(e.message))}>Demo: end the trial now</Button>
+              <Button size="sm" variant="outline" onClick={() => demoSetTrial(farmId, "trial").then(() => toast.success("Fresh 7-day trial started.")).catch((e) => toast.error(e.message))}>Demo: restart the 7-day trial</Button>
+            </div>
+          )}
+        </div>
+      )}
+      {cfg && !cfg.configured && <div role="note" className="mb-4 rounded-2xl border border-warning/50 bg-warning/10 p-4 text-sm"><b>Online payments are not switched on yet.</b> You can look at the plans, but paying opens once the payment account is connected.</div>}
       <div className={`mb-5 rounded-2xl border p-4 text-sm font-medium ${status === "expired" ? "border-danger/40 bg-danger/10" : "bg-card"}`}>{statusLine}</div>
 
       {!owner && <Empty>Only the farm owner can choose or pay for a plan. Ask them to open Plan &amp; billing.</Empty>}
@@ -120,7 +134,7 @@ export default function Billing() {
                 <ul className="divide-y text-sm">
                   {payments.map((p) => (
                     <li key={p.id} className="flex items-center justify-between gap-3 py-2.5">
-                      <span><b className="capitalize">{p.plan_code}</b> · {p.billing_interval === "year" ? "yearly" : "monthly"}<br /><span className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleString()}</span></span>
+                      <span><b className="capitalize">{p.plan_code}</b> · {p.billing_interval === "year" ? "yearly" : "monthly"}{p.method?.startsWith("demo") ? " · demo" : ""}<br /><span className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleString()}</span></span>
                       <span className="text-right"><b>{usd(p.amount_usd)}</b><br /><span className={`text-xs font-medium capitalize ${p.status === "paid" ? "text-success" : p.status === "pending" ? "text-muted-foreground" : "text-danger"}`}>{p.status}</span></span>
                     </li>
                   ))}
@@ -142,7 +156,7 @@ export default function Billing() {
             <>
               <DialogHeader>
                 <DialogTitle>Pay for {chosen.name}</DialogTitle>
-                <DialogDescription>{usd(interval === "year" ? chosen.yearly_usd : chosen.monthly_usd)} {interval === "year" ? "for one year" : "for one month"}. Choose how to pay.</DialogDescription>
+                <DialogDescription>{usd(interval === "year" ? chosen.yearly_usd : chosen.monthly_usd)} {interval === "year" ? "for one year" : "for one month"}. Choose how to pay.{cfg?.demo && <b className="mt-1 block text-warning">Demo: no real money is taken.</b>}</DialogDescription>
               </DialogHeader>
               <RadioGroup value={method} onValueChange={(v) => setMethod(v as CheckoutInput["method"])} className="gap-2">
                 {METHODS.map((m) => (
@@ -156,7 +170,7 @@ export default function Billing() {
               {METHODS.find((m) => m.id === method)?.phone && (
                 <div><Label htmlFor="pay-phone" className="mb-1.5 block">Mobile number to pay from</Label><Input id="pay-phone" className="h-12 text-base" inputMode="tel" autoComplete="tel" placeholder="0771 234 567" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
               )}
-              <Button size="lg" className="h-14 text-base" disabled={busy} onClick={pay}>{busy ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}Pay {usd(interval === "year" ? chosen.yearly_usd : chosen.monthly_usd)}</Button>
+              <Button size="lg" className="h-14 text-base" disabled={busy || cfg?.configured === false} onClick={pay}>{busy ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}Pay {usd(interval === "year" ? chosen.yearly_usd : chosen.monthly_usd)}</Button>
             </>
           )}
         </DialogContent>

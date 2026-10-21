@@ -105,6 +105,24 @@ export async function checkPayment(paymentId: string): Promise<"pending" | "paid
   return s === "paid" || s === "failed" || s === "cancelled" ? s : "pending";
 }
 
+/** Is online payment switched on, and is it the no-money demo? Falls back to "on, real" if the server can't be asked. */
+export async function paymentsConfig(): Promise<{ demo: boolean; configured: boolean }> {
+  if (!supabase) return { demo: false, configured: false };
+  try {
+    const { data, error } = await supabase.functions.invoke("paynow", { body: { action: "config" } });
+    if (error) return { demo: false, configured: true };
+    return data as { demo: boolean; configured: boolean };
+  } catch { return { demo: false, configured: true }; }
+}
+
+/** Demo mode only: end the trial now, or start a fresh 7 days, so the whole story can be shown. */
+export async function demoSetTrial(farmId: string, state: "expire" | "trial"): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase.functions.invoke("paynow", { body: { action: "demo", farm_id: farmId, state } });
+  if (error) throw new Error(await reason(error));
+  await refreshBilling(farmId);
+}
+
 async function reason(e: unknown): Promise<string> {
   const ctx = (e as { context?: Response }).context;
   try { const j = await ctx?.json(); if (j?.error) return String(j.error); } catch { /* fall through */ }
