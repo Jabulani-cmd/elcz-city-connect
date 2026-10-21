@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Sprout } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
 import { BUILD_ID } from "@/lib/pwa";
 import livestock from "@/assets/landing/livestock.webp";
 import crops from "@/assets/landing/crops.webp";
+import logo from "@/assets/landing/logo.webp";
 import field from "@/assets/landing/field.webp";
 
 const SLIDES = [
@@ -49,8 +49,7 @@ export function Landing() {
     <div className="bg-hero relative isolate flex min-h-[100svh] flex-col overflow-hidden text-white">
       <header className="px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
         <div className="mx-auto flex max-w-lg items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15"><Sprout className="h-6 w-6" /></div>
-          <span className="text-xl font-bold tracking-tight">FarmHelper</span>
+          <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-28 w-auto rounded-2xl bg-white p-1 shadow-lg sm:h-32" />
         </div>
       </header>
 
