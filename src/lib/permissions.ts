@@ -14,7 +14,12 @@ export const ACCESS: Record<Role, { read: Section[]; write: Section[] }> = {
 };
 
 export const canRead = (role: Role, s: Section) => ACCESS[role].read.includes(s);
-export const canWrite = (role: Role, s: Section) => ACCESS[role].write.includes(s);
+
+/** Set while a farm’s trial or plan has lapsed: everyone can still read, nobody can change anything (the database enforces the same). */
+let readOnly = false;
+export const setReadOnly = (v: boolean) => { readOnly = v; };
+export const isReadOnly = () => readOnly;
+export const canWrite = (role: Role, s: Section) => !readOnly && ACCESS[role].write.includes(s);
 
 export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   Owner: "Full access, including settings and farms.",

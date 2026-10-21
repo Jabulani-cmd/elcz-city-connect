@@ -1,4 +1,4 @@
-import { KeyRound, LogOut, Settings as SettingsIcon, UserRound } from "lucide-react";
+import { CreditCard, KeyRound, LogOut, Settings as SettingsIcon, UserRound } from "lucide-react";
 import { canRead } from "@/lib/permissions";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ export function AccountMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem className="min-h-[44px]" onClick={() => navigate("/account")}><UserRound className="mr-2 h-4 w-4" />My account</DropdownMenuItem>
         {canRead(user.role, "settings") && <DropdownMenuItem className="min-h-[44px]" onClick={() => navigate("/settings")}><SettingsIcon className="mr-2 h-4 w-4" />Settings</DropdownMenuItem>}
+        {authMode === "cloud" && <DropdownMenuItem className="min-h-[44px]" onClick={() => navigate("/billing")}><CreditCard className="mr-2 h-4 w-4" />Plan &amp; billing</DropdownMenuItem>}
         <DropdownMenuItem className="min-h-[44px]" onClick={() => navigate("/account#password")}><KeyRound className="mr-2 h-4 w-4" />Change password</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="min-h-[44px] font-medium text-danger focus:text-danger" onClick={out}><LogOut className="mr-2 h-4 w-4" />Sign out</DropdownMenuItem>

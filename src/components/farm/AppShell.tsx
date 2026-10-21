@@ -1,4 +1,7 @@
-import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, LogOut, MoreHorizontal, UserRound, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import { Bell, BarChart3, CreditCard, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, LogOut, MoreHorizontal, UserRound, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import { authMode } from "@/lib/auth";
+import { SubscriptionBanner } from "./SubscriptionBanner";
+import { useBilling, useBillingSync } from "@/lib/billing";
 import logoIcon from "@/assets/logo-icon.webp";
 import { Credit } from "./Credit";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -161,7 +164,9 @@ export function AppShell() {
   const loc = useLocation();
   const pwa = usePwa();
   const [params, setParams] = useSearchParams();
-  const writable = user.role !== "Viewer";
+  useBillingSync();
+  const { status: planStatus } = useBilling();
+  const writable = user.role !== "Viewer" && planStatus !== "expired";
   useEffect(() => { // “Quick record” app shortcut
     if (params.get("quick") === "1") { setQuick(writable); params.delete("quick"); setParams(params, { replace: true }); }
   }, [params, setParams, writable]);
@@ -173,6 +178,7 @@ export function AppShell() {
         <NavList />
         <div className="border-t border-sidebar-border p-3">
           <NavLink to="/account" className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><UserRound className="h-5 w-5" />My account</NavLink>
+          {authMode === "cloud" && <NavLink to="/billing" className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><CreditCard className="h-5 w-5" />Plan &amp; billing</NavLink>}
           <button onClick={() => { void signOut(); }} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><LogOut className="h-5 w-5" />Sign out</button>
           <Credit className="px-3 pb-1 pt-3 text-sidebar-foreground/60" />
         </div>
@@ -194,13 +200,14 @@ export function AppShell() {
           </div>
           {!online && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 py-1.5 text-xs font-medium"><WifiOff className="h-3.5 w-3.5" />Offline – everything you record is saved on this device</div>}
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={loc.pathname.split("/")[1]}>
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={`${loc.pathname.split("/")[1]}-${planStatus}`}>
           {isDemo && (
             <div role="note" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
               <span><b>Sample data.</b> You’re looking at a demo farm, not your own records.</span>
               <Button size="sm" onClick={() => { clearDemoData(); }}>Remove &amp; start my farm</Button>
             </div>
           )}
+          <SubscriptionBanner />
           <PwaBanner />
           <AdoptLocalBanner />
           <Outlet />
@@ -217,6 +224,7 @@ export function AppShell() {
             {user.name} · {user.role}
             <Credit className="mt-3" />
             <NavLink to="/account" onClick={() => setOpen(false)} className="mt-3 flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"><UserRound className="h-5 w-5" />My account &amp; password</NavLink>
+            {authMode === "cloud" && <NavLink to="/billing" onClick={() => setOpen(false)} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"><CreditCard className="h-5 w-5" />Plan &amp; billing</NavLink>}
             <button className="mt-1 flex min-h-[44px] w-full items-center gap-3 rounded-lg bg-sidebar-accent px-3 text-sm font-semibold text-sidebar-accent-foreground" onClick={() => { void signOut(); }}><LogOut className="h-5 w-5" />Sign out</button>
           </div>
         </SheetContent>

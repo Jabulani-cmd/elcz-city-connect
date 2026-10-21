@@ -4,19 +4,22 @@ import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { useAuth } from "@/lib/auth";
 import { isPreviewEnvironment, usePwa } from "@/lib/pwa";
 
 const KEY = "farmhelper.installPromptAt";
 const SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;
 const snoozed = () => { try { return Date.now() - Number(localStorage.getItem(KEY) ?? 0) < SNOOZE_MS; } catch { return false; } };
 
-/** Opens when someone visits the link in a browser: offers to install FarmHelper on their device. Not shown once installed. */
+/** Opens when someone visits the link in a browser (before signing in): offers to install FarmHelper on their device. Not shown once installed. */
 export function InstallPrompt() {
   const pwa = usePwa();
   const { pathname } = useLocation();
+  const { status } = useAuth();
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
-  const eligible = !pwa.installed && !isPreviewEnvironment() && window.self === window.top && pathname !== "/install";
+  // only for visitors who are not signed in: inside the app the install card on the dashboard does this job and dialogs never stack
+  const eligible = (status === "signedOut" || status === "setup") && !pwa.installed && !isPreviewEnvironment() && window.self === window.top && pathname !== "/install";
 
   useEffect(() => { const t = setTimeout(() => setReady(true), 1500); return () => clearTimeout(t); }, []);
   useEffect(() => { if (ready && eligible && !snoozed()) setOpen(true); }, [ready, eligible]);

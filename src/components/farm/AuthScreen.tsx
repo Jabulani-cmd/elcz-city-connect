@@ -68,7 +68,7 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
   };
 
   return (
-    <Shell title={mode === "up" ? "Create your account" : mode === "forgot" ? "Reset password" : "Welcome back"} subtitle="FarmHelper – one platform to manage the entire farm">
+    <Shell title={mode === "up" ? "Create your account" : mode === "forgot" ? "Reset password" : "Welcome back"} subtitle={mode === "up" ? "Free for 7 days, then choose a plan" : "FarmHelper – one platform to manage the entire farm"}>
       {server === "down" && (
         <div role="alert" className="mb-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm">
           <b>Can’t reach the FarmHelper server.</b> Signing in or creating an account needs it, and it isn’t responding{cloudHost ? ` (${cloudHost})` : ""}. Your internet connection may be fine.
