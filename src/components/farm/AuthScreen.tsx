@@ -1,11 +1,12 @@
 import { ArrowLeft, Loader2, Sprout } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sendPasswordReset, setNewPassword, signIn, signUp } from "@/lib/auth";
+import { cloudHost, pingCloud } from "@/lib/supabaseClient";
 
 const friendly = (e: unknown) => {
   const m = e instanceof Error ? e.message : "Something went wrong";
@@ -13,7 +14,7 @@ const friendly = (e: unknown) => {
   if (/not confirmed/i.test(m)) return "Please confirm your email first – check your inbox for the link.";
   if (/already registered|already been registered/i.test(m)) return "An account with this email already exists. Try signing in.";
   if (/password.*(short|least|weak)/i.test(m)) return "Please choose a longer password (at least 8 characters).";
-  if (/fetch|network/i.test(m)) return "No internet connection. Please try again when you’re online.";
+  if (/fetch|network|load failed|timed out|abort/i.test(m)) return typeof navigator !== "undefined" && !navigator.onLine ? "You’re offline. Connect to the internet and try again." : `We can’t reach the FarmHelper server${cloudHost ? ` (${cloudHost})` : ""}. Your internet looks fine – the server may be paused or not set up yet. Please try again shortly or contact support.`;
   return m;
 };
 
@@ -47,6 +48,9 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   const [keep, setKeep] = useState(false);
+  const [server, setServer] = useState<"checking" | "up" | "down">("checking");
+  const check = () => { setServer("checking"); void pingCloud().then((ok) => setServer(ok ? "up" : "down")); };
+  useEffect(check, []);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: e.target.value }));
 
   const submit = async () => {
@@ -63,6 +67,12 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
 
   return (
     <Shell title={mode === "up" ? "Create your account" : mode === "forgot" ? "Reset password" : "Welcome back"} subtitle="FarmHelper – one platform to manage the entire farm">
+      {server === "down" && (
+        <div role="alert" className="mb-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm">
+          <b>Can’t reach the FarmHelper server.</b> Signing in or creating an account needs it, and it isn’t responding{cloudHost ? ` (${cloudHost})` : ""}. Your internet connection may be fine.
+          <button type="button" className="mt-1 block font-medium underline" onClick={check}>Check again</button>
+        </div>
+      )}
       {note ? (
         <div className="space-y-4"><p role="status" className="rounded-xl bg-success/10 p-3 text-sm">{note}</p><Button variant="outline" className="w-full" onClick={() => { setNote(""); setMode("in"); }}>Back to sign in</Button></div>
       ) : (
