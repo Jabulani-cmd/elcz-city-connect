@@ -41,7 +41,7 @@ function CareBanner({ care }: { care: CareAdvice }) {
   const now = care.vetTiming === "Immediately";
   return (
     <div className="grid gap-2 sm:grid-cols-2" role="alert">
-      <div className={`flex items-start gap-3 rounded-xl p-3 ${now ? "bg-danger text-danger-foreground" : care.vetTiming === "Within 24 hours" ? "bg-danger/15 text-danger" : "bg-success/15 text-success"}`}>
+      <div className={`flex items-start gap-3 rounded-xl p-3 ${now ? "bg-danger text-destructive-foreground" : care.vetTiming === "Within 24 hours" ? "bg-danger/15 text-danger" : "bg-success/15 text-success"}`}>
         {now ? <Siren className="mt-0.5 h-6 w-6 shrink-0" /> : care.vetTiming === "Within 24 hours" ? <Stethoscope className="mt-0.5 h-6 w-6 shrink-0" /> : <Clock className="mt-0.5 h-6 w-6 shrink-0" />}
         <div><div className="text-base font-extrabold">{now ? "See a vet immediately" : care.vetTiming === "Within 24 hours" ? "Call a vet today" : "Treat at home and watch"}</div>
           <div className="text-sm">{now ? "Call your vet or veterinary officer now." : care.vetTiming === "Within 24 hours" ? "Get a vet to see the animal within 24 hours." : "Call a vet if there is no improvement in 24–48 hours."}</div></div>
