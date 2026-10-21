@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
 import { Credit } from "./Credit";
+import { LandingAssistant } from "./LandingAssistant";
 import livestock from "@/assets/landing/livestock.webp";
 import crops from "@/assets/landing/crops.webp";
 import logo from "@/assets/landing/logo.webp";
@@ -69,12 +70,13 @@ export function Landing() {
         </div>
       </main>
 
-      <footer className="px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-xs text-white/70">
+      <footer className="px-6 pb-[max(5.5rem,calc(env(safe-area-inset-bottom)+5rem))] text-xs text-white/70 sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-lg items-end justify-between gap-4">
           <Credit />
           <Link to="/install" className="shrink-0 underline underline-offset-2">Install the app</Link>
         </div>
       </footer>
+      <LandingAssistant />
     </div>
   );
 }
