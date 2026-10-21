@@ -30,12 +30,19 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         // precache the whole app shell, including lazy route chunks and fonts, so every screen opens offline
         globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2,webmanifest}"],
-        navigateFallback: "/index.html",
+        // Pages are NOT served from the offline copy first: opening the app online always loads the newest published
+        // version (an installed app used to keep showing the old one). The saved copy is only used offline or on a very slow network.
+        directoryIndex: null,
+        navigateFallback: null,
         cleanupOutdatedCaches: true,
         skipWaiting: false,
         clientsClaim: true,
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/rest\//, /^\/auth\//, /^\/functions\//],
         runtimeCaching: [
+          {
+            urlPattern: ({ request, url }) => request.mode === "navigate" && !/^\/(~oauth|rest\/|auth\/|functions\/)/.test(url.pathname),
+            handler: "NetworkFirst",
+            options: { cacheName: "farmhelper-pages", networkTimeoutSeconds: 4, cacheableResponse: { statuses: [200] }, precacheFallback: { fallbackURL: "/index.html" } },
+          },
           {
             // photos/documents uploaded to storage: show the cached copy immediately (patchy networks), refresh quietly
             urlPattern: ({ url }) => /\/storage\/v1\/object\/(public|sign)\//.test(url.pathname),

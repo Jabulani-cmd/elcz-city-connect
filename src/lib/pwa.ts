@@ -22,13 +22,23 @@ async function clearCaches() {
 if (typeof window !== "undefined") {
   window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e as InstallEvent; subs.forEach((f) => f()); });
   window.addEventListener("appinstalled", () => { deferred = null; subs.forEach((f) => f()); });
-  if (isPreviewEnvironment()) {
+  // `?sw=off` switches the offline copy off on this device (support escape hatch)
+  const swOff = new URLSearchParams(location.search).get("sw") === "off";
+  if (!import.meta.env.PROD || isPreviewEnvironment() || swOff) {
     // remove anything an earlier build registered here so the preview always shows the latest code
     void navigator.serviceWorker?.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))).catch(() => undefined);
     void clearCaches();
   } else {
+    // Someone who has just opened the app and not typed anything yet has nothing to lose, so a new version found
+    // then is applied straight away. Later (e.g. coming back from the camera mid-form) the Update bar asks first.
+    let typed = false;
+    document.addEventListener("input", () => { typed = true; }, { capture: true, once: true });
+    const justOpened = () => !typed && performance.now() < 20_000;
     updateSW = registerSW({
-      onNeedRefresh() { needRefresh = true; subs.forEach((f) => f()); },
+      onNeedRefresh() {
+        if (justOpened()) { void updateSW?.(true); return; }
+        needRefresh = true; subs.forEach((f) => f());
+      },
       onOfflineReady() { offlineReady = true; subs.forEach((f) => f()); },
       // re-check for a new version hourly and whenever the app is reopened, so long-lived installed sessions still get updates
       onRegisteredSW(_url, reg) {
