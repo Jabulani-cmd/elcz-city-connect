@@ -8,11 +8,22 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM = (kind: string) => `You are an assistant for farmers. You give practical, cautious ${kind === "crop" ? "crop health" : "livestock health"} guidance.
-You are NOT a ${kind === "crop" ? "certified agronomist" : "veterinarian"}. Never claim certainty. Always recommend professional help for serious, spreading or unclear problems.
+const CROP_SYSTEM = `You are an assistant for farmers. You give practical, cautious crop health guidance.
+You are NOT a certified agronomist. Never claim certainty. Always recommend professional help for serious, spreading or unclear problems.
 Reply with ONLY a JSON object of this exact shape:
 {"summary":string,"findings":[{"name":string,"confidence":number 0-100,"symptoms":string,"causes":string}],"urgency":"Low"|"Moderate"|"High"|"Emergency","immediateActions":string[],"nextSteps":string[],"vetQuestions":string[],"monitoring":string,"seeProfessional":string}
 Use plain, simple language. Keep lists short.`;
+
+const VET_SYSTEM = `You are a veterinary triage assistant for small-scale and commercial farmers in Zimbabwe and southern Africa (cattle, goats, sheep, pigs, poultry).
+Work like an experienced farm vet doing a first assessment: look carefully at every photo (some may be still frames taken in order from a short video), weigh the chosen symptoms, species, age and history, and list the most likely conditions – including locally important ones such as tick-borne diseases (redwater, heartwater, gallsickness, theileriosis/January disease), lumpy skin disease, foot-and-mouth disease, anthrax, Newcastle disease and avian influenza.
+You cannot examine the animal, so never claim certainty and always say what a vet should check.
+Decide clearly:
+- "isolate": true if the condition could be contagious, is notifiable, or the animal needs to be kept quiet apart from the herd.
+- "vetTiming": "Immediately" for emergencies, suspected notifiable disease, sudden deaths, severe pain, bloat, difficult birth, nervous signs or breathing distress; "Within 24 hours" for serious but stable cases; otherwise "If no improvement in 24–48 hours".
+- "notifiable": true if a reportable disease (e.g. foot-and-mouth, anthrax, lumpy skin, avian influenza, Newcastle, rabies) is a realistic possibility.
+Reply with ONLY a JSON object of this exact shape:
+{"summary":string,"findings":[{"name":string,"confidence":number 0-100,"symptoms":string,"causes":string}],"urgency":"Low"|"Moderate"|"High"|"Emergency","care":{"isolate":boolean,"vetTiming":"Immediately"|"Within 24 hours"|"If no improvement in 24–48 hours","notifiable":boolean},"immediateActions":string[],"nextSteps":string[],"vetQuestions":string[],"monitoring":string,"seeProfessional":string}
+Use plain, simple language a farmer understands. Give up to 3 findings, most likely first. Keep lists short and practical. Never recommend prescription-only drugs or doses – leave those to the vet.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -24,7 +35,8 @@ Deno.serve(async (req) => {
     if (!apiKey || !model) throw new Error("AI service is not configured");
 
     const details = [
-      kind === "crop" ? `Crop: ${input.crop ?? "unknown"}` : `Breed: ${input.breed ?? "unknown"}`,
+      kind === "crop" ? `Crop: ${input.crop ?? "unknown"}` : `Species: ${input.species ?? "unknown"}\nBreed: ${input.breed ?? "unknown"}`,
+      Array.isArray(input.selectedSymptoms) && input.selectedSymptoms.length > 0 && `Symptoms chosen from the list: ${input.selectedSymptoms.join(", ")}`,
       input.ageText && `Age: ${input.ageText}`,
       input.weightKg && `Weight: ${input.weightKg} kg`,
       `Symptoms: ${input.symptoms || "(none given)"}`,
@@ -32,14 +44,17 @@ Deno.serve(async (req) => {
     ].filter(Boolean).join("\n");
 
     const content: unknown[] = [];
-    const m = typeof input.imageDataUrl === "string" ? input.imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/) : null;
-    if (m) content.push({ type: "image", source: { type: "base64", media_type: m[1], data: m[2] } });
+    const urls: unknown[] = Array.isArray(input.imageDataUrls) && input.imageDataUrls.length ? input.imageDataUrls : [input.imageDataUrl];
+    for (const url of urls.slice(0, 8)) {
+      const m = typeof url === "string" ? url.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/) : null;
+      if (m) content.push({ type: "image", source: { type: "base64", media_type: m[1], data: m[2] } });
+    }
     content.push({ type: "text", text: details });
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model, max_tokens: 1500, system: SYSTEM(kind), messages: [{ role: "user", content }] }),
+      body: JSON.stringify({ model, max_tokens: 1500, system: kind === "crop" ? CROP_SYSTEM : VET_SYSTEM, messages: [{ role: "user", content }] }),
     });
     if (!res.ok) throw new Error(`Model request failed (${res.status})`);
     const data = await res.json();
