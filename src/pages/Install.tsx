@@ -1,4 +1,5 @@
 import { CheckCircle2, Copy, Download, ExternalLink, Loader2, XCircle } from "lucide-react";
+import logoFull from "@/assets/logo-full.webp";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -59,7 +60,7 @@ export default function Install() {
 
   return (
     <div className="mx-auto min-h-screen max-w-xl p-4 pb-16 pt-safe">
-      <div className="mb-4 flex items-center gap-3"><img src="/icon-192.png" alt="" className="h-12 w-12 rounded-xl" /><div><h1 className="text-2xl font-bold">Install FarmHelper</h1><p className="text-sm text-muted-foreground">Version {BUILD_ID}</p></div></div>
+      <div className="mb-4 text-center"><img src={logoFull} alt="Kurima Digital – empowering Zimbabwean farmers" className="mx-auto mb-3 h-32 w-auto mix-blend-multiply" /><h1 className="text-2xl font-bold">Install FarmHelper</h1><p className="text-sm text-muted-foreground">Version {BUILD_ID}</p></div>
 
       {pwa.installed ? <p className="mb-4 rounded-xl bg-success/10 p-3 text-sm">You’re already using the installed app.</p> : (
         <div className="mb-4 space-y-3 rounded-2xl border bg-card p-4">

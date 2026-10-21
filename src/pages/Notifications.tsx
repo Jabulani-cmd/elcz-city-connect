@@ -31,7 +31,7 @@ export default function Notifications() {
     if (!("Notification" in window)) return toast.error("This browser doesn’t support push notifications");
     const perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
     if (perm !== "granted") return toast.error("Notifications are blocked – allow them in your browser settings");
-    new Notification("FarmHelper", { body: alerts[0] ? `${alerts[0].title} – ${alerts[0].detail}` : "You’re all caught up.", icon: "/icon.svg" });
+    new Notification("FarmHelper", { body: alerts[0] ? `${alerts[0].title} – ${alerts[0].detail}` : "You’re all caught up.", icon: "/icon-192.png" });
   };
   return (
     <div>

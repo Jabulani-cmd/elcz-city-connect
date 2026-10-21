@@ -1,4 +1,6 @@
-import { ArrowLeft, Loader2, Sprout } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import logoFull from "@/assets/logo-full.webp";
+import logoIcon from "@/assets/logo-icon.webp";
 import { Credit } from "./Credit";
 import { Link } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
@@ -24,10 +26,8 @@ export function Shell({ title, subtitle, children, home = true }: { title: strin
     <div className="bg-hero flex min-h-screen flex-col items-center justify-center p-4 pt-safe">
       <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl sm:p-8">
         {home && <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Home</Link>}
-        <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"><Sprout className="h-6 w-6" /></div>
-          <div><h1 className="text-2xl font-bold">{title}</h1>{subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}</div>
-        </div>
+        <img src={logoFull} alt="Kurima Digital – empowering Zimbabwean farmers" className="mx-auto mb-4 h-28 w-auto" />
+        <div className="mb-5 text-center"><h1 className="text-2xl font-bold">{title}</h1>{subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}</div>
         {children}
       </div>
       <Credit className="mt-4 text-center text-white/75" />
@@ -38,7 +38,7 @@ export function Shell({ title, subtitle, children, home = true }: { title: strin
 export function Splash({ children = "Loading…" }: { children?: ReactNode }) {
   return (
     <div className="bg-hero flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center text-white">
-      <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15"><Sprout className="h-8 w-8" /></div>
+      <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white p-2 shadow-lg"><img src={logoIcon} alt="Kurima Digital" className="h-full w-auto" /></div>
       <div className="flex items-center gap-2 text-sm text-white/85"><Loader2 className="h-4 w-4 animate-spin" />{children}</div>
     </div>
   );

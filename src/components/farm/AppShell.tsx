@@ -1,4 +1,5 @@
 import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, LogOut, MoreHorizontal, UserRound, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import logoIcon from "@/assets/logo-icon.webp";
 import { Credit } from "./Credit";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -62,7 +63,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 function Brand() {
   return (
     <div className="flex items-center gap-2 px-5 py-4 text-sidebar-foreground">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"><Sprout className="h-5 w-5" /></div>
+      <div className="flex h-14 w-12 items-center justify-center rounded-xl bg-white p-1"><img src={logoIcon} alt="Kurima Digital" className="h-full w-auto" /></div>
       <div className="leading-tight"><div className="text-lg font-bold">FarmHelper</div><div className="text-[11px] opacity-70">One platform to manage the entire farm</div></div>
     </div>
   );
@@ -179,7 +180,7 @@ export function AppShell() {
       <div className="flex min-w-0 flex-col">
         <header className="glass sticky top-0 z-30 border-b pt-safe">
           <div className="flex items-center gap-2 px-3 py-2 sm:px-5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground md:hidden"><Sprout className="h-5 w-5" /></div>
+            <img src={logoIcon} alt="Kurima Digital" className="h-10 w-auto shrink-0 md:hidden" />
             <FarmSwitcher />
             <div className="ml-auto flex items-center gap-2">
               <SyncBadge />
