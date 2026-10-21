@@ -88,8 +88,3 @@
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
-/* Farm map labels (Leaflet tooltips) */
-.farm-map-label { background: hsl(var(--background) / 0.85); border: 0; box-shadow: none; color: hsl(var(--foreground)); font-size: 12px; font-weight: 600; padding: 1px 5px; }
-.farm-map-label::before { display: none; }
-.leaflet-container { background: hsl(90 30% 92%); font-family: inherit; }
-.dark .leaflet-container { background: hsl(140 20% 12%); }

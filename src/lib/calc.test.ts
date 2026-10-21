@@ -78,3 +78,13 @@ describe("analytics", () => {
     expect(r[1].profit).toBe(-10);
   });
 });
+
+describe("reports catalogue matches the brief", () => {
+  it("has the 12 livestock, 9 agriculture and 7 financial reports", async () => {
+    // reports.ts reads the store, which needs localStorage (jsdom provides it)
+    const { REPORTS } = await import("./reports");
+    const n = (g: string) => REPORTS.filter((r) => r.group === g).length;
+    expect([n("Livestock"), n("Agriculture"), n("Financial")]).toEqual([12, 9, 7]);
+    expect(new Set(REPORTS.map((r) => r.id)).size).toBe(REPORTS.length);
+  });
+});

@@ -36,7 +36,7 @@ How it works: `public/manifest.webmanifest` (static, so it is also served by dev
 | Tasks | List, calendar and kanban board |
 | Farm Map | SVG map from GPS coordinates (fields, pastures, dams, barns…) |
 | Finance | Income/expenses with receipts, budgets, profitability by crop/field/animal/herd/pasture/feedlot/cycle/month/year |
-| Reports | 30 reports, exportable to PDF (print), Excel and CSV |
+| Reports | 28 reports, exportable to PDF (print), Excel and CSV |
 | AI Farm Assistant | Answers questions from the farm's own records |
 | Notifications | Automatic alerts + per-type channel preferences, browser push |
 | Settings | Farm profile, multiple farms, roles, audit log, backup/restore |
@@ -50,15 +50,6 @@ Business rules live in `src/lib/rules.ts` (e.g. a purchase creates the animal an
 - `src/lib/sync.ts` – sync adapter hook that drains the outbox when online.
 - Agriculture and Livestock are separate modules sharing finance, employees, inventory, reports, notifications and users.
 - `supabase/migrations` – relational schema (all the entities in the brief), role-based RLS, audit triggers.
-
-## Live tracking of staff and livestock
-
-The **Farm Map** (OpenStreetMap via Leaflet; viewed tiles are cached for patchy data) shows the *last known* position, with a time stamp, of:
-
-- **Employees** – on their own phone they tap **Clock in**, read and accept the consent notice, and the app shares their location **only while clocked in and the app is open**. A banner shows while sharing is on. **Clock out** stops it and clears the stored coordinates; only the attendance record (times, hours) stays. Only owners and farm managers can see staff positions (enforced in the database policy). Browsers do not allow a web app to track in the background, and iOS is the strictest, so staff must keep the app open. Review this against the Zimbabwe Cyber and Data Protection Act and your employment contracts before using it.
-- **Livestock** – animals do not carry phones, so "any time" tracking needs GPS collars/ear tags. A tracker or its gateway POSTs JSON to the `device-ingest` edge function with a per-farm key; set the tracker's ID in the animal's **GPS collar / tag device ID**. Herders can also **check in** an animal (or group) from the map with their phone's location, or by typing coordinates.
-
-Setup: apply the migrations (the generated `farm_tables` one now includes `positions`, plus `20261013000000_device_ingest.sql` for ingest keys), then `supabase functions deploy device-ingest --no-verify-jwt`. See the header of `supabase/functions/device-ingest/index.ts` for the payload and how to create a key.
 
 ## Sign-in and sign-out
 

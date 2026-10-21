@@ -1,5 +1,3 @@
-import { FarmScene } from "@/components/farm/FarmScene";
-import { TRIAL_DAYS } from "@/lib/plans";
 import { ArrowLeft, Loader2, Sprout } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, type ReactNode } from "react";
@@ -21,9 +19,8 @@ const friendly = (e: unknown) => {
 
 export function Shell({ title, subtitle, children, home = true }: { title: string; subtitle?: string; children: ReactNode; home?: boolean }) {
   return (
-    <div className="bg-hero relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden p-4 pt-safe">
-      <FarmScene dim className="absolute inset-0 -z-10 h-full w-full" />
-      <div className="w-full max-w-md rounded-3xl bg-card/95 p-6 shadow-2xl backdrop-blur sm:p-8">
+    <div className="bg-hero flex min-h-screen flex-col items-center justify-center p-4 pt-safe">
+      <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl sm:p-8">
         {home && <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Home</Link>}
         <div className="mb-5 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"><Sprout className="h-6 w-6" /></div>
@@ -37,8 +34,7 @@ export function Shell({ title, subtitle, children, home = true }: { title: strin
 
 export function Splash({ children = "Loading…" }: { children?: ReactNode }) {
   return (
-    <div className="bg-hero relative isolate flex min-h-screen flex-col items-center justify-center gap-4 overflow-hidden p-6 text-center text-white">
-      <FarmScene dim className="absolute inset-0 -z-10 h-full w-full opacity-60" />
+    <div className="bg-hero flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center text-white">
       <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15"><Sprout className="h-8 w-8" /></div>
       <div className="flex items-center gap-2 text-sm text-white/85"><Loader2 className="h-4 w-4 animate-spin" />{children}</div>
     </div>
@@ -80,7 +76,6 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
             {mode === "in" && <><button type="button" className="text-muted-foreground underline" onClick={() => setMode("forgot")}>Forgot your password?</button><button type="button" className="font-medium text-primary underline" onClick={() => setMode("up")}>New here? Create an account</button></>}
             {mode !== "in" && <button type="button" className="text-muted-foreground underline" onClick={() => setMode("in")}>Back to sign in</button>}
           </div>
-          {mode === "up" && <p className="rounded-lg bg-primary/10 p-3 text-center text-sm font-medium text-primary">Your {TRIAL_DAYS}-day free trial starts when you create your account. No card needed.</p>}
           {mode === "up" && <p className="text-center text-xs text-muted-foreground">Invited to a farm? Create your account with the same email you were invited with and the farm will appear automatically.</p>}
         </form>
       )}
