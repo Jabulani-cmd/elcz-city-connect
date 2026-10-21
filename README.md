@@ -63,7 +63,7 @@ Signed-out visitors land on a **home page** with Sign in / Create account button
 
 Without configuration the app runs **local-only** (device accounts, data stays on the device). With a Supabase project it becomes a multi-user app: email/password sign-in, per-user roles enforced by the database, and background sync between devices.
 
-**Using Lovable (easiest):** in Lovable open *Integrations → Supabase* and connect (Lovable Cloud, or your own Supabase project). Lovable then sets `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for you – these are the names the app reads. Then run the three SQL files from `supabase/migrations` in order (ask Lovable to run them, or paste each into the Supabase **SQL editor**; `…_farm_core.sql` creates a trigger on `auth.users`, which the SQL editor allows if Lovable's migration tool refuses). Finally set the Site URL (step 1 below). The app's Supabase client lives in `src/lib/supabaseClient.ts` on purpose: Lovable regenerates `src/integrations/supabase/*`, so don't move it back there.
+**Using Lovable (easiest):** in Lovable open *Integrations → Supabase* and connect (Lovable Cloud, or your own Supabase project). Lovable then sets `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for you – these are the names the app reads. Then run the four SQL files from `supabase/migrations` in order (ask Lovable to run them, or paste each into the Supabase **SQL editor**; `…_farm_core.sql` creates a trigger on `auth.users`, which the SQL editor allows if Lovable's migration tool refuses). Finally set the Site URL (step 1 below). The app's Supabase client lives in `src/lib/supabaseClient.ts` on purpose: Lovable regenerates `src/integrations/supabase/*`, so don't move it back there.
 
 **Or by hand:**
 
@@ -72,6 +72,7 @@ Without configuration the app runs **local-only** (device accounts, data stays o
    - `…_farm_core.sql` – profiles, farms, membership, roles, invitations, helper functions
    - `…_farm_tables.sql` – 39 data tables **generated from `src/lib/schema.ts`** (`npx vite-node scripts/gen-schema.ts` regenerates it after you change fields), with row-level security
    - `…_storage_audit.sql` – private `farm-files` bucket for receipts/documents and the audit trail
+   - `…_harden_functions.sql` – locks trigger functions away from the API
 3. **Point the app at it.** Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (Project Settings → API) in `.env`, or in Lovable via its Supabase integration. The publishable (anon) key is safe in the browser; row-level security is what protects the data.
 4. **Optional – AI photo analysis.** `supabase functions deploy farm-ai`, set secrets `ANTHROPIC_API_KEY` and `AI_MODEL`, and set `VITE_AI_ENDPOINT=https://<ref>.supabase.co/functions/v1/farm-ai`. Signed-in users' tokens are sent automatically.
 5. **Backups.** Turn on daily backups / point-in-time recovery in *Database → Backups*.
@@ -87,7 +88,7 @@ How it behaves:
 
 Done and tested: all modules above; sign-in, roles, team invitations, sync engine (unit-tested with a fake server), the SQL (tested on PostgreSQL 16: isolation between farms, per-role writes, invitations, last-owner protection, audit, and every field of the sample farm fits its table), and the browser client against a mock Supabase backend.
 
-Not verified against a live Supabase project (none was available while building) – do a quick pass after step 3 above: sign up, create a farm, add an animal, then sign in on a second device.
+The production project (`kpqhrvpglhporpjrgicr`) has all four migrations applied and its security rules were checked with rolled-back tests on the live database. The browser-to-server round trip could not be run from the build sandbox – do a quick pass after step 3 above: sign up, create a farm, add an animal, then sign in on a second device.
 
 Still to do:
 - Email/SMS sending (preferences are saved; push works while the app is open) and IoT, satellite, marketplace and payment integrations from the roadmap.
