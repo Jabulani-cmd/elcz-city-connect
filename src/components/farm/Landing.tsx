@@ -9,12 +9,12 @@ import logo from "@/assets/landing/logo.webp";
 import field from "@/assets/landing/field.webp";
 
 const SLIDES = [
-  { src: livestock, alt: "Two farm workers recording cattle details on a phone at the loading bay", caption: "Livestock" },
-  { src: crops, alt: "A grower checking a tomato plant for disease with a phone", caption: "Crops" },
-  { src: field, alt: "A farmer using a phone in a maize field with irrigation behind him", caption: "Fields" },
+  { src: livestock, alt: "Two farm workers recording cattle details on a phone at the loading bay", caption: "Livestock", focus: "60% 20%" },
+  { src: crops, alt: "A grower checking a tomato plant for disease with a phone", caption: "Crops", focus: "55% 40%" },
+  { src: field, alt: "A farmer using a phone in a maize field with irrigation behind him", caption: "Fields", focus: "42% 15%" },
 ];
 
-/** Full-screen photo carousel behind the home page: fades between slides, pauses for reduced-motion users. */
+/** Photo carousel across the top of the home page, fading into the green below (each photo has its own focal point so the people stay centred): fades between slides, pauses for reduced-motion users. */
 function Carousel() {
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -24,12 +24,12 @@ function Carousel() {
   }, [i]);
   return (
     <>
-      <div className="absolute inset-0 -z-20" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
+      <div className="absolute inset-x-0 top-[7rem] -z-20 h-[52%] [mask-image:linear-gradient(to_bottom,transparent,black_14%,black_55%,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_14%,black_55%,transparent)]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
         {SLIDES.map((s, n) => (
-          <img key={s.src} src={s.src} alt={s.alt} aria-hidden={n !== i} loading={n === 0 ? "eager" : "lazy"} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 motion-reduce:transition-none ${n === i ? "opacity-100" : "opacity-0"}`} />
+          <img key={s.src} src={s.src} alt={s.alt} style={{ objectPosition: s.focus }} aria-hidden={n !== i} loading={n === 0 ? "eager" : "lazy"} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 motion-reduce:transition-none ${n === i ? "opacity-100" : "opacity-0"}`} />
         ))}
       </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[hsl(142_60%_10%/0.95)] via-[hsl(142_60%_14%/0.6)] to-[hsl(142_60%_14%/0.35)]" aria-hidden />
+      <div className="absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-[hsl(150_55%_12%/0.5)] to-transparent" aria-hidden />
       <div className="mx-auto mt-6 flex w-full max-w-lg items-center gap-2" role="tablist" aria-label="Choose a photo">
         {SLIDES.map((s, n) => (
           <button key={s.caption} role="tab" aria-selected={n === i} aria-label={s.caption} onClick={() => setI(n)} className="flex h-8 flex-1 items-center">

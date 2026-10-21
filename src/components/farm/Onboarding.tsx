@@ -1,5 +1,5 @@
-import { Sprout } from "lucide-react";
 import { useState } from "react";
+import logoFull from "@/assets/logo-full.webp";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,8 +25,8 @@ export function Onboarding() {
   return (
     <div className="bg-hero flex min-h-screen items-center justify-center p-4 pt-safe">
       <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl sm:p-8">
-        <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"><Sprout className="h-6 w-6" /></div>
+        <img src={logoFull} alt="Kurima Digital – empowering Zimbabwean farmers" className="mx-auto mb-4 h-28 w-auto" />
+        <div className="mb-5 text-center">
           <div><h1 className="text-2xl font-bold">Welcome to FarmHelper</h1><p className="text-sm text-muted-foreground">One platform to manage the entire farm</p></div>
         </div>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); submit(); }}>
