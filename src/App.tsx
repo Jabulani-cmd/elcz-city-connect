@@ -7,6 +7,7 @@ import { Guard } from "@/components/farm/Guard";
 import { AuthScreen, ResetPassword, Splash } from "@/components/farm/AuthScreen";
 import { CloudBoot } from "@/components/farm/CloudBoot";
 import { LocalBoot } from "@/components/farm/LocalBoot";
+import { InstallPrompt } from "@/components/farm/InstallPrompt";
 import { Landing } from "@/components/farm/Landing";
 import { LocalLogin, LocalSetup } from "@/components/farm/LocalAuthScreens";
 import { authMode, useAuth } from "@/lib/auth";
@@ -49,6 +50,7 @@ const App = () => (
   <TooltipProvider>
     <Toaster richColors position="top-center" />
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <InstallPrompt />
       <Gate>
       <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading…</div>}>
         <Routes>
