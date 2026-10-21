@@ -97,6 +97,8 @@ To switch payments on:
 3. In the Paynow integration, set the Result URL to `https://<project-ref>.supabase.co/functions/v1/paynow` (the function is deployed without JWT verification on purpose; user calls are authenticated inside it).
 4. Pay a real $1-style test amount (temporarily lower a price in `plans`) before announcing it.
 
+**Demo mode (show the whole app without real money).** In Supabase → Edge Functions → Secrets add `PAYMENTS_MODE` = `demo`. Payments are then simulated: no Paynow account is needed and nothing is charged. On *Plan & billing* a banner says so and lists test numbers (EcoCash/OneMoney `0771234567` succeeds after a few seconds, `0773333333` is cancelled, `0774444444` fails), and two buttons let the owner end the trial or restart the 7 days to show the full story. **Delete the secret before real customers use the app**: in demo mode any farm owner can "pay" for free.
+
 Until the keys are added the *Pay* button answers "Online payments are not switched on yet", and nothing else breaks.
 
 ## Status — what is and isn't done

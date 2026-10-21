@@ -1,6 +1,6 @@
 import { Clock, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useBilling } from "@/lib/billing";
@@ -13,12 +13,13 @@ export function SubscriptionBanner() {
   const { status, daysLeft, farmId } = useBilling();
   const owner = useUser().role === "Owner";
   const navigate = useNavigate();
+  const onBilling = useLocation().pathname === "/billing"; // they are already choosing a plan: no pop-up on top
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    if (status !== "expired") return;
+    if (status !== "expired" || onBilling) return;
     try { if (sessionStorage.getItem(SEEN) === farmId) return; sessionStorage.setItem(SEEN, farmId); } catch { /* show anyway */ }
     setOpen(true);
-  }, [status, farmId]);
+  }, [status, farmId, onBilling]);
 
   if (status === "trial") {
     return (

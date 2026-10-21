@@ -4,11 +4,21 @@ import { authStorage } from "@/lib/authStorage";
 /** Supabase projects that must never be used by this app (they hold the previous church website's data). */
 const RETIRED_PROJECT_REFS = ["iakxbadawldjyshqlxzd"];
 
-const rawUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
-const retired = !!rawUrl && RETIRED_PROJECT_REFS.some((ref) => rawUrl.includes(ref));
-if (retired) console.warn("FarmHelper: the configured Supabase project belongs to the old church website and is ignored. Connect a new, empty project.");
-const url = retired ? undefined : rawUrl;
-const key = ((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined)?.trim();
+/** FarmHelper's own Supabase project. Lovable rewrites `.env` (it has put the retired church project back more than once), so the app
+ *  carries its real project here and uses it whenever `.env` is empty or points at a retired project. The publishable key is public by
+ *  design: row-level security is what protects the data. To use a different project set both VITE_ variables; to run with no cloud at all
+ *  set VITE_FARMHELPER_LOCAL_ONLY=true. */
+const DEFAULT_URL = "https://kpqhrvpglhporpjrgicr.supabase.co";
+const DEFAULT_KEY = "sb_publishable_BvUY-vTaQvtJB4kuZB8XJw_dPmhhLQ2";
+
+const envUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
+const envKey = ((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined)?.trim();
+const localOnly = import.meta.env.VITE_FARMHELPER_LOCAL_ONLY === "true";
+const retired = !!envUrl && RETIRED_PROJECT_REFS.some((ref) => envUrl.includes(ref));
+if (retired) console.warn("FarmHelper: .env points at the old church website project, which is ignored. Using the FarmHelper project instead.");
+const useEnv = !!envUrl && !!envKey && !retired;
+const url = localOnly ? undefined : useEnv ? envUrl : DEFAULT_URL;
+const key = localOnly ? undefined : useEnv ? envKey : DEFAULT_KEY;
 
 /** True when a Supabase project is configured. Otherwise the app runs local-only, without sign-in. */
 export const cloudEnabled = !!(url && key);
