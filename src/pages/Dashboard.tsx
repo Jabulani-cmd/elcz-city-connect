@@ -1,7 +1,6 @@
 import { AlertTriangle, Baby, Banknote, Beef, Droplets, HeartPulse, Leaf, Map, Scale, Sprout, TrendingDown, TrendingUp, Users, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { FarmScene } from "@/components/farm/FarmScene";
 import { BarCard, LineCard, PieCard } from "@/components/farm/charts";
 import { Empty, nativeSelect, Panel, StatCard } from "@/components/farm/kit";
 import { RecordDialog } from "@/components/farm/RecordDialog";
@@ -76,10 +75,9 @@ export default function Dashboard() {
   if (!farm) return <Empty>No farm yet. Add one in Settings.</Empty>;
   return (
     <div className="space-y-6">
-      <section aria-label="Summary" className="bg-hero relative [&>*:not(.pointer-events-none)]:relative -mx-4 -mt-4 overflow-hidden rounded-b-3xl px-5 pb-6 pt-6 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:p-7">
-        <FarmScene dim className="pointer-events-none absolute inset-0 h-full w-full opacity-40" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[hsl(150_55%_10%/0.85)] to-transparent" />
-        <p className="relative text-sm text-white/75">{greeting}{user.name && user.name !== "Farm Owner" ? `, ${user.name.split(" ")[0]}` : ""}</p>
+      <section aria-label="Summary" className="bg-hero relative -mx-4 -mt-4 overflow-hidden rounded-b-3xl px-5 pb-6 pt-6 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:p-7">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+        <p className="text-sm text-white/75">{greeting}{user.name && user.name !== "Farm Owner" ? `, ${user.name.split(" ")[0]}` : ""}</p>
         <h1 className="mt-0.5 text-2xl font-bold sm:text-3xl">{farm.name}</h1>
         <p className="text-sm text-white/70">{[farm.location, farm.farmType].filter(Boolean).join(" · ")}</p>
         <div className="mt-5 grid grid-cols-3 gap-2 sm:max-w-xl">
