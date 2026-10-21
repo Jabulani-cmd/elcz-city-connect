@@ -152,7 +152,7 @@ export function guide(i: AiInput): AiResult {
   const hits = rules.filter((r) => r.match.test(text)).sort((a, b) => URGENCY_ORDER.indexOf(b.urgency) - URGENCY_ORDER.indexOf(a.urgency));
   const order = URGENCY_ORDER;
   const urgency = hits.reduce<Urgency>((u, r) => (order.indexOf(r.urgency) > order.indexOf(u) ? r.urgency : u), hits.length ? "Low" : "Moderate");
-  const noImage = i.imageDataUrl || i.imageDataUrls?.length ? "The photo could not be analysed offline, so this guidance uses your written description only. " : "";
+  const noImage = i.imageDataUrl || i.imageDataUrls?.length ? "Photos and videos can’t be checked offline, so this guidance uses the symptoms you gave only. " : "";
   if (!hits.length) {
     return {
       source: "guide", urgency,
