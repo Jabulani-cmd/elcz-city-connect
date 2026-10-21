@@ -49,7 +49,10 @@ export function Landing() {
     <div className="bg-hero relative isolate flex min-h-[100svh] flex-col overflow-hidden text-white">
       <header className="px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
         <div className="mx-auto flex max-w-lg items-center gap-3">
-          <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-28 w-auto rounded-2xl bg-white p-1 shadow-lg sm:h-32" />
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-full bg-white/55 blur-xl" aria-hidden />
+            <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="relative h-32 w-auto drop-shadow-[0_0_2px_rgba(255,255,255,1)] sm:h-36" />
+          </div>
         </div>
       </header>
 
