@@ -25,6 +25,31 @@ Reply with ONLY a JSON object of this exact shape:
 {"summary":string,"findings":[{"name":string,"confidence":number 0-100,"symptoms":string,"causes":string}],"urgency":"Low"|"Moderate"|"High"|"Emergency","care":{"isolate":boolean,"vetTiming":"Immediately"|"Within 24 hours"|"If no improvement in 24–48 hours","notifiable":boolean},"immediateActions":string[],"nextSteps":string[],"vetQuestions":string[],"monitoring":string,"seeProfessional":string}
 Use plain, simple language a farmer understands. Give up to 3 findings, most likely first. Keep lists short and practical. Never recommend prescription-only drugs or doses – leave those to the vet.`;
 
+const CHAT_SYSTEM = `You are the FarmHelper assistant: a friendly, practical farming advisor for small-scale and commercial farmers in Zimbabwe and southern Africa.
+Answer general questions about livestock (cattle, goats, sheep, pigs, poultry), crops and horticulture, soil, irrigation, farm finance (profit, budgets, selling, loans) and using the FarmHelper app.
+FarmHelper keeps farm records (livestock, crops, inventory, money, employees, tasks, reports), works offline, and new users get a 7-day free trial.
+Rules: use plain, simple English; keep answers short (under 150 words); use "- " for lists, no markdown headings or bold; use local context (seasons, Agritex, veterinary officers, US$) where relevant.
+For a sick, injured or dying animal, tell them to call a vet or veterinary officer and mention the Vet check in the app after signing in. Never give prescription drug doses.
+If a question is not about farming or FarmHelper, politely say you can only help with farming.`;
+
+async function chat(input: { messages?: unknown }, apiKey: string, model: string) {
+  const msgs = (Array.isArray(input.messages) ? input.messages : [])
+    .filter((m): m is { role: string; content: string } => !!m && typeof m === "object" && (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim() !== "")
+    .slice(-12)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+  while (msgs.length && msgs[0].role !== "user") msgs.shift();
+  if (!msgs.length) throw new Error("No question given");
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    body: JSON.stringify({ model, max_tokens: 800, system: CHAT_SYSTEM, messages: msgs }),
+  });
+  if (!res.ok) throw new Error(`Model request failed (${res.status})`);
+  const data = await res.json();
+  const reply: string = data.content?.find((c: { type: string }) => c.type === "text")?.text ?? "";
+  return new Response(JSON.stringify({ reply }), { headers: { ...CORS, "content-type": "application/json" } });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
@@ -33,6 +58,7 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     const model = Deno.env.get("AI_MODEL");
     if (!apiKey || !model) throw new Error("AI service is not configured");
+    if (input.kind === "chat") return await chat(input, apiKey, model);
 
     const details = [
       kind === "crop" ? `Crop: ${input.crop ?? "unknown"}` : `Species: ${input.species ?? "unknown"}\nBreed: ${input.breed ?? "unknown"}`,

@@ -4,3 +4,4 @@
 - Videos in the vet check are turned into still frames in the browser (`src/lib/vet.ts`) before sending — the AI model reads pictures, not video files.
 - Every option in the vet symptom drop-down must be recognised by the offline livestock rules — `src/lib/vet.test.ts` enforces this so offline users never get "no match" for a listed symptom.
 - Livestock results always carry `care` (isolate / how soon to see a vet / notifiable); `withCare()` never lets the AI recommend waiting longer than the urgency allows.
+- The home page assistant (`src/lib/farmChat.ts`) uses the same `farm-ai` function with `kind: "chat"` and falls back to built-in answers; every suggested question must have a built-in answer (`farmChat.test.ts`), and sick-animal questions always point to a vet.
