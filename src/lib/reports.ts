@@ -154,3 +154,7 @@ export const REPORTS: ReportDef[] = [
     }),
   },
 ];
+
+// The brief lists "Crop profitability" under both Agriculture and Financial reports.
+const cropProfit = REPORTS.find((r) => r.id === "crop-profit")!;
+REPORTS.splice(REPORTS.findIndex((r) => r.id === "livestock-profit") + 1, 0, { ...cropProfit, id: "crop-profit-financial", group: "Financial" });

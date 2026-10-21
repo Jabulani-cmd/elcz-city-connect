@@ -26,7 +26,7 @@ function FarmForm({ farm }: { farm: Farm }) {
   const [f, setF] = useState(farm);
   useEffect(() => setF(farm), [farm]);
   const set = (k: keyof Farm) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: ["sizeHa", "agriHa", "pastureHa"].includes(k) ? Number(e.target.value) : e.target.value }));
-  const txt = (k: keyof Farm, label: string, extra: object = {}) => <div><Label className="mb-1.5 block text-sm">{label}</Label><Input className="h-11 md:h-10" value={String(f[k] ?? "")} onChange={set(k)} {...extra} /></div>;
+  const txt = (k: keyof Farm, label: string, extra: object = {}) => <div><Label htmlFor={`farm-${k}`} className="mb-1.5 block text-sm">{label}</Label><Input id={`farm-${k}`} className="h-11 md:h-10" value={String(f[k] ?? "")} onChange={set(k)} {...extra} /></div>;
   return (
     <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); if (!f.name.trim()) return toast.error("Farm name is required"); updateFarm(farm.id, f); toast.success("Farm saved"); }}>
       {txt("name", "Farm name *")}
@@ -36,12 +36,12 @@ function FarmForm({ farm }: { farm: Farm }) {
       {txt("sizeHa", "Total farm size (ha)", { type: "number", min: 0 })}
       {txt("agriHa", "Agricultural land (ha)", { type: "number", min: 0 })}
       {txt("pastureHa", "Pasture area (ha)", { type: "number", min: 0 })}
-      <div><Label className="mb-1.5 block text-sm">Farm type</Label><select className={nativeSelect} value={f.farmType} onChange={set("farmType")}>{[...new Set([...FARM_TYPES, f.farmType])].map((t) => <option key={t}>{t}</option>)}</select></div>
+      <div><Label htmlFor="farm-farmType" className="mb-1.5 block text-sm">Farm type</Label><select id="farm-farmType" className={nativeSelect} value={f.farmType} onChange={set("farmType")}>{[...new Set([...FARM_TYPES, f.farmType])].map((t) => <option key={t}>{t}</option>)}</select></div>
       {txt("manager", "Farm manager")}
       {txt("phone", "Phone")}
       {txt("email", "Email", { type: "email" })}
       {txt("registration", "Registration details")}
-      <div className="sm:col-span-2"><Label className="mb-1.5 block text-sm">Description</Label><Textarea rows={3} value={f.description} onChange={set("description")} /></div>
+      <div className="sm:col-span-2"><Label htmlFor="farm-description" className="mb-1.5 block text-sm">Description</Label><Textarea id="farm-description" rows={3} value={f.description} onChange={set("description")} /></div>
       <div className="sm:col-span-2"><Button type="submit" size="lg">Save farm details</Button></div>
     </form>
   );

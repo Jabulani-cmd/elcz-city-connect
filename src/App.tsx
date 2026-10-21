@@ -48,7 +48,7 @@ function Gate({ children }: { children: React.ReactNode }) {
 const App = () => (
   <TooltipProvider>
     <Toaster richColors position="top-center" />
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Gate>
       <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading…</div>}>
         <Routes>

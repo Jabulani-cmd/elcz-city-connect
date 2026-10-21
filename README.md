@@ -36,7 +36,7 @@ How it works: `public/manifest.webmanifest` (static, so it is also served by dev
 | Tasks | List, calendar and kanban board |
 | Farm Map | SVG map from GPS coordinates (fields, pastures, dams, barns…) |
 | Finance | Income/expenses with receipts, budgets, profitability by crop/field/animal/herd/pasture/feedlot/cycle/month/year |
-| Reports | 30 reports, exportable to PDF (print), Excel and CSV |
+| Reports | 28 reports, exportable to PDF (print), Excel and CSV |
 | AI Farm Assistant | Answers questions from the farm's own records |
 | Notifications | Automatic alerts + per-type channel preferences, browser push |
 | Settings | Farm profile, multiple farms, roles, audit log, backup/restore |
