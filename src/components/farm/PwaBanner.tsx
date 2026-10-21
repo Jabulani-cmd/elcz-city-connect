@@ -1,4 +1,4 @@
-import { Download, RefreshCw, Share, X } from "lucide-react";
+import { Download, Share, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { usePwa } from "@/lib/pwa";
 const KEY = "farmhelper.installDismissed";
 const read = () => { try { return localStorage.getItem(KEY) === "1"; } catch { return false; } };
 
-/** Install prompt (Android/desktop), iOS “Add to Home Screen” hint, and the “new version” bar. */
+/** Install prompt (Android/desktop) and iOS “Add to Home Screen” hint shown inside the app. */
 export function PwaBanner() {
   const pwa = usePwa();
   const [hidden, setHidden] = useState(read);
@@ -16,14 +16,6 @@ export function PwaBanner() {
   const dismiss = () => { setHidden(true); try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } };
   return (
     <>
-      {pwa.needRefresh && (
-        <div role="status" className="fixed inset-x-3 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-foreground p-3 text-background shadow-xl">
-          <RefreshCw className="h-5 w-5 shrink-0" />
-          <div className="flex-1 text-sm"><b>Update available</b><div className="opacity-80">Reload to get the latest version.</div></div>
-          <Button size="sm" variant="secondary" onClick={pwa.update}>Update</Button>
-          <button aria-label="Later" onClick={pwa.dismissUpdate} className="p-1 opacity-70"><X className="h-4 w-4" /></button>
-        </div>
-      )}
       {!pwa.installed && !hidden && (
         <div className="mb-4 flex items-start gap-3 rounded-2xl border bg-card p-3 shadow-sm">
           <img src="/icon-192.png" alt="" className="h-12 w-12 rounded-xl" />
