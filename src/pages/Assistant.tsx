@@ -1,13 +1,34 @@
-import { Send, Sparkles } from "lucide-react";
+import { MessageSquare, Send, Sparkles, Stethoscope } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { VetCheck } from "@/components/farm/AiAssistants";
 import { useEffect, useRef, useState } from "react";
 import { Disclaimer, PageHeader } from "@/components/farm/kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { answer, SUGGESTIONS, type Answer } from "@/lib/assistant";
 
 type Msg = { from: "me" | "bot"; text: string; table?: Answer["table"] };
 
 export default function Assistant() {
+  const [params, setParams] = useSearchParams();
+  const tab = params.get("tab") === "vet" ? "vet" : "farm";
+  return (
+    <div className="mx-auto max-w-3xl">
+      <PageHeader title="AI Farm Assistant" description="Ask about your farm records, or get a vet check for a sick animal." />
+      <Tabs value={tab} onValueChange={(v) => setParams(v === "vet" ? { tab: "vet" } : {}, { replace: true })}>
+        <TabsList className="mb-4 grid h-12 w-full grid-cols-2">
+          <TabsTrigger value="farm" className="h-10 text-sm"><MessageSquare className="mr-2 h-4 w-4" />My farm records</TabsTrigger>
+          <TabsTrigger value="vet" className="h-10 text-sm"><Stethoscope className="mr-2 h-4 w-4" />Vet check</TabsTrigger>
+        </TabsList>
+        <TabsContent value="farm"><FarmChat /></TabsContent>
+        <TabsContent value="vet"><VetCheck /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function FarmChat() {
   const [msgs, setMsgs] = useState<Msg[]>([{ from: "bot", text: "Hello! Ask me anything about your farm – I look up the answer in your own records." }]);
   const [q, setQ] = useState("");
   const end = useRef<HTMLDivElement>(null);
@@ -21,8 +42,7 @@ export default function Assistant() {
     setQ("");
   };
   return (
-    <div className="mx-auto max-w-3xl">
-      <PageHeader title="AI Farm Assistant" description="Ask in plain words. Answers are calculated from this farm’s database." />
+    <div>
       <Disclaimer>Answers come from the records you have entered on this device, so they are only as complete as your data. Check important decisions (treatment, sales) yourself or with a professional.</Disclaimer>
       <div className="mt-4 space-y-3" aria-live="polite">
         {msgs.map((m, i) => (
