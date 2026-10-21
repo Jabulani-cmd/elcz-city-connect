@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => ({
         // Pages are NOT served from the offline copy first: opening the app online always loads the newest published
         // version (an installed app used to keep showing the old one). The saved copy is only used offline or on a very slow network.
         directoryIndex: null,
+        navigateFallback: null,
         cleanupOutdatedCaches: true,
         skipWaiting: false,
         clientsClaim: true,
