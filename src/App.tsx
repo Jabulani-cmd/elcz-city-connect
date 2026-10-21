@@ -29,6 +29,7 @@ const Documents = lazy(() => import("@/pages/Documents"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Account = lazy(() => import("@/pages/Account"));
+const Billing = lazy(() => import("@/pages/Billing"));
 const Install = lazy(() => import("@/pages/Install"));
 
 /** The app always opens at a sign-in page. With a Supabase project: cloud accounts. Without: accounts stored on this device. */
@@ -78,6 +79,7 @@ const App = () => (
             <Route path="login" element={<Navigate to="/" replace />} />
             <Route path="signup" element={<Navigate to="/" replace />} />
             <Route path="account" element={<Account />} />
+            <Route path="billing" element={<Billing />} />
             <Route path="settings" element={<Guard section="settings"><Settings /></Guard>} />
             <Route path="*" element={<NotFound />} />
           </Route>

@@ -84,6 +84,21 @@ How it behaves:
 - Sign-in survives going offline; the first load of a new device needs a connection.
 - Data previously saved on a device (before sign-in) can be uploaded to the account from a banner shown after sign-in. Sample data is never uploaded.
 
+## Subscriptions and online payments (Paynow)
+
+- **7-day free trial.** The first farm a person creates gets 7 days free, counted by the server from the moment the farm is first saved (it can't be reset from the device). Further farms created by the same person start without a trial.
+- **After the trial the farm is read-only.** Everyone can still sign in, view and export their records, but nothing can be added or changed until the farm owner chooses a plan. This is enforced by the database (`can_write()` checks `farm_active()`), not just hidden in the screens. The owner gets a "choose a plan" prompt.
+- **Plans (per farm, owner pays), USD:** Starter $10/month (2 people), Standard $25/month (10 people), Pro $50/month (unlimited); yearly is 10x monthly (2 months free). Change prices or limits in the `plans` table; the app reads them from there. A trial has no team limit.
+- **Paying.** *Plan & billing* (account menu) lists plans; the owner pays with EcoCash, OneMoney or InnBucks (approve on the phone) or card/ZimSwitch (Paynow's page). `supabase/functions/paynow` talks to Paynow. The price is taken from the `plans` table, and a payment only counts after the function asks Paynow directly and Paynow reports "Paid" for the right amount (a forged webhook does nothing).
+
+To switch payments on:
+1. Open a merchant account at paynow.co.zw and create an *integration* (you get an Integration ID and Key).
+2. In Supabase → Edge Functions → Secrets add `PAYNOW_ID` and `PAYNOW_KEY` (and, only while Paynow is in test mode, `PAYNOW_AUTH_EMAIL` = your Paynow login email).
+3. In the Paynow integration, set the Result URL to `https://<project-ref>.supabase.co/functions/v1/paynow` (the function is deployed without JWT verification on purpose; user calls are authenticated inside it).
+4. Pay a real $1-style test amount (temporarily lower a price in `plans`) before announcing it.
+
+Until the keys are added the *Pay* button answers "Online payments are not switched on yet", and nothing else breaks.
+
 ## Status — what is and isn't done
 
 Done and tested: all modules above; sign-in, roles, team invitations, sync engine (unit-tested with a fake server), the SQL (tested on PostgreSQL 16: isolation between farms, per-role writes, invitations, last-owner protection, audit, and every field of the sample farm fits its table), and the browser client against a mock Supabase backend.

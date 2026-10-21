@@ -64,6 +64,7 @@ export function Landing() {
             <Button asChild size="lg" className="h-14 w-full bg-white text-lg font-semibold text-[hsl(142_60%_18%)] shadow-lg hover:bg-white/90"><Link to="/login">Sign in</Link></Button>
             {canRegister && <Button asChild size="lg" variant="outline" className="h-14 w-full border-2 border-white/70 bg-transparent text-lg font-semibold text-white hover:bg-white/15 hover:text-white"><Link to="/signup">{status === "setup" ? "Get started" : "Create an account"}</Link></Button>}
           </div>
+          {canRegister && <p className="mt-3 text-center text-sm text-white/80">New here? Start with a <b>7-day free trial</b>.</p>}
           <Carousel />
         </div>
       </main>
