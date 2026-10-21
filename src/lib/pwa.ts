@@ -47,6 +47,7 @@ const isStandalone = () =>
 const isIos = () => typeof navigator !== "undefined" && /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
 
 export const BUILD_ID = typeof __BUILD_ID__ === "string" ? __BUILD_ID__ : "dev";
+export const APP_VERSION = typeof __APP_VERSION__ === "string" ? __APP_VERSION__ : "dev";
 
 /** Remove the offline cache and service worker, then reload to fetch the newest version. Saved farm data is not touched. */
 export async function refreshApp() {

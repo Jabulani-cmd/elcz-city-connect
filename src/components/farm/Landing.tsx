@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
-import { BUILD_ID } from "@/lib/pwa";
+import { Credit } from "./Credit";
 import livestock from "@/assets/landing/livestock.webp";
 import crops from "@/assets/landing/crops.webp";
 import logo from "@/assets/landing/logo.webp";
@@ -69,9 +69,9 @@ export function Landing() {
       </main>
 
       <footer className="px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-xs text-white/70">
-        <div className="mx-auto flex max-w-lg items-center justify-between">
-          <Link to="/install" className="underline underline-offset-2">Install the app</Link>
-          <span>v {BUILD_ID.split(" · ")[1] ?? BUILD_ID}</span>
+        <div className="mx-auto flex max-w-lg items-end justify-between gap-4">
+          <Credit />
+          <Link to="/install" className="shrink-0 underline underline-offset-2">Install the app</Link>
         </div>
       </footer>
     </div>
