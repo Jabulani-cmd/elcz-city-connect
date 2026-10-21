@@ -1,4 +1,5 @@
 import { ArrowLeft, Loader2, Sprout } from "lucide-react";
+import { Credit } from "./Credit";
 import { Link } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ export function Shell({ title, subtitle, children, home = true }: { title: strin
         </div>
         {children}
       </div>
+      <Credit className="mt-4 text-center text-white/75" />
     </div>
   );
 }

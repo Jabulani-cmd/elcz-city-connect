@@ -2,13 +2,14 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
+import pkg from "./package.json";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 const BUILD_ID = `${(process.env.GITHUB_SHA ?? process.env.COMMIT_REF ?? "").slice(0, 7) || "build"} · ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC`;
 
 export default defineConfig(({ mode }) => ({
-  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID), __APP_VERSION__: JSON.stringify(pkg.version) },
   server: {
     host: "::",
     port: 8080,

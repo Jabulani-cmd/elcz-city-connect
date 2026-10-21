@@ -1,4 +1,5 @@
 import { Bell, BarChart3, Boxes, ChevronDown, Cloud, CloudOff, FileText, LayoutDashboard, ListChecks, Map as MapIcon, Download, LogOut, MoreHorizontal, UserRound, PawPrint, Plus, Settings, Sparkles, Sprout, Users, Wallet, WifiOff, type LucideIcon } from "lucide-react";
+import { Credit } from "./Credit";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -172,6 +173,7 @@ export function AppShell() {
         <div className="border-t border-sidebar-border p-3">
           <NavLink to="/account" className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><UserRound className="h-5 w-5" />My account</NavLink>
           <button onClick={() => { void signOut(); }} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-accent"><LogOut className="h-5 w-5" />Sign out</button>
+          <Credit className="px-3 pb-1 pt-3 text-sidebar-foreground/60" />
         </div>
       </aside>
       <div className="flex min-w-0 flex-col">
@@ -212,6 +214,7 @@ export function AppShell() {
           {pwa.canInstall && <div className="px-3 pb-2"><button onClick={() => { void pwa.install(); setOpen(false); }} className="flex min-h-[44px] w-full items-center gap-3 rounded-lg bg-sidebar-primary px-3 text-sm font-semibold text-sidebar-primary-foreground"><Download className="h-5 w-5" />Install app</button></div>}
           <div className="px-5 pb-6 pt-2 text-xs text-sidebar-foreground/60">
             {user.name} · {user.role}
+            <Credit className="mt-3" />
             <NavLink to="/account" onClick={() => setOpen(false)} className="mt-3 flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"><UserRound className="h-5 w-5" />My account &amp; password</NavLink>
             <button className="mt-1 flex min-h-[44px] w-full items-center gap-3 rounded-lg bg-sidebar-accent px-3 text-sm font-semibold text-sidebar-accent-foreground" onClick={() => { void signOut(); }}><LogOut className="h-5 w-5" />Sign out</button>
           </div>

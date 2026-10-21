@@ -1,4 +1,5 @@
 import { Download, Plus, Upload } from "lucide-react";
+import { Credit } from "@/components/farm/Credit";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,7 +17,7 @@ import { signOut, useAuth } from "@/lib/auth";
 import { ACCESS, ROLE_DESCRIPTIONS } from "@/lib/permissions";
 import { clearDemoData, clearFailed, createFarm, getState, resetAll, retryFailed, setUser, updateFarm, useFarm, usePendingCount, useRows, useStore, useUser } from "@/lib/store";
 import { syncNow, useSyncStatus } from "@/lib/sync";
-import { BUILD_ID, refreshApp, usePwa } from "@/lib/pwa";
+import { APP_VERSION, BUILD_ID, refreshApp, usePwa } from "@/lib/pwa";
 import { ROLES, type Farm, type Role, type Section } from "@/lib/types";
 
 const FARM_TYPES = ["Crops", "Livestock", "Mixed (crops & livestock)", "Ranch", "Dairy", "Poultry", "Other"];
@@ -85,7 +86,8 @@ export default function Settings() {
       {farm && <Panel title="Farm details">{cloudEnabled && user.role !== "Owner" && user.role !== "Farm Manager" ? <p className="text-sm text-muted-foreground">Only the owner or farm manager can edit farm details.</p> : <FarmForm farm={farm} />}</Panel>}
 
       <Panel title="App version">
-        <p className="text-sm text-muted-foreground">Running version: <b className="text-foreground">{BUILD_ID}</b></p>
+        <p className="text-sm text-muted-foreground">Running version: <b className="text-foreground">{APP_VERSION}</b> <span className="text-xs">({BUILD_ID})</span></p>
+        <Credit className="mt-1 text-muted-foreground" />
         <p className="mt-1 text-sm text-muted-foreground">Seeing an old version or old screens? This clears the saved copy of the app and loads the newest one. Your farm records are not deleted.</p>
         <Button variant="outline" className="mt-3" onClick={() => { void refreshApp(); }}>Get the latest version</Button>
       </Panel>
