@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { sendPasswordReset, setNewPassword, signIn, signUp, signInWithGoogle } from "@/lib/auth";
+import { sendPasswordReset, setNewPassword, signIn, signUp, signInWithMagicLink } from "@/lib/auth";
 import { cloudHost, pingCloud } from "@/lib/supabaseClient";
 
 const friendly = (e: unknown) => {
@@ -67,9 +67,10 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
     } catch (e) { toast.error(friendly(e)); } finally { setBusy(false); }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleMagicLink = async () => {
+    if (!f.email.trim()) return toast.error("Please enter your email first");
     setBusy(true);
-    try { await signInWithGoogle(); } catch (e) { toast.error(e instanceof Error ? e.message : "Could not sign in with Google"); } finally { setBusy(false); }
+    try { await signInWithMagicLink(f.email); toast.success("Check your email for a magic login link!"); } catch (e) { toast.error(e instanceof Error ? e.message : "Could not send magic link"); } finally { setBusy(false); }
   };
 
   return (
@@ -91,10 +92,10 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
           <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
           <div className="relative py-3">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or continue with</span></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Passwordless login</span></div>
           </div>
-          <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base gap-2" onClick={handleGoogleSignIn} disabled={busy}>
-            <Mail className="h-5 w-5" /> Sign in with Google
+          <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base gap-2" onClick={handleMagicLink} disabled={busy}>
+            <Mail className="h-5 w-5" /> Send Magic Link
           </Button>
           <div className="flex flex-col items-center gap-2 text-sm">
             {mode === "in" && <><button type="button" className="text-muted-foreground underline" onClick={() => setMode("forgot")}>Forgot your password?</button><button type="button" className="font-medium text-primary underline" onClick={() => setMode("up")}>New here? Create an account</button></>}

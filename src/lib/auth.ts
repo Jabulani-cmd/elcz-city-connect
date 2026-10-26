@@ -67,10 +67,12 @@ export const getAuth = () => state;
 /* ---------- actions ---------- */
 const need = () => { if (!supabase) throw new Error("Sign-in is not configured"); return supabase; };
 
-export async function signInWithGoogle() {
-  const { error } = await need().auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin }
+export async function signInWithMagicLink(email: string) {
+  const { error } = await need().auth.signInWithOtp({
+    email: email.trim(),
+    options: {
+      emailRedirectTo: window.location.origin,
+    },
   });
   if (error) throw error;
 }
