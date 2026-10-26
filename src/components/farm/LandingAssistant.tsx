@@ -45,9 +45,9 @@ export function LandingAssistant() {
     <>
       {!open && (
         <button type="button" onClick={() => setOpen(true)} aria-label="Ask the farming assistant"
-          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-accent px-5 text-base font-bold text-accent-foreground shadow-xl ring-4 ring-background/20 transition-transform hover:scale-105 active:scale-95 motion-reduce:transition-none sm:right-6">
-          <MessageCircle className="h-6 w-6" />
-          <span>Ask a farming question</span>
+          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-12 items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-accent-foreground shadow-xl ring-4 ring-background/20 transition-transform hover:scale-105 active:scale-95 motion-reduce:transition-none sm:right-6">
+          <MessageCircle className="h-5 w-5" />
+          <span className="hidden xs:inline">Ask a farming question</span>
         </button>
       )}
 
