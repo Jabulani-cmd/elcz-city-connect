@@ -23,6 +23,7 @@ import { PwaBanner } from "./PwaBanner";
 import { AdoptLocalBanner } from "./AdoptLocalBanner";
 import { AccountMenu } from "./AccountMenu";
 import { QuickRecord } from "./QuickRecord";
+import { InsightsBanner } from "./InsightsBanner";
 
 export const NAV: { to: string; label: string; section: Section; icon: LucideIcon }[] = [
   { to: "/", label: "Dashboard", section: "dashboard", icon: LayoutDashboard },
@@ -210,6 +211,7 @@ export function AppShell() {
           <SubscriptionBanner />
           <PwaBanner />
           <AdoptLocalBanner />
+          <InsightsBanner />
           <Outlet />
         </main>
       </div>

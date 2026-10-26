@@ -1,4 +1,4 @@
-import { AlertTriangle, Camera, Clock, Loader2, ShieldAlert, Siren, Sparkles, Stethoscope, Video, X } from "lucide-react";
+import { AlertTriangle, Camera, Clock, Loader2, ShieldAlert, Siren, Sparkles, Stethoscope, Video, X, CalendarPlus } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { labelOf, SPECIES } from "@/lib/schema";
 import { MAX_PHOTOS, readVideoFrames, VET_SYMPTOM_GROUPS } from "@/lib/vet";
 import { useRows, useUser } from "@/lib/store";
 import { Disclaimer, nativeSelect, Panel } from "./kit";
+import { automateAiTasks } from "@/lib/automation";
 
 function PhotoPicker({ value, onChange }: { value?: string; onChange: (v?: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -61,7 +62,7 @@ function CareBanner({ care }: { care: CareAdvice }) {
   );
 }
 
-function ResultView({ r, onSave, saveLabel }: { r: AiResult; onSave?: () => void; saveLabel: string }) {
+function ResultView({ r, onSave, saveLabel, onSchedule, scheduleLabel }: { r: AiResult; onSave?: () => void; saveLabel: string; onSchedule?: () => void; scheduleLabel?: string }) {
   return (
     <Panel title="Result" action={<span className={`rounded-full px-3 py-1 text-xs font-bold ${URGENCY_STYLE[r.urgency]}`}>Urgency: {r.urgency}</span>}>
       <div className="space-y-4">
@@ -82,7 +83,14 @@ function ResultView({ r, onSave, saveLabel }: { r: AiResult; onSave?: () => void
         <List title="Questions to ask the vet" items={r.vetQuestions} />
         <div className="text-sm"><b>Monitor:</b> {r.monitoring}</div>
         <div className="text-sm"><b>When to get a professional:</b> {r.seeProfessional}</div>
-        {onSave && <Button size="lg" onClick={onSave}>{saveLabel}</Button>}
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {onSave && <Button size="lg" onClick={onSave}>{saveLabel}</Button>}
+          {onSchedule && r.suggestedTasks && r.suggestedTasks.length > 0 && (
+            <Button size="lg" variant="outline" onClick={onSchedule} className="gap-2">
+              <CalendarPlus className="h-4 w-4" /> {scheduleLabel || "Schedule AI Tasks"}
+            </Button>
+          )}
+        </div>
       </div>
     </Panel>
   );
@@ -107,6 +115,11 @@ export function CropDiseaseAI() {
     saveRecord("diagnoses", { cropId, date: todayISO(), finding: top?.name ?? "No clear match", confidence: top?.confidence != null ? `${top.confidence}%` : "–", source: "AI (recommendation)", symptoms: symptoms || top?.symptoms || "", nextSteps: [...result.immediateActions, ...result.nextSteps].join("\n") });
     toast.success("Saved to the crop’s history");
   };
+  const schedule = () => {
+    if (!result?.suggestedTasks) return;
+    automateAiTasks(result.suggestedTasks, "Agriculture");
+    toast.success(`Scheduled ${result.suggestedTasks.length} AI tasks`);
+  };
   return (
     <div className="mb-6 space-y-4">
       <Disclaimer><b>Recommendation only.</b> {AI_DISCLAIMER_CROP}{!aiConfigured() && " Photo analysis needs the AI service to be connected; until then the app uses your written description."}</Disclaimer>
@@ -123,7 +136,7 @@ export function CropDiseaseAI() {
           </div>
         </div>
       </Panel>
-      {result && <ResultView r={result} onSave={canWrite(role, "agriculture") ? save : undefined} saveLabel="Save to crop history" />}
+      {result && <ResultView r={result} onSave={canWrite(role, "agriculture") ? save : undefined} saveLabel="Save to crop history" onSchedule={schedule} scheduleLabel="Schedule Plant Care" />}
     </div>
   );
 }
@@ -157,6 +170,11 @@ export function LivestockAI() {
     });
     toast.success("Saved to the animal’s medical history");
   };
+  const schedule = () => {
+    if (!result?.suggestedTasks) return;
+    automateAiTasks(result.suggestedTasks, "Livestock");
+    toast.success(`Scheduled ${result.suggestedTasks.length} AI tasks`);
+  };
   return (
     <div className="mb-6 space-y-4">
       <Disclaimer><b>Not a veterinary diagnosis.</b> {AI_DISCLAIMER_LIVESTOCK}{!aiConfigured() && " Photo analysis needs the AI service to be connected; until then the app uses your written description."}</Disclaimer>
@@ -179,7 +197,7 @@ export function LivestockAI() {
           </div>
         </div>
       </Panel>
-      {result && <ResultView r={result} onSave={canWrite(role, "livestock") ? save : undefined} saveLabel="Save to medical history" />}
+      {result && <ResultView r={result} onSave={canWrite(role, "livestock") ? save : undefined} saveLabel="Save to medical history" onSchedule={schedule} scheduleLabel="Schedule Animal Care" />}
     </div>
   );
 }
@@ -300,7 +318,7 @@ export function VetCheck() {
         <Button size="lg" className="mt-4 h-12 w-full text-base" onClick={run} disabled={busy || readingVideo}>{busy ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Stethoscope className="mr-2 h-5 w-5" />}{busy ? "Checking…" : "Get diagnosis and advice"}</Button>
       </Panel>
 
-      {result && <ResultView r={result} onSave={animalId && canWrite(role, "livestock") ? save : undefined} saveLabel="Save to medical history" />}
+      {result && <ResultView r={result} onSave={animalId && canWrite(role, "livestock") ? save : undefined} saveLabel="Save to medical history" onSchedule={schedule} scheduleLabel="Schedule Vet Care" />}
     </div>
   );
 }

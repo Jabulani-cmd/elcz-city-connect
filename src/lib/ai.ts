@@ -11,6 +11,14 @@ export type AiFinding = { name: string; confidence?: number; symptoms?: string; 
 /** How fast a vet is needed. Emergencies and notifiable diseases are always "Immediately". */
 export type VetTiming = "Immediately" | "Within 24 hours" | "If no improvement in 24–48 hours";
 export type CareAdvice = { isolate: boolean; vetTiming: VetTiming; notifiable: boolean };
+
+export type AiTaskSuggestion = {
+  title: string;
+  description: string;
+  dueDateOffsetDays: number;
+  priority: "Low" | "Medium" | "High" | "Urgent";
+};
+
 export type AiResult = {
   source: "ai" | "guide";
   summary: string;
@@ -21,6 +29,8 @@ export type AiResult = {
   vetQuestions: string[];
   monitoring: string;
   seeProfessional: string;
+  /** Structured tasks the AI suggests creating in the task list. */
+  suggestedTasks?: AiTaskSuggestion[];
   /** Livestock only: isolate or not, and how soon to see a vet. */
   care?: CareAdvice;
 };
