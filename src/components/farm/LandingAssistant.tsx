@@ -55,7 +55,6 @@ export function LandingAssistant() {
         <div role="dialog" aria-modal="false" aria-label="Farming assistant"
           className="fixed inset-x-2 bottom-2 z-50 flex max-h-[min(40rem,calc(100svh-1rem))] flex-col overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[24rem]">
           <div className="flex items-center gap-3 bg-primary px-4 py-3 text-primary-foreground">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground/15"><Sparkles className="h-5 w-5" /></div>
             <div className="min-w-0 flex-1">
               <div className="font-bold leading-tight">FarmHelper assistant</div>
               <div className="text-xs opacity-80">Livestock · Crops · Finance</div>
