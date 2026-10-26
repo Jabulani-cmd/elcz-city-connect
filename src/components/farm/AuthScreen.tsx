@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import logoFull from "@/assets/logo-full.webp";
 import logoIcon from "@/assets/logo-icon.webp";
 import { Credit } from "./Credit";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { sendPasswordReset, setNewPassword, signIn, signUp } from "@/lib/auth";
+import { sendPasswordReset, setNewPassword, signIn, signUp, signInWithGoogle } from "@/lib/auth";
 import { cloudHost, pingCloud } from "@/lib/supabaseClient";
 
 const friendly = (e: unknown) => {
@@ -67,6 +67,11 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
     } catch (e) { toast.error(friendly(e)); } finally { setBusy(false); }
   };
 
+  const handleGoogleSignIn = async () => {
+    setBusy(true);
+    try { await signInWithGoogle(); } catch (e) { toast.error(e instanceof Error ? e.message : "Could not sign in with Google"); } finally { setBusy(false); }
+  };
+
   return (
     <Shell title={mode === "up" ? "Create your account" : mode === "forgot" ? "Reset password" : "Welcome back"} subtitle={mode === "up" ? "Free for 7 days, then choose a plan" : "FarmHelper – one platform to manage the entire farm"}>
       {server === "down" && (
@@ -84,6 +89,13 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
           {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} /></div>}
           {mode !== "forgot" && <KeepSignedIn checked={keep} onChange={setKeep} />}
           <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
+          <div className="relative py-3">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or continue with</span></div>
+          </div>
+          <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base gap-2" onClick={handleGoogleSignIn} disabled={busy}>
+            <Mail className="h-5 w-5" /> Sign in with Google
+          </Button>
           <div className="flex flex-col items-center gap-2 text-sm">
             {mode === "in" && <><button type="button" className="text-muted-foreground underline" onClick={() => setMode("forgot")}>Forgot your password?</button><button type="button" className="font-medium text-primary underline" onClick={() => setMode("up")}>New here? Create an account</button></>}
             {mode !== "in" && <button type="button" className="text-muted-foreground underline" onClick={() => setMode("in")}>Back to sign in</button>}

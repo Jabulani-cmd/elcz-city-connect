@@ -67,6 +67,14 @@ export const getAuth = () => state;
 /* ---------- actions ---------- */
 const need = () => { if (!supabase) throw new Error("Sign-in is not configured"); return supabase; };
 
+export async function signInWithGoogle() {
+  const { error } = await need().auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) throw error;
+}
+
 export async function signIn(identifier: string, password: string, keep = false) {
   setKeepSignedIn(keep);
   if (authMode === "local") {
