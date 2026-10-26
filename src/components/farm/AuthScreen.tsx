@@ -112,7 +112,7 @@ export function ResetPassword() {
   const [pw, setPw] = useState("");
   const [busy, setBusy] = useState(false);
   return (
-    <Shell title="Choose a new password" home={false}>
+    <Shell title="Choose a new password" home={true}>
       <form className="space-y-4" onSubmit={async (e) => { e.preventDefault(); if (pw.length < 8) return toast.error("Password must be at least 8 characters"); setBusy(true); try { await setNewPassword(pw); toast.success("Password updated"); } catch (err) { toast.error(friendly(err)); } finally { setBusy(false); } }}>
         <div><Label htmlFor="rp" className="mb-1.5 block">New password</Label><Input id="rp" type="password" className="h-12 text-base" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} /></div>
         <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>Save password</Button>
