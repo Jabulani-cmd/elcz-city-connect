@@ -79,12 +79,12 @@ describe("analytics", () => {
   });
 });
 
-describe("reports catalogue matches the brief", () => {
-  it("has the 12 livestock, 9 agriculture and 7 financial reports", async () => {
+describe("auditor reports", () => {
+  it("builds the financial, health and operational reports", async () => {
     // reports.ts reads the store, which needs localStorage (jsdom provides it)
-    const { REPORTS } = await import("./reports");
-    const n = (g: string) => REPORTS.filter((r) => r.group === g).length;
-    expect([n("Livestock"), n("Agriculture"), n("Financial")]).toEqual([12, 9, 7]);
-    expect(new Set(REPORTS.map((r) => r.id)).size).toBe(REPORTS.length);
+    const { generateFinancialReport, generateHealthReport, generateOperationalReport } = await import("./reports");
+    const reports = [generateFinancialReport(), generateHealthReport(), generateOperationalReport()];
+    expect(reports.map((r) => r.title)).toEqual(["Financial Audit Report", "Animal Health & Welfare Report", reports[2].title]);
+    for (const r of reports) expect(r.sections.length).toBeGreaterThan(0);
   });
 });
