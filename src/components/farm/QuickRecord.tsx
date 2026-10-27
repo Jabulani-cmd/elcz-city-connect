@@ -28,7 +28,7 @@ export function QuickRecord({ open, onClose }: { open: boolean; onClose: () => v
         <DialogContent className="pb-[max(1.5rem,env(safe-area-inset-bottom))] max-sm:bottom-0 max-sm:top-auto max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl sm:max-w-md">
           <DialogHeader>
             <DialogTitle>What did you do?</DialogTitle>
-            <DialogDescription>Pick one — it takes under a minute.</DialogDescription>
+            <DialogDescription>Pick one. It takes under a minute.</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
             {actions.map((a) => (

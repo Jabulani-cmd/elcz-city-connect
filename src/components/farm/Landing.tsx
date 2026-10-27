@@ -59,8 +59,8 @@ export function Landing() {
 
       <main className="flex flex-1 items-end px-6 py-8 [@media(max-height:500px)]:py-3">
         <div className="mx-auto w-full max-w-lg">
-          <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl [@media(max-height:500px)]:text-3xl">One platform to manage the entire farm.</h1>
-          <p className="mt-4 max-w-md text-lg text-white/85 sm:text-xl [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-base">Livestock, crops, money and your team, on your phone, even with no signal.</p>
+          <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl [@media(max-height:500px)]:text-3xl">One platform to manage the entire farm.</h1>
+          <p className="mt-6 max-w-md text-xl text-white/90 sm:text-2xl [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-base">Livestock, crops, money and your team, on your phone, even with no signal.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row [@media(max-height:500px)]:mt-4">
             <Button asChild size="lg" className="h-14 w-full bg-white text-lg font-semibold text-[hsl(142_60%_18%)] shadow-lg hover:bg-white/90"><Link to="/login">Sign in</Link></Button>
             {canRegister && <Button asChild size="lg" variant="outline" className="h-14 w-full border-2 border-white/70 bg-transparent text-lg font-semibold text-white hover:bg-white/15 hover:text-white"><Link to="/signup">{status === "setup" ? "Get started" : "Create an account"}</Link></Button>}

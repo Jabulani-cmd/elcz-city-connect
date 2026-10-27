@@ -1,6 +1,6 @@
 # FarmHelper
 
-One platform to manage the entire farm — crops and livestock, with shared finance, employees, inventory, reports, notifications and documents. Mobile-first and **offline-first**: everything is saved on the device and works without a connection.
+One platform to manage the entire farm: crops and livestock, with shared finance, employees, inventory, reports, notifications and documents. Mobile-first and **offline-first**: everything is saved on the device and works without a connection.
 
 ## Run it
 
@@ -56,7 +56,7 @@ Business rules live in `src/lib/rules.ts` (e.g. a purchase creates the animal an
 Signed-out visitors land on a **home page** with Sign in / Create account buttons (the app itself is always behind sign-in), and there is Sign out in the account menu (top-right avatar), the *More* menu and the desktop sidebar. "Keep me signed in on this device" is off by default, so a closed and reopened app asks for the password again; tick it on a personal phone to skip that.
 
 - **Without a cloud project** (default): accounts live on the device. The first run asks you to create the owner account (existing farm data on the device is kept and protected by it); the owner adds staff under *Settings → People who can sign in* with a role each. Passwords are stored only as salted PBKDF2 hashes. This keeps other people out of the app on a shared phone; it does **not** encrypt the farm records, and there is no password recovery (forgetting the owner password means erasing the device data). Staff phones don't share data.
-- **With a Supabase project**: real accounts (email + password, reset by email), roles enforced by the database, data shared across devices — see below.
+- **With a Supabase project**: real accounts (email + password, reset by email), roles enforced by the database, data shared across devices. See below.
 - Everyone can reach **My account** (`/account`) to change their password and sign out; Settings is owner-only.
 
 ## Going to production (accounts, teams, cloud sync)
@@ -101,7 +101,7 @@ To switch payments on:
 
 Until the keys are added the *Pay* button answers "Online payments are not switched on yet", and nothing else breaks.
 
-## Status — what is and isn't done
+## Status: what is and isn't done
 
 Done and tested: all modules above; sign-in, roles, team invitations, sync engine (unit-tested with a fake server), the SQL (tested on PostgreSQL 16: isolation between farms, per-role writes, invitations, last-owner protection, audit, and every field of the sample farm fits its table), and the browser client against a mock Supabase backend.
 
