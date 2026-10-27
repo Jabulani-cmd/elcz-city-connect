@@ -38,7 +38,7 @@ function Carousel() {
           </button>
         ))}
       </div>
-    </div>
+    </>
   );
 }
 
