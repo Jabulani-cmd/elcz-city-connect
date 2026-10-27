@@ -258,6 +258,11 @@ export function VetCheck() {
     });
     toast.success("Saved to the animal’s medical history");
   };
+  const schedule = () => {
+    if (!result?.suggestedTasks) return;
+    automateAiTasks(result.suggestedTasks, "Livestock");
+    toast.success(`Scheduled ${result.suggestedTasks.length} AI tasks`);
+  };
 
   return (
     <div className="space-y-4">
