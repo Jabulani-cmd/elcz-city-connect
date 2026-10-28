@@ -65,9 +65,9 @@ export function Landing() {
             <Button asChild size="lg" className="h-12 px-6 text-base font-semibold bg-white text-[hsl(142_60%_18%)] shadow-md hover:bg-white/90 transition-all hover:scale-105 active:scale-95">
               <Link to="/signup">Start Your Free Trial</Link>
             </Button>
-            {canRegister && <Button asChild size="lg" variant="outline" className="h-12 px-6 text-base font-semibold border-white/50 bg-white/10 text-white hover:bg-white/20 transition-all hover:scale-105 active:scale-95">
-              <Link to="/signup">{status === "setup" ? "Get started" : "Create an account"}</Link>
-            </Button>}
+            <Button asChild size="lg" variant="outline" className="h-12 px-6 text-base font-semibold border-white/50 bg-white/10 text-white hover:bg-white/20 transition-all hover:scale-105 active:scale-95">
+              <Link to="/login">Sign In</Link>
+            </Button>
           </div>
           {canRegister && <p className="mt-3 text-center text-sm text-white/80">New here? Start with a <b>7-day free trial</b>.</p>}
           <Carousel />
