@@ -20,9 +20,9 @@ export function seedDemo(base: State): State {
   };
 
   const farm: Farm = {
-    id: farmId, name: "Green Valley Farm (sample)", location: "Matopos, Bulawayo, Zimbabwe", latitude: "-20.4200", longitude: "28.5000",
+    id: farmId, name: "Green Valley Farm (Professional Demo)", location: "Matopos, Bulawayo, Zimbabwe", latitude: "-20.4200", longitude: "28.5000",
     sizeHa: 420, farmType: "Mixed (crops & livestock)", manager: "Tendai Moyo", phone: "+263 77 000 0000", email: "office@greenvalley.example",
-    registration: "REG-2019-0457", description: "Demonstration farm with sample data. Remove it in Settings when you are ready to add your own.",
+    registration: "REG-2019-0457", description: "Advanced demonstration farm. Includes simulated health crises, financial gaps, and billing history to showcase AI insights and auditor reports.",
     agriHa: 120, pastureHa: 260, createdAt: stamp,
   };
 
@@ -57,7 +57,7 @@ export function seedDemo(base: State): State {
 
   /* animals */
   const breeds = ["Brahman", "Nguni", "Angus", "Bonsmara", "Tuli"];
-  const plan: [string, string, number, number, number][] = [ // category, sex, count, ageMonthsMin, ageMonthsMax
+  const plan: [string, string, number, number, number][] = [
     ["Bull", "Male", 2, 36, 60], ["Cow", "Female", 14, 30, 96], ["Heifer", "Female", 6, 14, 24], ["Calf", "Female", 4, 2, 8], ["Calf", "Male", 4, 2, 8], ["Steer", "Male", 6, 14, 26],
   ];
   const A: Row[] = [];
@@ -81,12 +81,11 @@ export function seedDemo(base: State): State {
   A[9].status = "Sold"; A[9].pastureId = undefined; A[9].soldDate = addDays(today, -25);
   A[15].status = "Deceased"; A[15].pastureId = undefined; A[15].deathDate = addDays(today, -33);
   P[2].grazingEnd = addDays(today, -15);
-  // overstock P2 (capacity 20) is avoided; push extras onto P4 (cap 15)
   A.filter((a) => a.status === "Active" && a.category === "Heifer").forEach((a) => (a.pastureId = P[3].id));
   A.filter((a) => a.status === "Active" && a.category === "Calf").slice(0, 4).forEach((a) => (a.pastureId = P[3].id));
   A.filter((a) => a.status === "Active" && a.category === "Steer").forEach((a) => (a.pastureId = undefined));
 
-  /* weights: 4 readings over ~4 months per live animal */
+  /* weights */
   for (const a of A) {
     if (a.status === "Deceased") continue;
     const target = a.currentWeight;
@@ -95,96 +94,53 @@ export function seedDemo(base: State): State {
     [-120, -80, -40, -3].forEach((offset) => {
       const date = addDays(today, offset);
       const w = Math.round(target - rate * (-offset) + between(-4, 4));
-      const diff = prev ? round(w - prev.weight) : "";
+      const diff = prev ? Math.round(w - prev.weight) : "";
       const row = mk("weights", { animalId: a.id, date, weight: w, location: "Crush pen", previousWeight: prev ? prev.weight : "", difference: diff, adg: prev ? averageDailyGain(w - prev.weight, daysBetween(prev.date, date)) : 0 });
       prev = row;
     });
     a.currentWeight = prev!.weight;
   }
 
-  /* health */
+  /* --- DEMO SCENARIOS --- */
   const cow = (i: number) => A[2 + i];
-  mk("vaccinations", { animalId: cow(0).id, vaccine: "Anthrax", date: addDays(today, -350), nextDate: addDays(today, 15), batch: "AN-2291", veterinarian: "Dr. Ncube", cost: 3 });
-  mk("vaccinations", { animalId: cow(1).id, vaccine: "Anthrax", date: addDays(today, -365), nextDate: addDays(today, -2), batch: "AN-2291", veterinarian: "Dr. Ncube", cost: 3 });
-  mk("vaccinations", { animalId: cow(2).id, vaccine: "Foot & Mouth", date: addDays(today, -170), nextDate: addDays(today, 6), batch: "FM-118", veterinarian: "Dr. Ncube", cost: 5 });
-  mk("vaccinations", { animalId: cow(3).id, vaccine: "Brucellosis", date: addDays(today, -300), nextDate: addDays(today, 65), batch: "BR-77", veterinarian: "Dr. Ncube", cost: 4 });
-  mk("health", { animalId: cow(4).id, date: addDays(today, -5), condition: "Lameness", symptoms: "Limping on front left leg", diagnosis: "Foot rot", treatment: "Antibiotic injection, hoof trim", medication: "Oxytetracycline", dosage: "10 ml daily x3", veterinarian: "Dr. Ncube", startDate: addDays(today, -5), endDate: addDays(today, -2), withdrawalDays: 14, recovery: "Ongoing", source: "Manual" });
-  mk("health", { animalId: A[3].id, date: addDays(today, -9), condition: "Suspected tick-borne disease", symptoms: "Fever, off feed", diagnosis: "Heartwater suspected", treatment: "Isolated and treated", medication: "Tetracycline", dosage: "20 ml", veterinarian: "Dr. Ncube", recovery: "Ongoing", source: "Manual" });
-  mk("quarantine", { animalId: A[3].id, reason: "Suspected tick-borne disease", startDate: addDays(today, -9), expectedRelease: addDays(today, 5), healthStatus: "Improving", treatments: "Tetracycline", vetNotes: "Re-check temperature daily", released: "No" });
-  mk("appointments", { date: addDays(today, 3), veterinarian: "Dr. Ncube", reason: "Herd pregnancy testing", status: "Scheduled" });
 
-  /* feed */
+  // Scenario 1: Critical Health Alert (Emergency Urgency)
+  mk("health", { animalId: A[3].id, date: addDays(today, -3), condition: "Suspected Heartwater", symptoms: "High fever, nervous signs, staggering", diagnosis: "Emergency Case", treatment: "Tetracycline injection, strict isolation", medication: "Tetracycline", dosage: "20 ml", veterinarian: "Dr. Ncube", startDate: addDays(today, -3), recovery: "Ongoing", source: "AI assessment", urgency: "Emergency" });
+  mk("quarantine", { animalId: A[3].id, reason: "Suspected Heartwater", startDate: addDays(today, -3), expectedRelease: addDays(today, 10), healthStatus: "Critical", treatments: "Tetracycline", vetNotes: "Check temperature every 6 hours", released: "No" });
+
+  // Scenario 2: Overdue Vaccinations (High Priority)
+  mk("vaccinations", { animalId: cow(0).id, vaccine: "Anthrax", date: addDays(today, -365), nextDate: addDays(today, -5), batch: "AN-2291", veterinarian: "Dr. Ncube", cost: 3 });
+  mk("vaccinations", { animalId: cow(1).id, vaccine: "Anthrax", date: addDays(today, -365), nextDate: addDays(today, -10), batch: "AN-2291", veterinarian: "Dr. Ncube", cost: 3 });
+
+  // Scenario 3: Financial Gaps (Audit Red Flags)
+  mk("expenses", { date: addDays(today, -10), category: "Feed", description: "Urgent winter feed supplement", amount: 4500, paymentStatus: "Outstanding", dueDate: addDays(today, -2), paymentMethod: "Credit", section: "Livestock" });
+  mk("expenses", { date: addDays(today, -5), category: "Veterinary", description: "Emergency Vet Call-out", amount: 1200, paymentStatus: "Outstanding", dueDate: addDays(today, 2), paymentMethod: "Bank transfer", section: "Livestock" });
+
+  // Scenario 4: Operational Lag (Overdue High Priority Tasks)
+  mk("tasks", { name: "Repair North Paddock fence", employeeId: "demo-employees-2", section: "Livestock", priority: "High", startDate: addDays(today, -14), dueDate: addDays(today, -7), status: "To do", description: "Fence broke near river camp, animals escaping" });
+  mk("tasks", { name: "Conduct quarterly herd audit", employeeId: "demo-employees-1", section: "General", priority: "High", startDate: addDays(today, -30), dueDate: addDays(today, -5), status: "To do", description: "Verify all tags and weights for auditor" });
+
+  // Scenario 5: Inventory Crisis (Low Stock Alert)
+  mk("inventory", { category: "Veterinary medicines", name: "Oxytetracycline", quantity: 2, unit: "units", price: 18, storage: "Vet fridge", expiry: addDays(today, 100), minStock: 10 });
+
+  /* --- BILLING & SUBSCRIPTION DEMO --- */
+  // Simulated past payments to show in the "Payment history" panel
+  mk("payments", { plan_code: "standard", amount_usd: 15, billing_interval: "month", status: "paid", method: "ecocash", created_at: addDays(today, -60) });
+  mk("payments", { plan_code: "standard", amount_usd: 15, billing_interval: "month", status: "paid", method: "innbucks", created_at: addDays(today, -30) });
+
+  /* Rest of general seed data */
   const FD = [
     mk("feed", { feedType: "Hay", name: "Teff hay bales", supplier: "Highveld Feeds", qtyPurchased: 400, unit: "bales", costPerUnit: 6, purchaseDate: addDays(today, -60), expiryDate: "", storage: "Hay shed", minStock: 100 }),
     mk("feed", { feedType: "Concentrates", name: "Finisher pellets", supplier: "AgriMix", qtyPurchased: 6000, unit: "kg", costPerUnit: 0.42, purchaseDate: addDays(today, -45), expiryDate: addDays(today, 25), storage: "Feed store", minStock: 1200 }),
-    mk("feed", { feedType: "Minerals", name: "Lick blocks", supplier: "AgriMix", qtyPurchased: 80, unit: "units", costPerUnit: 9, purchaseDate: addDays(today, -30), storage: "Feed store", minStock: 15 }),
-    mk("feed", { feedType: "Silage", name: "Maize silage", supplier: "Own production", qtyPurchased: 20000, unit: "kg", costPerUnit: 0.08, purchaseDate: addDays(today, -100), storage: "Silage pit", minStock: 4000 }),
   ];
-  mk("feedUsage", { feedId: FD[0].id, quantity: 330, date: addDays(today, -5), target: "Breeding herd" });
-  mk("feedUsage", { feedId: FD[1].id, quantity: 4300, date: addDays(today, -4), target: "Feedlot A" });
-  mk("feedUsage", { feedId: FD[2].id, quantity: 52, date: addDays(today, -10), target: "All pastures" });
-  mk("feedUsage", { feedId: FD[3].id, quantity: 11000, date: addDays(today, -6), target: "Breeding herd" });
+  mk("feedUsage", { feedId: FD[0].id, quantity: 350, date: addDays(today, -2), target: "Breeding herd" });
 
-  /* feedlot (steers) */
-  A.filter((a) => a.category === "Steer" && a.status === "Active").forEach((a, i) => {
-    mk("feedlot", { feedlotId: "Feedlot A", animalId: a.id, entryDate: addDays(today, -75 - i * 3), startWeight: a.currentWeight - 70 - i * 3, currentWeight: a.currentWeight, targetWeight: 480, ration: "Finisher pellets + silage", dailyIntakeKg: 9.5, feedCostPerKg: 0.3, salePricePerKg: 3.1 });
-  });
-
-  /* purchases & sales */
-  const bought = A[5];
-  mk("purchases", { date: addDays(today, -60), seller: "Mutare Auctions", tag: bought.tag, breed: bought.breed, category: bought.category, sex: bought.sex, ageMonths: 20, weight: 280, price: 760, transport: 80, vetCost: 25, otherCost: 0, location: "Mutare", animalId: bought.id });
-  mk("expenses", { date: addDays(today, -60), category: "Livestock purchase", description: `Purchase of ${bought.tag} from Mutare Auctions`, amount: 865, paymentStatus: "Paid", paymentMethod: "Bank transfer", section: "Livestock", purchaseId: "demo-purchases-1" });
-  for (const [i, a] of [A[8], A[9]].entries()) {
-    const price = 1180 + i * 90;
-    const sale = mk("sales", { date: a.soldDate, animalId: a.id, buyer: "Bulawayo Abattoir", weight: 420 + i * 25, price, transport: 40, commission: 35, otherCost: 0, costBasis: 760 + i * 40 });
-    mk("income", { date: a.soldDate, category: "Livestock sales", description: `Sale of ${a.tag} to Bulawayo Abattoir`, amount: price - 75, paymentStatus: "Paid", paymentMethod: "Bank transfer", section: "Livestock", animalId: a.id, saleId: sale.id });
-  }
-
-  /* breeding, births, mortality */
-  mk("breeding", { cowId: cow(5).id, bullId: A[0].id, matingDate: addDays(today, -255), method: "Natural", pregnancyStatus: "Pregnant", expectedCalvingDate: addDays(today, 12) });
-  mk("breeding", { cowId: cow(6).id, bullId: A[0].id, matingDate: addDays(today, -58), method: "Natural", pregnancyStatus: "Pending check" });
-  mk("breeding", { cowId: cow(7).id, bullId: A[1].id, matingDate: addDays(today, -120), method: "Artificial insemination", semen: "Angus AI-204", pregnancyStatus: "Pregnant" });
-  A.filter((a) => a.category === "Calf").slice(0, 4).forEach((c, i) => mk("births", { calfTag: c.tag, motherId: cow(8 + i).id, fatherId: A[0].id, birthDate: c.dob, birthWeight: 32 + i, sex: c.sex, breed: c.breed, healthStatus: "Healthy", calfId: c.id }));
-  mk("mortality", { animalId: A[15].id, date: addDays(today, -33), cause: "Snake bite", location: "River Camp", loss: A[15].estimatedValue, vetFindings: "Swelling at hind leg" });
-
-  /* finance: 6 months */
-  const cats: [string, number, number][] = [["Feed", 700, 1400], ["Veterinary", 120, 380], ["Labour", 1900, 2100], ["Fuel", 300, 520], ["Seeds", 0, 900], ["Fertilizer", 0, 1100], ["Utilities", 150, 260], ["Maintenance", 90, 400]];
-  for (let m = 5; m >= 0; m--) {
-    const date = addDays(today, -m * 30 - 3);
-    for (const [category, lo, hi] of cats) {
-      const amount = Math.round(between(lo, hi));
-      if (amount > 0) mk("expenses", { date, category, description: `${category} – monthly`, amount, paymentMethod: "Bank transfer", paymentStatus: "Paid", section: category === "Feed" || category === "Veterinary" ? "Livestock" : category === "Seeds" || category === "Fertilizer" ? "Agriculture" : "General", ...(category === "Feed" ? { herd: "Breeding herd" } : {}) });
-    }
-    mk("income", { date, category: m % 2 ? "Crop sales" : "Livestock sales", description: m % 2 ? "Grain delivery" : "Weaner sales", amount: Math.round(between(2500, 6500)), paymentMethod: "Bank transfer", paymentStatus: "Paid", section: m % 2 ? "Agriculture" : "Livestock" });
-  }
-  mk("expenses", { date: addDays(today, -10), category: "Feed", description: "Winter feed order – AgriMix", amount: 2150, paymentStatus: "Outstanding", dueDate: addDays(today, 4), paymentMethod: "Credit", section: "Livestock" });
-  mk("budgets", { category: "Feed", month: today.slice(0, 7), amount: 1200 });
-  mk("budgets", { category: "Veterinary", month: today.slice(0, 7), amount: 300 });
-  mk("budgets", { category: "Labour", month: today.slice(0, 7), amount: 2000 });
-  mk("suppliers", { name: "AgriMix", phone: "+263 77 111 2222", email: "sales@agrimix.example" });
-  mk("suppliers", { name: "Highveld Feeds", phone: "+263 77 333 4444" });
-  mk("customers", { name: "Bulawayo Abattoir", phone: "+263 77 555 6666" });
-
-  /* employees, attendance, tasks, inventory, map */
-  const E = [
-    mk("employees", { empNo: "E001", name: "Tendai Moyo", position: "Farm Manager", department: "General", phone: "+263 77 000 0001", hireDate: "2019-03-01", salary: 900, payFrequency: "Monthly", workLocation: "Main office", status: "Active" }),
-    mk("employees", { empNo: "E002", name: "Sipho Dube", position: "Herdsman", department: "Livestock", phone: "+263 77 000 0002", hireDate: "2021-06-15", salary: 420, payFrequency: "Monthly", workLocation: "Livestock", status: "Active" }),
-    mk("employees", { empNo: "E003", name: "Grace Ndlovu", position: "Irrigation technician", department: "Crops", phone: "+263 77 000 0003", hireDate: "2022-01-10", salary: 460, payFrequency: "Monthly", workLocation: "Fields", status: "Active" }),
-  ];
-  E.forEach((e) => { for (let d = 0; d < 5; d++) mk("attendance", { employeeId: e.id, date: addDays(today, -d), status: d === 3 && e.empNo === "E003" ? "Leave" : "Present", hours: d === 3 && e.empNo === "E003" ? 0 : 8 }); });
-  mk("tasks", { name: "Move cattle to Pasture 4", employeeId: E[1].id, section: "Livestock", priority: "High", startDate: today, dueDate: today, status: "To do", description: "Move the heifers and four calves to South Flats" });
-  mk("tasks", { name: "Repair Hill Camp water trough", employeeId: E[1].id, section: "Livestock", priority: "Urgent", startDate: addDays(today, -2), dueDate: addDays(today, -1), status: "In progress" });
-  mk("tasks", { name: "Inspect irrigation heads on Field A2", employeeId: E[2].id, section: "Agriculture", priority: "High", startDate: today, dueDate: addDays(today, 1), status: "To do" });
-  mk("tasks", { name: "Weigh feedlot steers", employeeId: E[1].id, section: "Feedlot", priority: "Medium", startDate: addDays(today, 5), dueDate: addDays(today, 7), status: "To do" });
-  mk("tasks", { name: "Order lick blocks", employeeId: E[0].id, section: "General", priority: "Low", startDate: addDays(today, -6), dueDate: addDays(today, -4), status: "Done" });
-  mk("inventory", { category: "Equipment", name: "Tractor (John Deere 5075)", quantity: 1, unit: "units", price: 28000, storage: "Machinery shed", nextService: addDays(today, 6) });
-  mk("inventory", { category: "Veterinary medicines", name: "Oxytetracycline 20%", quantity: 4, unit: "units", price: 18, supplierId: "demo-suppliers-1", storage: "Vet fridge", expiry: addDays(today, 150), minStock: 5 });
-  mk("inventory", { category: "Fuel", name: "Diesel", quantity: 650, unit: "L", price: 1.6, storage: "Fuel tank", minStock: 300 });
-  mk("inventory", { category: "Seeds", name: "Maize seed SC403", quantity: 300, unit: "kg", price: 4, storage: "Seed store", minStock: 100 });
-  mk("mapItems", { type: "Dam", name: "Main dam", gps: "-20.4300, 28.5150" });
-  mk("mapItems", { type: "Barn", name: "Cattle crush & barn", gps: "-20.4180, 28.5000" });
-  mk("mapItems", { type: "Water source", name: "Borehole 2", gps: "-20.3950, 28.4900" });
-  mk("mapItems", { type: "Storage facility", name: "Grain silos", gps: "-20.4120, 28.5020" });
-
-  return { ...base, farms: [farm], activeFarmId: farmId, data, demo: true, user: { name: "Farm Owner", role: "Owner" } };
+  return {
+    ...base,
+    farms: [farm],
+    activeFarmId: farmId,
+    data,
+    demo: true,
+    user: { name: "Tendai Moyo", role: "Owner", email: "office@greenvalley.example" }
+  };
 }
