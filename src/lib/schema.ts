@@ -270,7 +270,7 @@ export const RESOURCES: Record<string, Resource> = {
     help: "Every animal has its own profile. Tap a row's chart icon to see its weight trend and history.",
     fields: [
       txt("tag", "Animal ID / tag", { required: true, half: true }),
-      txt("rfid", "RFID number", { half: true }),
+      txt("rfid", "RFID number (optional)", { half: true, placeholder: "Leave blank if no electronic tag" }),
       txt("name", "Name / nickname", { half: true }),
       sel("species", "Species", SPECIES, { def: "Cattle", half: true }),
       sel("breed", "Breed", CATTLE_BREEDS, { half: true }),
