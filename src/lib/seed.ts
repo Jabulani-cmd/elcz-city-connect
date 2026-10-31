@@ -141,6 +141,6 @@ export function seedDemo(base: State): State {
     activeFarmId: farmId,
     data,
     demo: true,
-    user: { name: "Tendai Moyo", role: "Owner", email: "office@greenvalley.example" }
+    user: { name: "Tendai Moyo", role: "Owner" }
   };
 }
