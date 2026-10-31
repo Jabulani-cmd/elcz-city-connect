@@ -163,6 +163,7 @@ Deno.serve(async (req) => {
         return json({ demo: true, payment_id: d.id, redirect: method === "web" ? `${back}${back.includes("?") ? "&" : "?"}payment=${d.id}` : null, instructions: method === "web" ? null : method === "innbucks" ? "DEMO: pretend you are paying with this InnBucks code." : `DEMO: pretend ${phone} approved the payment on the phone. No money is taken.`, innbucks_code: method === "innbucks" ? "DEMO-1234" : null });
       }
 
+      if (!id || !key) return json({ error: "Online payments are not switched on yet.", code: "not_configured" }, 503);
       const amount = Number(interval === "year" ? plan.yearly_usd : plan.monthly_usd);
       const reference = `FH-${crypto.randomUUID().slice(0, 8).toUpperCase()}-${Date.now()}`;
       const { data: pay, error: insErr } = await admin.from("payments").insert({ farm_id: farmId, plan_code: plan.code, billing_interval: interval, amount_usd: amount, method, reference, created_by: user.id }).select("id").single();
