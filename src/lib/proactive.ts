@@ -39,13 +39,15 @@ export function scanForInsights(): ProactiveInsight[] {
 
   // 2. Critical Health Issues (Emergency Urgency)
   const health = rowsOf("health");
+  const animals = rowsOf("animals");
+  const animalName = (id: unknown) => { const a = animals.find((x) => x.id === id); return a ? String(a.tag || a.name || "") : ""; };
   const criticalHealth = health.filter(h => h.urgency === "Emergency" && h.recovery !== "Recovered");
 
   criticalHealth.forEach(h => {
     insights.push({
       id: `health-${h.id}`,
       title: "Critical Health Alert",
-      description: `Animal ${h.animalId} has an emergency condition: ${h.condition}.`,
+      description: `${animalName(h.animalId) || "An animal"}: ${h.condition}. Needs a vet now.`,
       priority: "Urgent",
       collection: "health",
       rowId: h.id,
