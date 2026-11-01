@@ -37,9 +37,9 @@ export default function Notifications() {
     <div>
       <PageHeader title="Notifications" description="Everything that needs your attention, worked out automatically from your records."
         actions={<Button variant="outline" onClick={() => unread.forEach((a) => upsert("prefs", { type: "read", alertId: a.id }))} disabled={!unread.length}><CheckCheck className="mr-1.5 h-4 w-4" />Mark all read</Button>} />
-      <div className="mb-3 flex flex-wrap gap-2">
-        <select aria-label="Type" className={cn(nativeSelect, "w-auto")} value={kind} onChange={(e) => setKind(e.target.value)}><option value="">All types</option>{NOTIFICATION_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
-        <select aria-label="Urgency" className={cn(nativeSelect, "w-auto")} value={sev} onChange={(e) => setSev(e.target.value)}><option value="">All urgency</option><option value="danger">Urgent</option><option value="warning">Soon</option><option value="info">Upcoming</option></select>
+      <div className="mb-3 grid grid-cols-2 gap-2 sm:flex">
+        <select aria-label="Type" className={cn(nativeSelect, "rounded-full bg-card sm:w-auto")} value={kind} onChange={(e) => setKind(e.target.value)}><option value="">All types</option>{NOTIFICATION_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
+        <select aria-label="Urgency" className={cn(nativeSelect, "rounded-full bg-card sm:w-auto")} value={sev} onChange={(e) => setSev(e.target.value)}><option value="">All urgency</option><option value="danger">Urgent</option><option value="warning">Soon</option><option value="info">Upcoming</option></select>
       </div>
       {list.length === 0 ? <Empty><Bell className="mx-auto mb-2 h-6 w-6" />You’re all caught up.</Empty> : (
         <ul className="space-y-2">
@@ -47,8 +47,8 @@ export default function Notifications() {
             <li key={a.id}>
               <Link to={a.to} onClick={() => !isRead && upsert("prefs", { type: "read", alertId: a.id })} className={cn("flex items-start gap-3 rounded-xl border p-3 transition-opacity hover:opacity-90", SEV_STYLE[a.severity], isRead && "opacity-60")}>
                 <I className={cn("mt-0.5 h-5 w-5 shrink-0", SEV_TEXT[a.severity])} />
-                <div className="min-w-0 flex-1"><div className="font-medium">{a.title}</div><div className="text-sm text-muted-foreground">{a.detail}</div></div>
-                <span className="shrink-0 rounded-full bg-background/70 px-2 py-0.5 text-xs">{a.kind}</span>
+                <div className="min-w-0 flex-1"><div className="font-medium leading-snug">{a.title}</div><div className="text-sm text-muted-foreground">{a.detail}</div><span className="mt-1.5 inline-block rounded-full bg-background/70 px-2 py-0.5 text-[11px] font-medium sm:hidden">{a.kind}</span></div>
+                <span className="hidden shrink-0 rounded-full bg-background/70 px-2 py-0.5 text-xs sm:inline">{a.kind}</span>
               </Link>
             </li>); })}
         </ul>
