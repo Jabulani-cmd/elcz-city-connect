@@ -81,46 +81,48 @@ export function ReportsPage() {
   const report = getReportData();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Farm Reports</h1>
-          <p className="text-muted-foreground">Professional audits for financial and operational compliance.</p>
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 border-l-4 border-accent pl-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Farm Reports</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Audits for financial and operational compliance.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()} className="gap-2">
-            <Printer className="h-4 w-4" /> Print Page
+        <div className="grid grid-cols-2 gap-2 sm:flex">
+          <Button variant="outline" onClick={() => window.print()} className="h-11 sm:h-10">
+            <Printer className="h-4 w-4" /> Print
           </Button>
-          <Button onClick={exportPDF} disabled={isGenerating} className="gap-2">
+          <Button onClick={exportPDF} disabled={isGenerating} className="h-11 sm:h-10">
             {isGenerating ? <RefreshCcw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             Download PDF
           </Button>
         </div>
       </div>
 
-      <div className="flex gap-2 p-1 bg-muted rounded-lg w-fit">
+      <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1 sm:inline-grid sm:w-auto" role="tablist" aria-label="Report">
         {(["finance", "health", "ops"] as const).map((t) => (
           <Button
             key={t}
+            role="tab"
+            aria-selected={activeReport === t}
             variant={activeReport === t ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveReport(t)}
-            className="capitalize"
+            className="h-10 rounded-lg px-3"
           >
-            {t === "ops" ? "Operations" : t}
+            {t === "ops" ? "Operations" : t === "finance" ? "Finance" : "Animal health"}
           </Button>
         ))}
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid min-w-0 gap-4 sm:gap-6">
         {report.sections.map((s, i) => (
-          <Card key={i} className="p-6">
-            <h2 className="text-xl font-bold mb-4">{s.title}</h2>
-            <div className="grid gap-4 sm:grid-cols-3 mb-6">
+          <Card key={i} className="min-w-0 rounded-2xl p-4 shadow-sm sm:p-6">
+            <h2 className="mb-3 text-lg font-bold sm:mb-4 sm:text-xl">{s.title}</h2>
+            <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:grid-cols-3 sm:gap-4">
               {s.data.map((d, j) => (
-                <div key={j} className="p-3 rounded-xl bg-muted/50 border">
-                  <div className="text-xs text-muted-foreground uppercase font-semibold">{d.label}</div>
-                  <div className="text-2xl font-bold">{d.value}</div>
+                <div key={j} className="min-w-0 rounded-xl border bg-muted/50 p-3">
+                  <div className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{d.label}</div>
+                  <div className="truncate text-lg font-bold tabular-nums sm:text-2xl">{d.value}</div>
                 </div>
               ))}
             </div>
@@ -130,15 +132,15 @@ export function ReportsPage() {
                   <thead className="bg-muted text-muted-foreground font-medium">
                     <tr>
                       {Object.keys(s.details[0]).filter(k => k !== "id" && k !== "farmId").map(col => (
-                        <th key={col} className="px-4 py-2 capitalize">{col}</th>
+                        <th key={col} className="whitespace-nowrap px-3 py-2 capitalize">{col}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {s.details.map((row, j) => (
                       <tr key={j} className="hover:bg-muted/30">
-                        {Object.entries(row).filter(([k]) => k !== "id" && k !== "farmId").map(([_, v]) => (
-                          <td key={v} className="px-4 py-2">{String(v)}</td>
+                        {Object.entries(row).filter(([k]) => k !== "id" && k !== "farmId").map(([k, v]) => (
+                          <td key={k} className="whitespace-nowrap px-3 py-2">{String(v)}</td>
                         ))}
                       </tr>
                     ))}

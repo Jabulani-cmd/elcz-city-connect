@@ -24,7 +24,7 @@ export function ModulePage({ title, description, base, items, current }: { title
     <div>
       <PageHeader title={title} description={description} />
       <div className="lg:grid lg:grid-cols-[13rem_1fr] lg:gap-6">
-        <div ref={strip} className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none lg:hidden" role="navigation" aria-label={`${title} sections`}>{items.map(pill)}</div>
+        <div ref={strip} className="relative -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none lg:hidden" role="navigation" aria-label={`${title} sections`}>{items.map(pill)}</div>
         <nav className="sticky top-20 hidden self-start lg:block" aria-label={`${title} sections`}>
           {groups.map((g) => (
             <div key={g} className="mb-3">
