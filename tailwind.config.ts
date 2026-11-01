@@ -84,4 +84,6 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
+  // phones have no mouse: without this a tapped button keeps its hover colour until you tap elsewhere
+  future: { hoverOnlyWhenSupported: true },
 } satisfies Config;

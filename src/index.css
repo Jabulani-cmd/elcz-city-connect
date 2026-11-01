@@ -83,7 +83,8 @@
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
   .mb-tabbar { margin-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
   .bg-hero { background: radial-gradient(120% 140% at 0% 0%, hsl(142 55% 30%) 0%, hsl(142 60% 18%) 55%, hsl(150 55% 12%) 100%); }
-  .glass { background: hsl(var(--background) / 0.82); backdrop-filter: saturate(160%) blur(14px); -webkit-backdrop-filter: saturate(160%) blur(14px); }
+  .glass { background: hsl(var(--background) / 0.94); backdrop-filter: saturate(160%) blur(16px); -webkit-backdrop-filter: saturate(160%) blur(16px); }
+  .shadow-bar { box-shadow: 0 -6px 20px -12px hsl(var(--foreground) / 0.25); }
   .scrollbar-none { scrollbar-width: none; }
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
