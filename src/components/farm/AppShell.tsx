@@ -135,7 +135,7 @@ function TabBar({ onMore, onQuick, canRecord }: { onMore: () => void; onQuick: (
     </NavLink>
   );
   return (
-    <nav aria-label="Primary" className="glass fixed inset-x-0 bottom-0 z-40 border-t pb-safe md:hidden">
+    <nav aria-label="Primary" className="glass shadow-bar fixed inset-x-0 bottom-0 z-40 border-t pb-safe md:hidden">
       <div className="mx-auto flex max-w-lg items-end px-1">
         {left.map(item)}
         {canRecord ? (
@@ -203,15 +203,15 @@ export function AppShell() {
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-32 sm:p-6 md:pb-10" key={`${loc.pathname.split("/")[1]}-${planStatus}`}>
           {isDemo && (
-            <div role="note" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
-              <span><b>Sample data.</b> You’re looking at a demo farm, not your own records.</span>
-              <Button size="sm" onClick={() => { clearDemoData(); }}>Remove &amp; start my farm</Button>
+            <div role="note" className="mb-4 flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-3 py-2.5 text-sm">
+              <span className="min-w-0 flex-1 leading-snug"><b>Sample data.</b> <span className="text-muted-foreground">This is a demo farm.</span></span>
+              <Button size="sm" className="h-9 shrink-0" onClick={() => { clearDemoData(); }}>Start my farm</Button>
             </div>
           )}
           <SubscriptionBanner />
           <PwaBanner />
           <AdoptLocalBanner />
-          <InsightsBanner />
+          {loc.pathname === "/" && <InsightsBanner />}
           <Outlet />
         </main>
       </div>

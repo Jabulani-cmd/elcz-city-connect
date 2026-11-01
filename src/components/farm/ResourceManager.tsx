@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Download, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ChevronDown, Download, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,9 @@ import { useRows, useStore, useUser } from "@/lib/store";
 import type { Row, Section, Values } from "@/lib/types";
 import { RecordDialog } from "./RecordDialog";
 import { Empty, nativeSelect } from "./kit";
+
+/** Fields shown on a phone card before “more details”. */
+const PREVIEW = 4;
 
 type Props = {
   resource: string;
@@ -40,6 +43,8 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
   const [filter, setFilter] = useState("");
   const [editing, setEditing] = useState<Row | "new" | null>(null);
   const [deleting, setDeleting] = useState<Row | null>(null);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setExpanded((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   const columns = [...res.columns, ...(res.derivedColumns ?? [])];
   const rows = useMemo(() => {
@@ -78,18 +83,20 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
       {header}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         {!hideTitle && <h2 className="mr-auto text-lg font-semibold">{res.title} <span className="text-sm font-normal text-muted-foreground">({rows.length})</span></h2>}
-        <div className="relative min-w-[10rem] flex-1 sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input aria-label={`Search ${res.title}`} className="h-11 pl-9 md:h-10" placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
+        {writable && <Button size="lg" className={cn("h-11 px-4 md:order-last md:h-10", hideTitle && "ml-auto")} onClick={() => open("new")}><Plus className="h-4 w-4" />{addLabel ?? `Add ${res.singular}`}</Button>}
+        <div className="flex w-full items-center gap-2 md:w-auto md:flex-1 md:justify-end">
+          <div className="relative min-w-0 flex-1 md:max-w-xs">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input aria-label={`Search ${res.title}`} className="h-11 rounded-full bg-card pl-9 md:h-10" placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          {res.filter && (
+            <select aria-label={res.filter.label} className={cn(nativeSelect, "w-auto max-w-[9.5rem] rounded-full bg-card")} value={filter} onChange={(e) => setFilter(e.target.value)}>
+              <option value="">All {res.filter.label.toLowerCase()}</option>
+              {filterOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          )}
+          <Button variant="outline" size="icon" className="h-11 w-11 shrink-0 rounded-full sm:w-auto sm:rounded-md sm:px-3 md:h-10" onClick={doExport} disabled={!rows.length} aria-label="Download as spreadsheet (CSV)"><Download className="h-4 w-4" /><span className="hidden sm:inline">CSV</span></Button>
         </div>
-        {res.filter && (
-          <select aria-label={res.filter.label} className={cn(nativeSelect, "w-auto")} value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="">All {res.filter.label.toLowerCase()}</option>
-            {filterOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-          </select>
-        )}
-        <Button variant="outline" size="lg" className="md:h-10" onClick={doExport} disabled={!rows.length}><Download className="mr-1.5 h-4 w-4" />CSV</Button>
-        {writable && <Button size="lg" className="md:h-10" onClick={() => open("new")}><Plus className="mr-1.5 h-4 w-4" />{addLabel ?? `Add ${res.singular}`}</Button>}
       </div>
       {res.help && <p className="mb-3 text-sm text-muted-foreground">{res.help}</p>}
 
@@ -98,24 +105,42 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
       ) : (
         <>
           {/* phones: cards */}
-          <div className="space-y-2 md:hidden">
-            {rows.map((r) => (
-              <Card key={r.id} className="p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 text-base font-semibold">{cell(columns[0], r)}</div>
-                  <div className="flex shrink-0 items-center">
-                    {rowActions?.(r)}
-                    {writable && <Button variant="ghost" size="icon" aria-label="Edit" onClick={() => open(r)}><Pencil className="h-4 w-4" /></Button>}
-                    {writable && <Button variant="ghost" size="icon" aria-label="Delete" onClick={() => setDeleting(r)}><Trash2 className="h-4 w-4 text-danger" /></Button>}
+          <div className="space-y-2.5 md:hidden">
+            {rows.map((r) => {
+              const tone = columns.slice(1).find((c) => isToneField(c) && cellText(res, c, r));
+              const other = columns.slice(1).filter((c) => c !== tone);
+              const filled = other.filter((c) => cellText(res, c, r));
+              const preview = filled.slice(0, PREVIEW);
+              const more = other.length - preview.length;
+              const shown = expanded.has(r.id) ? other : preview;
+              return (
+                <Card key={r.id} className="rounded-2xl border-border/60 p-3.5 shadow-sm">
+                  <div className="flex items-start gap-2">
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 pt-1">
+                      <div className="min-w-0 truncate text-base font-semibold leading-tight">{cell(columns[0], r)}</div>
+                      {tone && cell(tone, r)}
+                    </div>
+                    <div className="-mr-1.5 -mt-1.5 flex shrink-0 items-center">
+                      {rowActions?.(r)}
+                      {writable && <Button variant="ghost" size="icon" aria-label="Edit" onClick={() => open(r)}><Pencil className="h-4 w-4" /></Button>}
+                      {writable && <Button variant="ghost" size="icon" aria-label="Delete" onClick={() => setDeleting(r)}><Trash2 className="h-4 w-4 text-danger" /></Button>}
+                    </div>
                   </div>
-                </div>
-                <dl className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
-                  {columns.slice(1).map((c) => (
-                    <div key={c} className="min-w-0"><dt className="text-xs text-muted-foreground">{columnLabel(res, c)}</dt><dd className="truncate">{cell(c, r)}</dd></div>
-                  ))}
-                </dl>
-              </Card>
-            ))}
+                  {shown.length > 0 && (
+                    <dl className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2 border-t pt-2.5 text-sm">
+                      {shown.map((c) => (
+                        <div key={c} className="min-w-0"><dt className="truncate text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{columnLabel(res, c)}</dt><dd className="truncate font-medium">{cell(c, r)}</dd></div>
+                      ))}
+                    </dl>
+                  )}
+                  {more > 0 && (
+                    <button onClick={() => toggle(r.id)} aria-expanded={expanded.has(r.id)} className="-mb-1 mt-1.5 flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-medium text-primary active:bg-muted">
+                      {expanded.has(r.id) ? "Less" : `${more} more detail${more === 1 ? "" : "s"}`}<ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expanded.has(r.id) && "rotate-180")} />
+                    </button>
+                  )}
+                </Card>
+              );
+            })}
           </div>
           {/* larger screens: table */}
           <Card className="hidden overflow-x-auto md:block">
