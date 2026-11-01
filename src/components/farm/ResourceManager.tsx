@@ -109,13 +109,16 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
             {rows.map((r) => {
               const tone = columns.slice(1).find((c) => isToneField(c) && cellText(res, c, r));
               const other = columns.slice(1).filter((c) => c !== tone);
-              const shown = expanded.has(r.id) ? other : other.slice(0, PREVIEW);
+              const filled = other.filter((c) => cellText(res, c, r));
+              const preview = filled.slice(0, PREVIEW);
+              const more = other.length - preview.length;
+              const shown = expanded.has(r.id) ? other : preview;
               return (
                 <Card key={r.id} className="rounded-2xl border-border/60 p-3.5 shadow-sm">
                   <div className="flex items-start gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-base font-semibold leading-tight">{cell(columns[0], r)}</div>
-                      {tone && <div className="mt-1">{cell(tone, r)}</div>}
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 pt-1">
+                      <div className="min-w-0 truncate text-base font-semibold leading-tight">{cell(columns[0], r)}</div>
+                      {tone && cell(tone, r)}
                     </div>
                     <div className="-mr-1.5 -mt-1.5 flex shrink-0 items-center">
                       {rowActions?.(r)}
@@ -130,9 +133,9 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
                       ))}
                     </dl>
                   )}
-                  {other.length > PREVIEW && (
+                  {more > 0 && (
                     <button onClick={() => toggle(r.id)} aria-expanded={expanded.has(r.id)} className="-mb-1 mt-1.5 flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-medium text-primary active:bg-muted">
-                      {expanded.has(r.id) ? "Less" : `${other.length - PREVIEW} more details`}<ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expanded.has(r.id) && "rotate-180")} />
+                      {expanded.has(r.id) ? "Less" : `${more} more detail${more === 1 ? "" : "s"}`}<ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expanded.has(r.id) && "rotate-180")} />
                     </button>
                   )}
                 </Card>

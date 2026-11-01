@@ -7,6 +7,9 @@ import { generateFinancialReport, generateHealthReport, generateOperationalRepor
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+/** Bookkeeping fields that mean nothing to a reader. */
+const HIDDEN = new Set(["id", "farmId", "createdAt", "updatedAt", "deletedAt", "deleted", "synced", "version", "createdBy", "updatedBy"]);
+
 export function ReportsPage() {
   const [activeReport, setActiveReport] = useState<"finance" | "health" | "ops">("finance");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -51,7 +54,7 @@ export function ReportsPage() {
 
         // Table for Details
         if (section.details && section.details.length > 0) {
-          const columns = Object.keys(section.details[0]).filter(k => k !== "id" && k !== "farmId");
+          const columns = Object.keys(section.details[0]).filter(k => !HIDDEN.has(k));
           const rows = section.details.map(row => columns.map(col => String(row[col] ?? "")));
 
           autoTable(doc, {
@@ -131,7 +134,7 @@ export function ReportsPage() {
                 <table className="w-full text-sm text-left">
                   <thead className="bg-muted text-muted-foreground font-medium">
                     <tr>
-                      {Object.keys(s.details[0]).filter(k => k !== "id" && k !== "farmId").map(col => (
+                      {Object.keys(s.details[0]).filter(k => !HIDDEN.has(k)).map(col => (
                         <th key={col} className="whitespace-nowrap px-3 py-2 capitalize">{col}</th>
                       ))}
                     </tr>
@@ -139,7 +142,7 @@ export function ReportsPage() {
                   <tbody className="divide-y">
                     {s.details.map((row, j) => (
                       <tr key={j} className="hover:bg-muted/30">
-                        {Object.entries(row).filter(([k]) => k !== "id" && k !== "farmId").map(([k, v]) => (
+                        {Object.entries(row).filter(([k]) => !HIDDEN.has(k)).map(([k, v]) => (
                           <td key={k} className="whitespace-nowrap px-3 py-2">{String(v)}</td>
                         ))}
                       </tr>
