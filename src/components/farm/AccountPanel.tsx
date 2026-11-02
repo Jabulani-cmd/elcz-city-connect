@@ -27,7 +27,7 @@ export function AccountPanel() {
   };
   return (
     <Panel title="Your account">
-      <dl className="grid gap-2 text-sm sm:grid-cols-3">
+      <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
         <div><dt className="text-xs text-muted-foreground">Name</dt><dd>{auth.name}</dd></div>
         <div><dt className="text-xs text-muted-foreground">{authMode === "cloud" ? "Email" : "Username"}</dt><dd className="truncate">{auth.email}</dd></div>
         <div><dt className="text-xs text-muted-foreground">Your role</dt><dd>{user.role} <span className="text-xs text-muted-foreground">– {ROLE_DESCRIPTIONS[user.role]}</span></dd></div>

@@ -41,7 +41,7 @@ const List = ({ title, items }: { title: string; items: string[] }) => items.len
 function CareBanner({ care }: { care: CareAdvice }) {
   const now = care.vetTiming === "Immediately";
   return (
-    <div className="grid gap-2 sm:grid-cols-2" role="alert">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="alert">
       <div className={`flex items-start gap-3 rounded-xl p-3 ${now ? "bg-danger text-destructive-foreground" : care.vetTiming === "Within 24 hours" ? "bg-danger/15 text-danger" : "bg-success/15 text-success"}`}>
         {now ? <Siren className="mt-0.5 h-6 w-6 shrink-0" /> : care.vetTiming === "Within 24 hours" ? <Stethoscope className="mt-0.5 h-6 w-6 shrink-0" /> : <Clock className="mt-0.5 h-6 w-6 shrink-0" />}
         <div><div className="text-base font-extrabold">{now ? "See a vet immediately" : care.vetTiming === "Within 24 hours" ? "Call a vet today" : "Treat at home and watch"}</div>
@@ -124,7 +124,7 @@ export function CropDiseaseAI() {
     <div className="mb-6 space-y-4">
       <Disclaimer><b>Recommendation only.</b> {AI_DISCLAIMER_CROP}{!aiConfigured() && " Photo analysis needs the AI service to be connected; until then the app uses your written description."}</Disclaimer>
       <Panel title="Check a plant">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-3">
             <div><Label className="mb-1.5 block">Which crop?</Label>
               <select className={nativeSelect} value={cropId} onChange={(e) => setCropId(e.target.value)}><option value="">Select crop…</option>{crops.map((c) => <option key={c.id} value={c.id}>{labelOf("crops", c)}</option>)}</select></div>
@@ -179,7 +179,7 @@ export function LivestockAI() {
     <div className="mb-6 space-y-4">
       <Disclaimer><b>Not a veterinary diagnosis.</b> {AI_DISCLAIMER_LIVESTOCK}{!aiConfigured() && " Photo analysis needs the AI service to be connected; until then the app uses your written description."}</Disclaimer>
       <Panel title="Describe the problem">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-3">
             <div><Label className="mb-1.5 block">Animal</Label>
               <select className={nativeSelect} value={animalId} onChange={(e) => pick(e.target.value)}><option value="">Select animal…</option>{live.map((a) => <option key={a.id} value={a.id}>{labelOf("animals", a)}</option>)}</select></div>
@@ -268,7 +268,7 @@ export function VetCheck() {
     <div className="space-y-4">
       <Disclaimer><b>Not a veterinary diagnosis.</b> {AI_DISCLAIMER_LIVESTOCK}{!aiConfigured() && " Photo and video analysis needs the AI service to be connected; until then the app uses the symptoms you choose."}</Disclaimer>
       <Panel title="1. Which animal?">
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div><Label htmlFor="vet-species" className="mb-1.5 block">Type of animal</Label>
             <select id="vet-species" className={nativeSelect} value={species} onChange={(e) => { setSpecies(e.target.value); setAnimalId(""); }}>{SPECIES.map((s) => <option key={s}>{s}</option>)}</select></div>
           <div><Label htmlFor="vet-animal" className="mb-1.5 block">From your records (optional)</Label>
@@ -279,7 +279,7 @@ export function VetCheck() {
       <Panel title="2. Photos and video">
         <input ref={photoRef} type="file" accept="image/*" multiple className="sr-only" aria-label="Add photos" onChange={(e) => { void addPhotos(e.target.files); e.target.value = ""; }} />
         <input ref={videoRef} type="file" accept="video/*" capture="environment" className="sr-only" aria-label="Record or upload a video" onChange={(e) => { void addVideo(e.target.files?.[0]); e.target.value = ""; }} />
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button type="button" variant="outline" size="lg" className="h-14 text-base" disabled={photos.length >= MAX_PHOTOS} onClick={() => photoRef.current?.click()}><Camera className="mr-2 h-5 w-5" />{photos.length ? `Add photo (${photos.length}/${MAX_PHOTOS})` : "Take or add photos"}</Button>
           <Button type="button" variant="outline" size="lg" className="h-14 text-base" disabled={readingVideo} onClick={() => videoRef.current?.click()}>{readingVideo ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Video className="mr-2 h-5 w-5" />}{video ? "Replace video" : "Record or add a video"}</Button>
         </div>

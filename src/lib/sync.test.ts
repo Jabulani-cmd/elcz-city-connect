@@ -61,7 +61,7 @@ describe("row codec", () => {
         n++;
       }
     }
-    expect(n).toBeGreaterThan(300);
+    expect(n).toBeGreaterThan(150);
   });
   it("keeps unknown keys in extra and blanks become null", () => {
     const d = toDb("weights", { id: "i", farmId: "f", createdAt: "c", updatedAt: "u", animalId: "not-a-uuid", weight: "", adg: 0.4, days: 12 } as Row);

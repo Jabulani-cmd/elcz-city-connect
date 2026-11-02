@@ -108,7 +108,7 @@ export default function Billing() {
               <button key={i} onClick={() => setInterval_(i)} aria-pressed={interval === i} className={`min-h-[40px] rounded-full px-4 font-medium ${interval === i ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{i === "month" ? "Monthly" : "Yearly · 2 months free"}</button>
             ))}
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {plans.map((p) => {
               const price = interval === "year" ? p.yearly_usd : p.monthly_usd;
               const current = status === "active" && plan === p.code;

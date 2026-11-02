@@ -50,7 +50,7 @@ export default function FarmMap() {
     <div>
       <PageHeader title="Farm Map" description={`Fields, pastures, water and buildings plotted from GPS coordinates${farm?.location ? ` – ${farm.location}` : ""}. Add coordinates on a field, pasture or map feature (tap “My location” on your phone while standing there).`} />
       {!view ? <Empty>Nothing has GPS coordinates yet. Add a GPS location to a field or pasture, or add a map feature below.</Empty> : (
-        <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_16rem]">
           <Panel title="Map" className="p-2 sm:p-4">
             <svg viewBox={`0 0 ${W} ${H}`} className="w-full rounded-lg border bg-[hsl(90_30%_92%)] dark:bg-[hsl(140_20%_12%)]" role="img" aria-label="Farm map" onClick={() => setSel(null)}>
               <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="hsl(var(--border))" strokeWidth="1" /></pattern></defs>

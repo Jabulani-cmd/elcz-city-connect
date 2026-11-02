@@ -71,6 +71,8 @@ export async function signInWithMagicLink(email: string) {
   const { error } = await need().auth.signInWithOtp({
     email: email.trim(),
     options: {
+      // sign-in only: a new account must go through "Create an account" so it has a name and a farm
+      shouldCreateUser: false,
       emailRedirectTo: window.location.origin,
     },
   });

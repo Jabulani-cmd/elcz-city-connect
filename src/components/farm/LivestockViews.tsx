@@ -63,7 +63,7 @@ export function HerdStats() {
         <LineCard data={series} x="label" lines={[{ key: "herd", name: "Herd size" }]} />
         <p className="mt-2 text-sm text-muted-foreground">Change over this period: <b>{last - first >= 0 ? "+" : ""}{last - first}</b> animals{first > 0 && <> ({round(((last - first) / first) * 100, 1)}% growth)</>}.</p>
       </Panel>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Panel title="Births, purchases, sales and deaths (12 months)" className="lg:col-span-2">
           <BarCard data={months} x="month" bars={[{ key: "Births" }, { key: "Purchases" }, { key: "Sales" }, { key: "Deaths" }]} />
         </Panel>
@@ -104,11 +104,11 @@ export function WeightAnalytics() {
         <StatCard label="Average daily gain" value={`${fmtNum(avgAdg, 2)} kg/day`} icon={TrendingUp} tone="good" />
         <StatCard label="Animals weighed" value={`${latest.size} / ${live.length}`} />
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Panel title="Fastest growing"><ul>{ranked.length ? list(ranked.slice(0, 5)) : <Empty>Weigh animals at least twice to see growth.</Empty>}</ul></Panel>
         <Panel title="Slowest growing"><ul>{ranked.length ? list([...ranked].reverse().slice(0, 5)) : <Empty>No data yet.</Empty>}</ul></Panel>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Panel title="Average weight by age"><BarCard data={byAge} x="name" bars={[{ key: "value", name: "kg" }]} height={190} /></Panel>
         <Panel title="Average weight by breed"><BarCard data={byBreed} x="name" bars={[{ key: "value", name: "kg", color: "#d98e04" }]} height={190} /></Panel>
         <Panel title="Average weight by sex"><BarCard data={bySex} x="name" bars={[{ key: "value", name: "kg", color: "#2b7bb9" }]} height={190} /></Panel>
@@ -165,7 +165,7 @@ export function MortalityAnalytics() {
       <select aria-label="Group deaths by" className={cn(nativeSelect, "w-auto")} value={dim} onChange={(e) => setDim(e.target.value)}>
         {Object.keys(keyers).map((k) => <option key={k} value={k}>By {k.toLowerCase()}</option>)}
       </select>}>
-      <div className="grid gap-4 md:grid-cols-[1fr_14rem]">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_14rem]">
         <BarCard data={data} x="name" bars={[{ key: "value", name: "Deaths", color: "#b5483a" }]} height={200} />
         <div className="text-sm"><b>Total loss:</b> {fmtMoney(sum(deaths, "loss"))}<br /><b>Deaths:</b> {deaths.length}</div>
       </div>
@@ -202,7 +202,7 @@ export function PastureBoard() {
         {canWrite(role, "livestock") && <Button size="lg" className="md:h-10" onClick={() => { setTo(pastures[0]?.id ?? ""); setFrom(""); setPicked(new Set()); setDate(todayISO()); setMoving(true); }} disabled={!pastures.length}>Move animals</Button>}
       </div>
       {pastures.length === 0 ? <Empty>Add a pasture first, then you can move animals between them.</Empty> : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {pastures.map((p) => {
             const n = live.filter((a) => a.pastureId === p.id).length;
             const cap = toNum(p.capacity);
