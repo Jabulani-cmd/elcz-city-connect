@@ -162,8 +162,13 @@ export function lastMonths(n: number, now = todayISO()): string[] {
   return out;
 }
 
-export const fmtMoney = (n: number, cur = "USD") =>
-  new Intl.NumberFormat(undefined, { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n || 0);
+/** Money for display. Cents are shown only when the amount actually has them, so totals stay clean ($1,350)
+ *  while small amounts and per-unit rates stay accurate ($2.50 – rounding those to whole dollars was misleading). */
+export const fmtMoney = (n: number, cur = "USD") => {
+  const v = round(n || 0, 2);
+  const dp = Number.isInteger(v) ? 0 : 2;
+  return new Intl.NumberFormat(undefined, { style: "currency", currency: cur, minimumFractionDigits: dp, maximumFractionDigits: dp }).format(v);
+};
 
 export const fmtNum = (n: number, dp = 1) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: dp }).format(n || 0);
