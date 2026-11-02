@@ -100,9 +100,9 @@ export default function Dashboard() {
       <section aria-label="Alerts">
         <div className="mb-2 flex items-center justify-between"><h2 className="text-lg font-semibold">Needs your attention</h2><Link to="/notifications" className="text-sm text-primary underline">See all ({alerts.length})</Link></div>
         {alerts.length === 0 ? <Empty>All clear – nothing needs attention right now.</Empty> : (
-          <ul className="grid gap-2 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {alerts.slice(0, 6).map((a) => (
-              <li key={a.id}><Link to={a.to} className={cn("flex items-start gap-3 rounded-xl border p-3 hover:opacity-90", SEV_STYLE[a.severity])}>
+              <li key={a.id} className="min-w-0"><Link to={a.to} className={cn("flex items-start gap-3 rounded-xl border p-3 hover:opacity-90", SEV_STYLE[a.severity])}>
                 <AlertTriangle className={cn("mt-0.5 h-5 w-5 shrink-0", SEV_TEXT[a.severity])} />
                 <div className="min-w-0"><div className="truncate font-medium">{a.title}</div><div className="truncate text-sm text-muted-foreground">{a.detail}</div></div>
               </Link></li>
@@ -133,7 +133,7 @@ export default function Dashboard() {
           <StatCard label="Net profit" value={fmtMoney(k.netProfit)} icon={Banknote} tone={k.netProfit >= 0 ? "good" : "bad"} hint={`Margin ${k.margin}% · ROI ${k.roi}%`} to="/finance/overview" />
           <StatCard label="Outstanding payments" value={fmtMoney(k.outstandingPayable)} tone={k.outstandingPayable ? "warn" : "good"} hint={`Cash flow ${fmtMoney(cashFlow)}`} />
         </div>
-        <div className="mt-3 grid gap-4 lg:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Panel title="Income vs expenses (6 months)" className="lg:col-span-2"><BarCard data={months} x="month" bars={[{ key: "Income" }, { key: "Expenses", color: "#b5483a" }]} /></Panel>
           <Panel title="Recent transactions">
             {recent.length === 0 ? <Empty>No transactions yet.</Empty> : <ul className="divide-y text-sm">{recent.map((r) => (
@@ -155,7 +155,7 @@ export default function Dashboard() {
           <StatCard label={`Deaths ${year}`} value={yearOf(deaths, "date")} tone={yearOf(deaths, "date") ? "bad" : "default"} />
           <StatCard label="Mortality rate" value={herd.total ? `${round((yearOf(deaths, "date") / herd.total) * 100, 1)}%` : "0%"} />
         </div>
-        <div className="mt-3 grid gap-4 lg:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Panel title="Herd size (12 months)" className="lg:col-span-2"><LineCard data={herdSeries(animals, "monthly")} x="label" lines={[{ key: "herd", name: "Herd" }]} /></Panel>
           <Panel title="Herd makeup"><PieCard data={composition} /></Panel>
         </div>
@@ -173,7 +173,7 @@ export default function Dashboard() {
           <StatCard label="Irrigation" value={irrProblems ? `${irrProblems} problem${irrProblems === 1 ? "" : "s"}` : "Running OK"} icon={Droplets} tone={irrProblems ? "warn" : "good"} hint={lastIrr ? `Last: ${lastIrr.date}` : "No records"} to="/agriculture/irrigation" />
           <StatCard label="Yield (harvested)" value={`${fmtNum(sum(crops, "actualYield"))} t`} />
         </div>
-        <div className="mt-3 grid gap-4 lg:grid-cols-2">
+        <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Panel title="Crop health"><PieCard data={healthCounts} height={190} /></Panel>
           <Panel title="Growing crops">
             {growing.length === 0 ? <Empty>Nothing planted.</Empty> : <ul className="space-y-3">{growing.map((c) => {

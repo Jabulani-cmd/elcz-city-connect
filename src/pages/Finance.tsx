@@ -53,7 +53,7 @@ function Overview() {
         <StatCard label="Vet cost per animal" value={fmtMoney(k.vetPerAnimal)} />
         <StatCard label="Outstanding payments" value={fmtMoney(k.outstandingPayable)} tone={k.outstandingPayable ? "warn" : "good"} hint={k.outstandingReceivable ? `${fmtMoney(k.outstandingReceivable)} owed to you` : undefined} />
       </div>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Panel title="Income vs expenses" className="lg:col-span-2"><BarCard data={months} x="month" bars={[{ key: "Income" }, { key: "Expenses", color: "#b5483a" }]} /></Panel>
         <Panel title="Expenses by category"><PieCard data={groupSum(exp, (r) => r.category, (r) => toNum(r.amount))} /></Panel>
       </div>

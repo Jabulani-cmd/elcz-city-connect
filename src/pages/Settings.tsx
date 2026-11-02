@@ -29,7 +29,7 @@ function FarmForm({ farm }: { farm: Farm }) {
   const set = (k: keyof Farm) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: ["sizeHa", "agriHa", "pastureHa"].includes(k) ? Number(e.target.value) : e.target.value }));
   const txt = (k: keyof Farm, label: string, extra: object = {}) => <div><Label htmlFor={`farm-${k}`} className="mb-1.5 block text-sm">{label}</Label><Input id={`farm-${k}`} className="h-11 md:h-10" value={String(f[k] ?? "")} onChange={set(k)} {...extra} /></div>;
   return (
-    <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); if (!f.name.trim()) return toast.error("Farm name is required"); updateFarm(farm.id, f); toast.success("Farm saved"); }}>
+    <form className="grid grid-cols-1 gap-3 sm:grid-cols-2" onSubmit={(e) => { e.preventDefault(); if (!f.name.trim()) return toast.error("Farm name is required"); updateFarm(farm.id, f); toast.success("Farm saved"); }}>
       {txt("name", "Farm name *")}
       {txt("location", "Location")}
       {txt("latitude", "GPS latitude", { inputMode: "decimal", placeholder: "-20.42" })}
@@ -111,7 +111,7 @@ export default function Settings() {
       </Panel>
 
       <Panel title="Data, backup and sync">
-        <dl className="mb-4 grid gap-2 text-sm sm:grid-cols-3">
+        <dl className="mb-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
           <div><dt className="text-xs text-muted-foreground">Storage</dt><dd>{cloudEnabled ? "Cloud account + copy on this device (works offline)" : "On this device only (works offline)"}</dd></div>
           <div><dt className="text-xs text-muted-foreground">{cloudEnabled ? "Sync status" : "Changes waiting"}</dt><dd>{cloudEnabled ? (sync.state === "syncing" ? "Syncing…" : sync.state === "error" ? `Problem: ${sync.error}` : sync.state === "offline" ? "Offline" : pending ? `${pending} waiting to upload` : `Up to date${sync.lastSyncAt ? ` · ${new Date(sync.lastSyncAt).toLocaleTimeString()}` : ""}`) : `${pending} – cloud sync not set up`}</dd></div>
           <div><dt className="text-xs text-muted-foreground">AI photo analysis</dt><dd>{aiConfigured() ? "Connected" : "Not connected (using offline guide)"}</dd></div>

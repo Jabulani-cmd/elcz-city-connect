@@ -7,7 +7,7 @@ import { scanForInsights, type ProactiveInsight } from "@/lib/proactive";
 import { cn } from "@/lib/utils";
 
 /** Where each kind of insight is looked after in the app. */
-const PATH: Record<string, string> = { vaccinations: "/livestock/vaccinations", health: "/livestock/health", tasks: "/tasks" };
+const PATH: Record<string, string> = { health: "/livestock/health", tasks: "/tasks" };
 const TONE: Record<ProactiveInsight["priority"], string> = {
   Urgent: "bg-danger/10 text-danger",
   High: "bg-warning/15 text-warning",

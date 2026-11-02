@@ -39,7 +39,7 @@ function TaskCard({ t, onEdit, onMove, writable }: { t: Row; onEdit: () => void;
 
 function Board({ tasks, edit, writable }: { tasks: Row[]; edit: (t: Row) => void; writable: boolean }) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {TASK_STATUS.map((s, idx) => {
         const col = tasks.filter((t) => t.status === s).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
         return (

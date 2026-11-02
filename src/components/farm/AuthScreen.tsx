@@ -56,14 +56,14 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: e.target.value }));
 
   const submit = async () => {
-    if (!f.email.trim()) return toast.error("Please enter your username or email");
+    if (!f.email.trim()) return toast.error("Please enter your email");
     if (mode !== "forgot" && f.password.length < 8) return toast.error("Password must be at least 8 characters");
     if (mode === "up" && !f.name.trim()) return toast.error("Please enter your name");
     setBusy(true);
     try {
       if (mode === "in") await signIn(f.email, f.password, keep);
       else if (mode === "up") { if (!(await signUp(f.email, f.password, f.name, keep))) setNote("Account created. Check your email for a confirmation link, then sign in."); }
-      else { await sendPasswordReset(f.email); setNote("If that username or email has an account, a reset link is on its way."); }
+      else { await sendPasswordReset(f.email); setNote("If that email has an account, a reset link is on its way."); }
     } catch (e) { toast.error(friendly(e)); } finally { setBusy(false); }
   };
 
@@ -86,10 +86,12 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
       ) : (
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           {mode === "up" && <div><Label htmlFor="au-name" className="mb-1.5 block">Your name</Label><Input id="au-name" className="h-12 text-base" autoComplete="name" value={f.name} onChange={set("name")} /></div>}
-          <div><Label htmlFor="au-email" className="mb-1.5 block">Username or Email</Label><Input id="au-email" className="h-12 text-base" autoComplete="username" value={f.email} onChange={set("email")} /></div>
+          <div><Label htmlFor="au-email" className="mb-1.5 block">Email</Label><Input id="au-email" type="email" className="h-12 text-base" autoComplete="email" inputMode="email" autoCapitalize="none" value={f.email} onChange={set("email")} /></div>
           {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} /></div>}
           {mode !== "forgot" && <KeepSignedIn checked={keep} onChange={setKeep} />}
           <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
+          {mode === "in" && (
+            <>
           <div className="relative py-3">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
             <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Passwordless login</span></div>
@@ -97,6 +99,8 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
           <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base gap-2" onClick={handleMagicLink} disabled={busy}>
             <Mail className="h-5 w-5" /> Send Magic Link
           </Button>
+            </>
+          )}
           <div className="flex flex-col items-center gap-2 text-sm">
             {mode === "in" && <><button type="button" className="text-muted-foreground underline" onClick={() => setMode("forgot")}>Forgot your password?</button><button type="button" className="font-medium text-primary underline" onClick={() => setMode("up")}>New here? Create an account</button></>}
             {mode !== "in" && <button type="button" className="text-muted-foreground underline" onClick={() => setMode("in")}>Back to sign in</button>}

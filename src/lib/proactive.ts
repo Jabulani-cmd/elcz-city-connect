@@ -20,24 +20,9 @@ export function scanForInsights(): ProactiveInsight[] {
   const insights: ProactiveInsight[] = [];
   const now = todayISO();
 
-  // 1. Overdue Vaccinations
-  const vax = rowsOf("vaccinations");
-  const overdueVax = vax.filter(v => v.status === "To do" && v.dueDate < now);
+  // (Overdue vaccinations are already flagged by the "Needs your attention" alerts, so they are not repeated here.)
 
-  overdueVax.forEach(v => {
-    insights.push({
-      id: `vax-${v.id}`,
-      title: "Overdue Vaccination",
-      description: `Vaccination ${v.name} was due on ${v.dueDate}.`,
-      priority: "High",
-      collection: "vaccinations",
-      rowId: v.id,
-      actionLabel: "Mark as Done",
-      onAction: () => saveRecord("vaccinations", { id: v.id, status: "Done", date: now })
-    });
-  });
-
-  // 2. Critical Health Issues (Emergency Urgency)
+  // 1. Critical Health Issues (Emergency Urgency)
   const health = rowsOf("health");
   const animals = rowsOf("animals");
   const animalName = (id: unknown) => { const a = animals.find((x) => x.id === id); return a ? String(a.tag || a.name || "") : ""; };
@@ -56,7 +41,7 @@ export function scanForInsights(): ProactiveInsight[] {
     });
   });
 
-  // 3. Unscheduled AI suggestions (if we stored them in a way that can be scanned)
+  // 2. Unscheduled AI suggestions (if we stored them in a way that can be scanned)
   // For now, these are created as tasks, so we scan for overdue High priority tasks
   const tasks = rowsOf("tasks");
   const overdueTasks = tasks.filter(t => t.status === "To do" && t.dueDate < now && t.priority === "High");

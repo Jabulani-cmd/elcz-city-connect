@@ -56,7 +56,7 @@ export default function AnimalProfile() {
         <StatCard label="Daily gain" value={latest && latest.previousWeight !== "" ? `${fmtNum(toNum(latest.adg), 2)} kg/day` : "–"} tone="good" />
         <StatCard label="Cost so far" value={fmtMoney(animalCost(a, { rows: (c) => (c === "expenses" ? expenses : []) }))} hint="purchase + tagged expenses" />
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel title="Weight trend">{w.length > 1 ? <LineCard data={w.map((r) => ({ date: r.date.slice(5), kg: r.weight }))} x="date" lines={[{ key: "kg", name: "Weight (kg)" }]} /> : <Empty>Record at least two weights to see a trend.</Empty>}</Panel>
         <Panel title="Details"><dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">{detail.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd>{v}</dd></div>)}</dl></Panel>
       </div>

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -83,7 +84,7 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
   // phones have no mouse: without this a tapped button keeps its hover colour until you tap elsewhere
   future: { hoverOnlyWhenSupported: true },
 } satisfies Config;

@@ -33,7 +33,7 @@ export function PeoplePanel() {
       </ul>
       <form className="mt-4 space-y-2 border-t pt-4" onSubmit={async (e) => { e.preventDefault(); setBusy(true); await run(async () => { await addAccount(f.name, f.username, f.password, f.role); setF({ name: "", username: "", password: "", role: "Employee" }); }, "Person added"); setBusy(false); }}>
         <div className="text-sm font-semibold">Add a person</div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Input aria-label="Name" placeholder="Name" className="h-11 md:h-10" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
           <Input aria-label="Username" placeholder="Username" autoCapitalize="none" className="h-11 md:h-10" value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} />
           <Input aria-label="Password" type="password" placeholder="Password (8+ characters)" autoComplete="new-password" className="h-11 md:h-10" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
