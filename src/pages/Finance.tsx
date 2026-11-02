@@ -48,7 +48,7 @@ function Overview() {
         <StatCard label="Cost per animal" value={fmtMoney(k.costPerAnimal)} />
         <StatCard label="Cost per hectare" value={fmtMoney(k.costPerHa)} />
         <StatCard label="Revenue per hectare" value={fmtMoney(k.revenuePerHa)} />
-        <StatCard label="Cost per kg of livestock" value={fmtNum(k.costPerKg, 2)} />
+        <StatCard label="Cost per kg of livestock" value={fmtMoney(k.costPerKg)} />
         <StatCard label="Feed cost per animal" value={fmtMoney(k.feedPerAnimal)} />
         <StatCard label="Vet cost per animal" value={fmtMoney(k.vetPerAnimal)} />
         <StatCard label="Outstanding payments" value={fmtMoney(k.outstandingPayable)} tone={k.outstandingPayable ? "warn" : "good"} hint={k.outstandingReceivable ? `${fmtMoney(k.outstandingReceivable)} owed to you` : undefined} />

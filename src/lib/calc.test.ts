@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { Row } from "./types";
 import {
   addDays, ageInMonths, animalProfit, averageDailyGain, daysBetween, feedAvailable, feedlotMetrics,
-  herdCounts, netSaleRevenue, weightGain,
+  herdCounts, netSaleRevenue, weightGain, fmtMoney,
 } from "./calc";
 
 describe("weight maths", () => {
@@ -87,4 +87,21 @@ describe("auditor reports", () => {
     expect(reports.map((r) => r.title)).toEqual(["Financial Audit Report", "Animal Health & Welfare Report", reports[2].title]);
     for (const r of reports) expect(r.sections.length).toBeGreaterThan(0);
   });
+});
+
+describe("money on screen", () => {
+  it("keeps whole amounts clean", () => {
+    expect(fmtMoney(1350)).toBe("$1,350");
+    expect(fmtMoney(0)).toBe("$0");
+  });
+  it("shows the cents a per-unit rate actually has (it used to round $2.50 up to $3)", () => {
+    expect(fmtMoney(2.5)).toBe("$2.50");
+    expect(fmtMoney(12.5)).toBe("$12.50");
+    expect(fmtMoney(0.75)).toBe("$0.75");
+  });
+  it("keeps the cents of a recorded amount", () => expect(fmtMoney(1234.5)).toBe("$1,234.50"));
+  it("rounds a long average to the nearest cent", () => expect(fmtMoney(1234.5678)).toBe("$1,234.57"));
+  it("ignores floating-point dust", () => expect(fmtMoney(0.1 + 0.2 + 1.7)).toBe("$2"));
+  it("handles negatives (a loss)", () => expect(fmtMoney(-5700.25)).toBe("-$5,700.25"));
+  it("never shows NaN", () => expect(fmtMoney(NaN)).toBe("$0"));
 });
