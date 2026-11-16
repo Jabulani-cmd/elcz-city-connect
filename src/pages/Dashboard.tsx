@@ -13,6 +13,7 @@ import { useFarm, useRows, useUser } from "@/lib/store";
 import { canWrite } from "@/lib/permissions";
 import type { Row } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { InsightsBanner } from "@/components/farm/InsightsBanner";
 import { SEV_STYLE, SEV_TEXT, useAlerts } from "@/components/farm/alertUi";
 
 const RANGES = { all: "All time", year: "This year", d30: "Last 30 days" } as const;
@@ -93,6 +94,7 @@ export default function Dashboard() {
           </div>
         )}
       </section>
+      <InsightsBanner />
       <div className="flex justify-end">
         <select aria-label="Period" className={cn(nativeSelect, "w-auto")} value={range} onChange={(e) => setRange(e.target.value as keyof typeof RANGES)}>{Object.entries(RANGES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
       </div>

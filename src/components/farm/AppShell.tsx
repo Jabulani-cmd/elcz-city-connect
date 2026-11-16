@@ -23,7 +23,6 @@ import { PwaBanner } from "./PwaBanner";
 import { AdoptLocalBanner } from "./AdoptLocalBanner";
 import { AccountMenu } from "./AccountMenu";
 import { QuickRecord } from "./QuickRecord";
-import { InsightsBanner } from "./InsightsBanner";
 
 export const NAV: { to: string; label: string; section: Section; icon: LucideIcon }[] = [
   { to: "/", label: "Dashboard", section: "dashboard", icon: LayoutDashboard },
@@ -129,7 +128,7 @@ function TabBar({ onMore, onQuick, canRecord }: { onMore: () => void; onQuick: (
   const item = (t: (typeof TABS)[number]) => (
     <NavLink key={t.to} to={t.to} end={t.end} className={({ isActive }) => cn("relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition-colors", isActive ? "text-primary" : "text-muted-foreground")}>
       {({ isActive }) => (<>
-        <span className={cn("flex h-7 w-14 items-center justify-center rounded-full transition-colors", isActive && "bg-primary/10")}><t.icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.4 : 2} /></span>
+        <span className={cn("flex h-7 w-14 items-center justify-center rounded-full transition-colors", isActive && "bg-primary/10")}><t.icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.4 : 2} aria-hidden="true" /></span>
         {t.label}
       </>)}
     </NavLink>
@@ -140,11 +139,11 @@ function TabBar({ onMore, onQuick, canRecord }: { onMore: () => void; onQuick: (
         {left.map(item)}
         {canRecord ? (
           <div className="flex flex-1 justify-center">
-            <button onClick={onQuick} aria-label="Quick record" className="-mt-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95"><Plus className="h-7 w-7" /></button>
+            <button onClick={onQuick} aria-label="Quick record" className="-mt-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95"><Plus className="h-7 w-7" aria-hidden="true" /></button>
           </div>
         ) : <NavLink to="/notifications" className="flex flex-1 flex-col items-center py-2 text-[11px] text-muted-foreground"><span className="flex h-7 w-14 items-center justify-center"><Bell className="h-[22px] w-[22px]" /></span>Alerts</NavLink>}
         {right.map(item)}
-        <button onClick={onMore} className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium text-muted-foreground">
+        <button onClick={onMore} aria-label={alerts > 0 ? `More menu, ${alerts} alerts` : "More menu"} className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium text-muted-foreground">
           <span className="relative flex h-7 w-14 items-center justify-center"><MoreHorizontal className="h-[22px] w-[22px]" />{alerts > 0 && <span className="absolute right-3 top-0 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-background" />}</span>
           More
         </button>
@@ -194,7 +193,7 @@ export function AppShell() {
               <span className="hidden rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary lg:inline">{user.role}</span>
               <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full" aria-label={`Notifications (${alerts})`} onClick={() => navigate("/notifications")}>
                 <Bell className="h-5 w-5" />
-                {alerts > 0 && <span className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold text-white ring-2 ring-background">{alerts}</span>}
+                {alerts > 0 && <span aria-hidden="true" className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold text-white ring-2 ring-background">{alerts}</span>}
               </Button>
               <AccountMenu />
             </div>
@@ -211,7 +210,6 @@ export function AppShell() {
           <SubscriptionBanner />
           <PwaBanner />
           <AdoptLocalBanner />
-          {loc.pathname === "/" && <InsightsBanner />}
           <Outlet />
         </main>
       </div>

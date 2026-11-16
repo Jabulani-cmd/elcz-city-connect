@@ -26,16 +26,16 @@ const TONE = {
 
 export function StatCard({ label, value, hint, icon: Icon, tone = "default", to }: { label: string; value: ReactNode; hint?: ReactNode; icon?: LucideIcon; tone?: keyof typeof TONE; to?: string }) {
   const body = (
-    <Card className={cn("flex items-center gap-3 rounded-2xl border-border/60 p-3.5 shadow-sm sm:p-4", to && "transition-all hover:bg-muted/50 active:scale-[0.98]")}>
-      {Icon && <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11", TONE[tone])}><Icon className="h-5 w-5" /></div>}
+    <Card className={cn("flex h-full items-center gap-3 rounded-2xl border-border/60 p-3.5 shadow-sm sm:p-4", to && "transition-all hover:bg-muted/50 active:scale-[0.98]")}>
+      {Icon && <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11", TONE[tone])}><Icon className="h-5 w-5" aria-hidden="true" /></div>}
       <div className="min-w-0">
-        <div className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
-        <div className="truncate text-xl font-bold leading-tight tabular-nums">{value}</div>
-        {hint && <div className="truncate text-xs text-muted-foreground">{hint}</div>}
+        <div className="line-clamp-2 text-[11px] font-semibold uppercase leading-tight tracking-wide text-muted-foreground">{label}</div>
+        <div className="mt-0.5 truncate text-xl font-bold leading-tight tabular-nums">{value}</div>
+        {hint && <div className="line-clamp-2 text-xs text-muted-foreground">{hint}</div>}
       </div>
     </Card>
   );
-  return to ? <Link to={to} className="block">{body}</Link> : body;
+  return to ? <Link to={to} className="block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{body}</Link> : body;
 }
 
 export function Panel({ title, action, children, className }: { title: string; action?: ReactNode; children: ReactNode; className?: string }) {
