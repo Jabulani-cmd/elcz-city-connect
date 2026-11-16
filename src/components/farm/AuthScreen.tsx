@@ -25,7 +25,7 @@ export function Shell({ title, subtitle, children, home = true }: { title: strin
   return (
     <div className="bg-hero flex min-h-screen flex-col items-center justify-center p-4 pt-safe">
       <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl sm:p-8">
-        {home && <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Home</Link>}
+        {home && <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Home</Link>}
         <img src={logoFull} alt="Kurima Digital – empowering Zimbabwean farmers" className="mx-auto mb-4 h-28 w-auto" />
         <div className="mb-5 text-center"><h1 className="text-2xl font-bold">{title}</h1>{subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}</div>
         {children}
@@ -85,11 +85,11 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
         <div className="space-y-4"><p role="status" className="rounded-xl bg-success/10 p-3 text-sm">{note}</p><Button variant="outline" className="w-full" onClick={() => { setNote(""); setMode("in"); }}>Back to sign in</Button></div>
       ) : (
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-          {mode === "up" && <div><Label htmlFor="au-name" className="mb-1.5 block">Your name</Label><Input id="au-name" className="h-12 text-base" autoComplete="name" value={f.name} onChange={set("name")} /></div>}
-          <div><Label htmlFor="au-email" className="mb-1.5 block">Email</Label><Input id="au-email" type="email" className="h-12 text-base" autoComplete="email" inputMode="email" autoCapitalize="none" value={f.email} onChange={set("email")} /></div>
-          {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} /></div>}
+          {mode === "up" && <div><Label htmlFor="au-name" className="mb-1.5 block">Your name</Label><Input id="au-name" required aria-required="true" className="h-12 text-base" autoComplete="name" value={f.name} onChange={set("name")} /></div>}
+          <div><Label htmlFor="au-email" className="mb-1.5 block">Email</Label><Input id="au-email" type="email" required aria-required="true" className="h-12 text-base" autoComplete="email" inputMode="email" autoCapitalize="none" value={f.email} onChange={set("email")} /></div>
+          {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" required aria-required="true" minLength={8} className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} /></div>}
           {mode !== "forgot" && <KeepSignedIn checked={keep} onChange={setKeep} />}
-          <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
+          <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy} aria-busy={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
           {mode === "in" && (
             <>
           <div className="relative py-3">
@@ -97,7 +97,7 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
             <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Passwordless login</span></div>
           </div>
           <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base gap-2" onClick={handleMagicLink} disabled={busy}>
-            <Mail className="h-5 w-5" /> Send Magic Link
+            <Mail className="h-5 w-5" aria-hidden="true" /> Send Magic Link
           </Button>
             </>
           )}

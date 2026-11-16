@@ -31,12 +31,10 @@ export function Onboarding() {
         </div>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <div><Label htmlFor="ob-owner" className="mb-1.5 block">Your name</Label><Input className="h-12 text-base" autoComplete="name" id="ob-owner" value={f.owner} onChange={set("owner")} /></div>
-          <div><Label htmlFor="ob-name" className="mb-1.5 block">Farm name *</Label><Input className="h-12 text-base" id="ob-name" value={f.name} onChange={set("name")} placeholder="e.g. Sunrise Farm" /></div>
+          <div><Label htmlFor="ob-name" className="mb-1.5 block">Farm name *</Label><Input className="h-12 text-base" id="ob-name" required aria-required="true" autoComplete="organization" value={f.name} onChange={set("name")} placeholder="e.g. Sunrise Farm" /></div>
           <div><Label htmlFor="ob-location" className="mb-1.5 block">Location</Label><Input className="h-12 text-base" id="ob-location" value={f.location} onChange={set("location")} placeholder="Town / district / country" /></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><Label htmlFor="ob-farmType" className="mb-1.5 block">Farm type</Label><select className={nativeSelect} id="ob-farmType" value={f.farmType} onChange={set("farmType")}>{TYPES.map((t) => <option key={t}>{t}</option>)}</select></div>
-            <div><Label htmlFor="ob-sizeHa" className="mb-1.5 block">Size (ha)</Label><Input className="h-12 text-base" type="number" inputMode="decimal" min={0} id="ob-sizeHa" value={f.sizeHa} onChange={set("sizeHa")} /></div>
-          </div>
+          <div><Label htmlFor="ob-farmType" className="mb-1.5 block">Farm type</Label><select className={nativeSelect + " h-12"} id="ob-farmType" value={f.farmType} onChange={set("farmType")}>{TYPES.map((t) => <option key={t}>{t}</option>)}</select></div>
+          <div><Label htmlFor="ob-sizeHa" className="mb-1.5 block">Size (hectares)</Label><Input className="h-12 text-base" type="number" inputMode="decimal" min={0} id="ob-sizeHa" value={f.sizeHa} onChange={set("sizeHa")} /></div>
           <Button type="submit" size="lg" className="h-12 w-full text-base">Create my farm</Button>
         </form>
         {!cloudEnabled && <div className="mt-4 border-t pt-4 text-center">

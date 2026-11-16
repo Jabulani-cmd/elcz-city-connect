@@ -48,7 +48,7 @@ export default function FarmMap() {
   const types = [...new Set(features.map((f) => f.type))];
   return (
     <div>
-      <PageHeader title="Farm Map" description={`Fields, pastures, water and buildings plotted from GPS coordinates${farm?.location ? ` – ${farm.location}` : ""}. Add coordinates on a field, pasture or map feature (tap “My location” on your phone while standing there).`} />
+      <PageHeader title="Farm Map" description={`Fields, pastures, water and buildings plotted from GPS coordinates${farm?.location ? ` – ${farm.location}` : ""}. Tap “My location” while standing on a spot to save its coordinates.`} />
       {!view ? <Empty>Nothing has GPS coordinates yet. Add a GPS location to a field or pasture, or add a map feature below.</Empty> : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_16rem]">
           <Panel title="Map" className="p-2 sm:p-4">
