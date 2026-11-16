@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { generateFinancialReport, generateHealthReport, generateOperationalReport, type FarmReport } from "@/lib/reports";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 /** Bookkeeping fields that mean nothing to a reader. */
 const HIDDEN = new Set(["id", "farmId", "createdAt", "updatedAt", "deletedAt", "deleted", "synced", "version", "createdBy", "updatedBy"]);
@@ -23,6 +21,8 @@ export function ReportsPage() {
   const exportPDF = async () => {
     setIsGenerating(true);
     try {
+      // the PDF libraries are big, so they load only when someone actually exports
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
       const report = getReportData();
       const doc = new jsPDF();
 

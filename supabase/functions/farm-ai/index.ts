@@ -1,7 +1,41 @@
 // Supabase Edge Function: AI crop / livestock assistant.
 // Secrets required:  ANTHROPIC_API_KEY, AI_MODEL (the model id to use)
 // Deploy:  supabase functions deploy farm-ai
+// Abuse limits: crop/livestock checks need a signed-in user (the public anon key is not enough); the landing-page chat stays open
+// to visitors but is rate-limited per IP; request bodies, images and text fields are size-capped. Limits are per function instance
+// (in-memory), a cheap first line of defence, not a global quota.
 // Then set VITE_AI_ENDPOINT=https://<project>.supabase.co/functions/v1/farm-ai (and VITE_AI_KEY=<anon key>) in .env
+
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const MAX_BODY_BYTES = 6 * 1024 * 1024; // whole request
+const MAX_IMAGES = 6;
+const MAX_IMAGE_CHARS = 1_400_000; // ~1 MB of image per photo once base64-encoded
+const MAX_TEXT = 2000;
+const LIMITS = { chat: { max: 20, windowMs: 10 * 60_000 }, check: { max: 30, windowMs: 60 * 60_000 } };
+
+const hits = new Map<string, number[]>();
+/** true when `key` has used up its allowance in the window */
+function limited(key: string, { max, windowMs }: { max: number; windowMs: number }) {
+  const now = Date.now();
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
+  if (recent.length >= max) { hits.set(key, recent); return true; }
+  recent.push(now);
+  hits.set(key, recent);
+  if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < windowMs)) hits.delete(k);
+  return false;
+}
+
+const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
+async function userFrom(req: Request) {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (!token) return null;
+  const { data } = await admin.auth.getUser(token);
+  return data.user ?? null;
+}
+const clientIp = (req: Request) => (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+const cap = (v: unknown, n = MAX_TEXT) => (typeof v === "string" ? v.slice(0, n) : v == null ? undefined : String(v).slice(0, n));
+const fail = (msg: string, status: number) => new Response(JSON.stringify({ error: msg }), { status, headers: { ...CORS, "content-type": "application/json" } });
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -53,7 +87,17 @@ async function chat(input: { messages?: unknown }, apiKey: string, model: string
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
-    const input = await req.json();
+    if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) return fail("Request too large", 413);
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_BYTES) return fail("Request too large", 413);
+    const input = JSON.parse(raw);
+    if (input.kind === "chat") {
+      if (limited(`chat:${clientIp(req)}`, LIMITS.chat)) return fail("Too many questions, please try again later", 429);
+    } else {
+      const user = await userFrom(req);
+      if (!user) return fail("Please sign in to use the health checks", 401);
+      if (limited(`check:${user.id}`, LIMITS.check)) return fail("Too many checks, please try again later", 429);
+    }
     const kind = input.kind === "crop" ? "crop" : "livestock";
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     const model = Deno.env.get("AI_MODEL");
@@ -61,18 +105,18 @@ Deno.serve(async (req) => {
     if (input.kind === "chat") return await chat(input, apiKey, model);
 
     const details = [
-      kind === "crop" ? `Crop: ${input.crop ?? "unknown"}` : `Species: ${input.species ?? "unknown"}\nBreed: ${input.breed ?? "unknown"}`,
-      Array.isArray(input.selectedSymptoms) && input.selectedSymptoms.length > 0 && `Symptoms chosen from the list: ${input.selectedSymptoms.join(", ")}`,
-      input.ageText && `Age: ${input.ageText}`,
-      input.weightKg && `Weight: ${input.weightKg} kg`,
-      `Symptoms: ${input.symptoms || "(none given)"}`,
-      input.history && `Recent history: ${input.history}`,
+      kind === "crop" ? `Crop: ${cap(input.crop, 200) ?? "unknown"}` : `Species: ${cap(input.species, 200) ?? "unknown"}\nBreed: ${cap(input.breed, 200) ?? "unknown"}`,
+      Array.isArray(input.selectedSymptoms) && input.selectedSymptoms.length > 0 && `Symptoms chosen from the list: ${input.selectedSymptoms.slice(0, 20).map((x: unknown) => cap(x, 100)).join(", ")}`,
+      input.ageText && `Age: ${cap(input.ageText, 100)}`,
+      input.weightKg && `Weight: ${cap(input.weightKg, 10)} kg`,
+      `Symptoms: ${cap(input.symptoms) || "(none given)"}`,
+      input.history && `Recent history: ${cap(input.history)}`,
     ].filter(Boolean).join("\n");
 
     const content: unknown[] = [];
     const urls: unknown[] = Array.isArray(input.imageDataUrls) && input.imageDataUrls.length ? input.imageDataUrls : [input.imageDataUrl];
-    for (const url of urls.slice(0, 8)) {
-      const m = typeof url === "string" ? url.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/) : null;
+    for (const url of urls.slice(0, MAX_IMAGES)) {
+      const m = typeof url === "string" && url.length <= MAX_IMAGE_CHARS ? url.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/) : null;
       if (m) content.push({ type: "image", source: { type: "base64", media_type: m[1], data: m[2] } });
     }
     content.push({ type: "text", text: details });
