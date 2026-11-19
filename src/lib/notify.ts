@@ -1,5 +1,4 @@
 import { computeAlerts, type Alert } from "./alerts";
-import { todayISO } from "./calc";
 import { LABELS, RESOURCES } from "./schema";
 import { getState, rowsOf } from "./store";
 import { supabase } from "./supabaseClient";
@@ -73,14 +72,13 @@ export function channelsFor(kind: string, prefs: Row[]): Channel[] {
 
 /** Urgent / soon alerts only; "info" alerts are for the in-app list. */
 export function alertsToSend(alerts: Alert[], prefs: Row[]): Map<string, NotifyEvent[]> {
-  const today = todayISO();
   const groups = new Map<string, NotifyEvent[]>();
   for (const a of alerts) {
     if (a.severity === "info") continue;
     const ch = channelsFor(a.kind, prefs);
     if (!ch.length) continue;
-    // overdue items nag once a day; "soon" items are sent once
-    const key = `${a.id}:${a.severity}${a.severity === "danger" ? ":" + today : ""}`;
+    // sent once when it first needs attention; the morning digest (notify-digest) then reminds every day
+    const key = `${a.id}:${a.severity}`;
     const g = ch.join(",");
     groups.set(g, [...(groups.get(g) ?? []), { title: a.title, detail: a.detail, key }]);
   }

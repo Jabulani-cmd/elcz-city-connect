@@ -36,10 +36,8 @@ describe("alerts", () => {
     const g = alertsToSend([alert({}), alert({ id: "b", severity: "info" }), alert({ id: "c", kind: "Inventory", severity: "warning" }), alert({ id: "d", kind: "Irrigation" })], prefs);
     expect([...g.keys()].sort()).toEqual(["email", "whatsapp,sms"]);
   });
-  it("repeats overdue alerts daily but sends 'soon' ones once", () => {
+  it("sends each alert once; the daily digest does the reminding", () => {
     const [danger] = alertsToSend([alert({})], prefs).get("whatsapp,sms")!;
-    const [soon] = alertsToSend([alert({ severity: "warning" })], prefs).get("whatsapp,sms")!;
-    expect(danger.key).toMatch(/:danger:\d{4}-\d{2}-\d{2}$/);
-    expect(soon.key).toBe("a:warning");
+    expect(danger.key).toBe("a:danger");
   });
 });

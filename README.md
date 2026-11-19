@@ -114,7 +114,7 @@ Still to do:
 
 ### WhatsApp, SMS and email notifications
 
-Owners and farm managers add people under **Notifications → Who receives messages** (name, phone, email, and which channels / kinds they want). The app then messages them about **all farm activity** (records added, changed or removed – sent once the change reaches the server, so offline work notifies when the phone reconnects) and about **urgent / soon-due alerts** for the kinds switched on in the table below it (WhatsApp, SMS, Email columns). Overdue alerts repeat once a day; others are sent once.
+Owners and farm managers add people under **Notifications → Who receives messages** (name, phone, email, and which channels / kinds they want). The app then messages them about **all farm activity** (records added, changed or removed – sent once the change reaches the server, so offline work notifies when the phone reconnects) and about **urgent / soon-due alerts** for the kinds switched on in the table below it (WhatsApp, SMS, Email columns). Each alert is sent once when it first needs attention, and a **daily digest** (07:00 Zimbabwe time) reminds people of everything still outstanding.
 
 1. Run `supabase/migrations/20261120000000_notifications.sql`.
 2. `supabase functions deploy notify`
@@ -125,3 +125,8 @@ Owners and farm managers add people under **Notifications → Who receives messa
 4. Use **Send a test message** on the Notifications page.
 
 The function only lets signed-in farm members who can write trigger a message, takes recipients from the database (never from the browser), and caps a farm at 300 messages per hour.
+
+**Daily digest set-up** (one message per person each morning, covering vaccinations, vet visits, tasks, calvings, expiring/low-stock items – only sent when something needs attention):
+1. Run `supabase/migrations/20261121000000_daily_digest.sql` (enables `pg_cron` and `pg_net`; if your plan doesn't allow them, enable them under Database → Extensions first).
+2. Set a long random function secret `CRON_SECRET`, then `supabase functions deploy notify-digest --no-verify-jwt`.
+3. In the SQL editor store the URL and the same secret (commands are at the top of the migration file). Until they exist the daily job does nothing.
