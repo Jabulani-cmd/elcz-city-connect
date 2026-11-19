@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { NOTIFICATION_KINDS } from "@/lib/alerts";
 import { SEV_STYLE, SEV_TEXT, useAlerts } from "@/components/farm/alertUi";
 import { Input } from "@/components/ui/input";
-import { addContact, listContacts, removeContact, sendTestNotification, updateContact, type Contact } from "@/lib/notify";
+import { addContact, CHANNEL_LABEL, kindLabel, listContacts, listMessageLog, removeContact, sendTestNotification, statusLabel, updateContact, type Contact, type LogEntry } from "@/lib/notify";
 import { upsert, useFarm, useRows, useUser } from "@/lib/store";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
@@ -80,10 +80,15 @@ function Recipients() {
   const farm = useFarm();
   const { role } = useUser();
   const [list, setList] = useState<Contact[] | null>(null);
+  const [log, setLog] = useState<LogEntry[]>([]);
   const [form, setForm] = useState(blank);
   const [busy, setBusy] = useState(false);
   const allowed = !!supabase && !!farm && !farm.id.startsWith("demo-") && (role === "Owner" || role === "Farm Manager");
-  const load = useCallback(() => { if (allowed && farm) listContacts(farm.id).then(setList).catch(() => setList([])); }, [allowed, farm]);
+  const load = useCallback(() => {
+    if (!allowed || !farm) return;
+    listContacts(farm.id).then(setList).catch(() => setList([]));
+    listMessageLog(farm.id).then(setLog).catch(() => setLog([]));
+  }, [allowed, farm]);
   useEffect(load, [load]);
   if (!allowed || !farm) return null;
   const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); load(); } catch (e) { toast.error(e instanceof Error ? e.message : "Something went wrong"); } finally { setBusy(false); } };
@@ -112,6 +117,20 @@ function Recipients() {
         <Button disabled={busy} onClick={add}>Add person</Button>
         <Button variant="outline" disabled={busy || !list?.length} onClick={() => run(async () => { const r = await sendTestNotification(farm.id); (r.ok ? toast.success : toast.error)(r.message); })}>Send a test message</Button>
       </div>
+      <div className="mb-2 mt-6 flex items-center justify-between"><h3 className="text-sm font-semibold">Recent messages</h3><Button variant="ghost" size="sm" disabled={busy} onClick={load}>Refresh</Button></div>
+      {log.length === 0 ? <p className="text-sm text-muted-foreground">Nothing yet. Press “Send a test message”, or change a record, and the message appears here.</p> : (
+        <ul className="space-y-2">
+          {log.map((m) => (
+            <li key={m.id} className="rounded-xl border p-3 text-sm">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <b>{CHANNEL_LABEL[m.channel] ?? m.channel}</b><span className="text-muted-foreground">to {m.who || "a contact"} · {kindLabel(m.kind)}</span>
+                <span className={cn("ml-auto rounded-full px-2 py-0.5 text-xs font-medium", m.status === "sent" ? "bg-emerald-100 text-emerald-900" : m.status === "demo" ? "bg-amber-100 text-amber-900" : "bg-red-100 text-red-900")}>{statusLabel(m.status)}</span>
+              </div>
+              <div className="text-xs text-muted-foreground">{new Date(m.at).toLocaleString()}</div>
+              {m.preview && <pre className="mt-2 whitespace-pre-wrap break-words rounded-lg bg-muted/60 p-2 font-sans text-xs">{m.preview}</pre>}
+              {m.error && <div className="mt-1 text-xs text-red-700">{m.error}</div>}
+            </li>))}
+        </ul>)}
     </Panel>
   );
 }

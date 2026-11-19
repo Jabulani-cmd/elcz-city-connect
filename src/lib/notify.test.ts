@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Alert } from "./alerts";
-import { alertsToSend, channelsFor, describeChange, eventsForSynced } from "./notify";
+import { alertsToSend, channelsFor, describeChange, eventsForSynced, kindLabel, statusLabel } from "./notify";
 import type { OutboxItem, Row } from "./types";
 
 const row = (extra: Partial<Row> = {}): Row => ({ id: "r1", farmId: "f1", createdAt: "2026-11-19T08:00:00.000Z", updatedAt: "2026-11-19T08:00:00.100Z", ...extra });
@@ -39,5 +39,18 @@ describe("alerts", () => {
   it("sends each alert once; the daily digest does the reminding", () => {
     const [danger] = alertsToSend([alert({})], prefs).get("whatsapp,sms")!;
     expect(danger.key).toBe("a:danger");
+  });
+});
+
+describe("message log labels", () => {
+  it("makes it obvious when a message was only simulated", () => {
+    expect(statusLabel("demo")).toBe("Demo – not actually sent");
+    expect(statusLabel("sent")).toBe("Sent");
+    expect(statusLabel("not_configured")).toBe("Not set up yet");
+    expect(statusLabel("something-new")).toBe("something-new");
+  });
+  it("names the kinds of message", () => {
+    expect(kindLabel("digest")).toBe("Daily summary");
+    expect(kindLabel("activity")).toBe("Activity");
   });
 });

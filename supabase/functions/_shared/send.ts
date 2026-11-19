@@ -67,7 +67,10 @@ export const configured: Record<Channel, () => boolean> = {
 };
 
 
-export type Delivery = { sent: number; failed: number; notConfigured: string[]; skipped: number };
+/** NOTIFY_MODE=demo: nothing is sent to Twilio/Resend; each message is logged as "demo" with its text so the app can show what would have gone out. */
+export const demoMode = () => env("NOTIFY_MODE") === "demo";
+
+export type Delivery = { sent: number; failed: number; demo: number; notConfigured: string[]; skipped: number };
 
 /** Send one message to every contact who wants this kind and has the channel on. `dedupe` stops a repeat to the same person on the same channel. */
 export async function deliver(o: { farmId: string; farmName: string; type: "activity" | "alert" | "test" | "digest"; events: Ev[]; actor?: string; channels?: Channel[]; dedupe?: string | null }): Promise<Delivery> {
@@ -79,7 +82,7 @@ export async function deliver(o: { farmId: string; farmName: string; type: "acti
   const { count } = await admin.from("notification_log").select("id", { count: "exact", head: true }).eq("farm_id", farmId).eq("status", "sent").gte("at", since);
   let budget = Math.max(0, MAX_PER_HOUR - (count ?? 0));
   const msg = compose(type, clip(o.farmName, 60) || "Your farm", type === "activity" ? clip(o.actor, 60) : "", events);
-  const result: Delivery = { sent: 0, failed: 0, notConfigured: [], skipped: 0 };
+  const result: Delivery = { sent: 0, failed: 0, demo: 0, notConfigured: [], skipped: 0 };
   const log: Record<string, unknown>[] = [];
   for (const c of (contacts ?? []) as Contact[]) {
     if (type === "activity" && !c.want_activity) continue;
@@ -91,7 +94,8 @@ export async function deliver(o: { farmId: string; farmName: string; type: "acti
     ];
     for (const [ch, to] of plan) {
       if (!to || !asked.includes(ch)) continue;
-      const row = { farm_id: farmId, contact_id: c.id, channel: ch, kind: type, dedupe_key: dedupe };
+      const row = { farm_id: farmId, contact_id: c.id, channel: ch, kind: type, dedupe_key: dedupe, preview: (ch === "sms" ? msg.short : msg.full).slice(0, 1500) };
+      if (demoMode()) { result.demo++; log.push({ ...row, dedupe_key: null, status: "demo" }); continue; }
       if (!configured[ch]()) { if (!result.notConfigured.includes(ch)) result.notConfigured.push(ch); log.push({ ...row, dedupe_key: null, status: "not_configured" }); continue; }
       if (budget <= 0) { result.skipped++; continue; }
       if (dedupe) {
