@@ -22,6 +22,10 @@ export type SyncDeps = {
   /** Reads a locally stored file for upload. */
   readFile: (fileId: string) => Promise<Blob | undefined>;
   online?: () => boolean;
+  /** Called with the changes that were just accepted by the server (used to send WhatsApp / SMS / email notifications). */
+  onPushed?: (items: OutboxItem[]) => void;
+  /** Called after every successful sync. */
+  onSynced?: () => void;
 };
 
 const CHUNK = 200;
@@ -102,6 +106,13 @@ export function createSyncEngine(deps: SyncDeps) {
     const known = new Set([...SYNC_ORDER, FARMS]);
     drop.push(...outbox.filter((o) => !known.has(o.collection)).map((o) => o.id));
     if (drop.length) markSynced(drop);
+    if (deps.onPushed) {
+      const left = new Set(getState().outbox.map((o) => o.id));
+      const skipped = new Set(drop);
+      const refused = new Set(getState().failed.map((f) => `${f.collection}:${f.rowId}`));
+      const sent = outbox.filter((o) => !left.has(o.id) && !skipped.has(o.id) && !refused.has(`${o.collection}:${o.rowId}`));
+      if (sent.length) try { deps.onPushed(sent); } catch { /* notifications never break syncing */ }
+    }
   }
 
   async function pull() {
@@ -143,6 +154,7 @@ export function createSyncEngine(deps: SyncDeps) {
       await push();
       await pull();
       setStatus({ state: "idle", error: "", lastSyncAt: getState().lastSyncAt });
+      try { deps.onSynced?.(); } catch { /* ignore */ }
       return true;
     } catch (e) {
       setStatus({ state: deps.online && !deps.online() ? "offline" : "error", error: msg(e) });

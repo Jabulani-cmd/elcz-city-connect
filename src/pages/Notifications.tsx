@@ -1,5 +1,5 @@
 import { AlertTriangle, Bell, CheckCheck, Info, OctagonAlert } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Empty, PageHeader, Panel, nativeSelect } from "@/components/farm/kit";
@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { NOTIFICATION_KINDS } from "@/lib/alerts";
 import { SEV_STYLE, SEV_TEXT, useAlerts } from "@/components/farm/alertUi";
-import { upsert, useRows } from "@/lib/store";
+import { Input } from "@/components/ui/input";
+import { addContact, listContacts, removeContact, sendTestNotification, updateContact, type Contact } from "@/lib/notify";
+import { upsert, useFarm, useRows, useUser } from "@/lib/store";
+import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 
 const ICON = { danger: OctagonAlert, warning: AlertTriangle, info: Info } as const;
-const CHANNELS = [["inApp", "In-app"], ["push", "Push"], ["email", "Email"], ["sms", "SMS"]] as const;
+const CHANNELS = [["inApp", "In-app"], ["push", "Push"], ["whatsapp", "WhatsApp"], ["sms", "SMS"], ["email", "Email"]] as const;
 
 export default function Notifications() {
   const alerts = useAlerts();
@@ -53,8 +56,9 @@ export default function Notifications() {
             </li>); })}
         </ul>
       )}
+      <Recipients />
       <Panel title="How you get notified" className="mt-8">
-        <p className="mb-3 text-sm text-muted-foreground">In-app notifications work everywhere. Push uses your browser’s notifications while the app is open. Email and SMS preferences are saved, but sending them needs a server-side provider that isn’t connected yet.</p>
+        <p className="mb-3 text-sm text-muted-foreground">In-app notifications work everywhere. Push uses your browser’s notifications while the app is open. WhatsApp, SMS and email are sent by the server to the people listed under “Who receives messages” below, for urgent and soon-due items you switch on here.</p>
         <div className="overflow-x-auto"><table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="py-2">Notify me about</th>{CHANNELS.map(([, l]) => <th key={l} className="px-3 text-center">{l}</th>)}</tr></thead>
           <tbody className="divide-y">{NOTIFICATION_KINDS.map((k) => (
@@ -63,5 +67,49 @@ export default function Notifications() {
         <Button variant="outline" className="mt-4" onClick={testPush}>Send a test push notification</Button>
       </Panel>
     </div>
+  );
+}
+
+const toggles: [keyof Contact, string][] = [["viaWhatsapp", "WhatsApp"], ["viaSms", "SMS"], ["viaEmail", "Email"], ["wantActivity", "Activity"], ["wantAlerts", "Alerts"]];
+const blank = { name: "", phone: "", email: "" };
+
+/** People who get WhatsApp / SMS / email for this farm. Owners and farm managers only; needs a signed-in cloud farm. */
+function Recipients() {
+  const farm = useFarm();
+  const { role } = useUser();
+  const [list, setList] = useState<Contact[] | null>(null);
+  const [form, setForm] = useState(blank);
+  const [busy, setBusy] = useState(false);
+  const allowed = !!supabase && !!farm && !farm.id.startsWith("demo-") && (role === "Owner" || role === "Farm Manager");
+  const load = useCallback(() => { if (allowed && farm) listContacts(farm.id).then(setList).catch(() => setList([])); }, [allowed, farm]);
+  useEffect(load, [load]);
+  if (!allowed || !farm) return null;
+  const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); load(); } catch (e) { toast.error(e instanceof Error ? e.message : "Something went wrong"); } finally { setBusy(false); } };
+  const add = () => {
+    if (!form.name.trim() || (!form.phone.trim() && !form.email.trim())) return toast.error("Add a name and a phone number or email");
+    void run(async () => { await addContact(farm.id, form); setForm(blank); });
+  };
+  return (
+    <Panel title="Who receives messages" className="mt-8">
+      <p className="mb-3 text-sm text-muted-foreground">These people get WhatsApp, SMS and email about farm activity (records added, changed or removed) and about alerts. Phone numbers like 0771234567 are treated as Zimbabwe numbers; use +country code for others.</p>
+      <ul className="space-y-3">
+        {(list ?? []).map((c) => (
+          <li key={c.id} className="rounded-xl border p-3">
+            <div className="flex items-start justify-between gap-2"><div className="min-w-0"><div className="font-medium">{c.name}</div><div className="truncate text-sm text-muted-foreground">{[c.phone, c.email].filter(Boolean).join(" · ")}</div></div>
+              <Button variant="ghost" size="sm" disabled={busy} onClick={() => run(() => removeContact(c.id))}>Remove</Button></div>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">{toggles.map(([k, l]) => <label key={k} className="flex items-center gap-2 text-sm"><Switch checked={!!c[k]} disabled={busy} onCheckedChange={(v) => run(() => updateContact(c.id, { [k]: v }))} />{l}</label>)}</div>
+          </li>))}
+        {list?.length === 0 && <li className="text-sm text-muted-foreground">No one yet – add yourself first.</li>}
+      </ul>
+      <div className="mt-4 grid gap-2 sm:grid-cols-3">
+        <Input aria-label="Name" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-11" />
+        <Input aria-label="Phone" placeholder="Phone (WhatsApp / SMS)" inputMode="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="h-11" />
+        <Input aria-label="Email" placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="h-11" />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button disabled={busy} onClick={add}>Add person</Button>
+        <Button variant="outline" disabled={busy || !list?.length} onClick={() => run(async () => { const r = await sendTestNotification(farm.id); (r.ok ? toast.success : toast.error)(r.message); })}>Send a test message</Button>
+      </div>
+    </Panel>
   );
 }

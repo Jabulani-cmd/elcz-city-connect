@@ -4,6 +4,10 @@
 [functions.farm-ai]
 verify_jwt = true
 
+# WhatsApp / SMS / email notifications. Needs a signed-in farm member; recipients come from the database, never from the browser.
+[functions.notify]
+verify_jwt = true
+
 # Paynow's result URL has no user token; the function checks user calls itself and never trusts the posted payment status.
 [functions.paynow]
 verify_jwt = false

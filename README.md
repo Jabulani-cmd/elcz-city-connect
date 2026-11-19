@@ -111,3 +111,17 @@ Still to do:
 - Email/SMS sending (preferences are saved; push works while the app is open) and IoT, satellite, marketplace and payment integrations from the roadmap.
 - Realtime push updates (devices currently sync on change, on focus/reconnect and every minute).
 - Conflict handling is "last write wins" per record.
+
+### WhatsApp, SMS and email notifications
+
+Owners and farm managers add people under **Notifications → Who receives messages** (name, phone, email, and which channels / kinds they want). The app then messages them about **all farm activity** (records added, changed or removed – sent once the change reaches the server, so offline work notifies when the phone reconnects) and about **urgent / soon-due alerts** for the kinds switched on in the table below it (WhatsApp, SMS, Email columns). Overdue alerts repeat once a day; others are sent once.
+
+1. Run `supabase/migrations/20261120000000_notifications.sql`.
+2. `supabase functions deploy notify`
+3. Set secrets (only the channels you set up will send; others are skipped):
+   - WhatsApp + SMS via Twilio: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` (e.g. `whatsapp:+14155238886`), `TWILIO_SMS_FROM`. For real use, WhatsApp needs an approved message template: create one with a single variable `{{1}}` and set `TWILIO_WHATSAPP_CONTENT_SID`. Without a template WhatsApp only delivers to people who messaged your number in the last 24 h (fine for the Twilio sandbox).
+   - Email via Resend: `RESEND_API_KEY`, `NOTIFY_EMAIL_FROM`.
+   - Optional: `DEFAULT_COUNTRY_CODE` (default `263`), `APP_URL`.
+4. Use **Send a test message** on the Notifications page.
+
+The function only lets signed-in farm members who can write trigger a message, takes recipients from the database (never from the browser), and caps a farm at 300 messages per hour.
