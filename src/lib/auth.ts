@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { cloudEnabled, supabase } from "@/lib/supabaseClient";
 import { authStorage, dropStalePersistentSession, setKeepSignedIn } from "./authStorage";
+import { assertNotLeaked } from "./leakedPasswords";
 import { addAccount, listAccounts, setAccountPassword, verifyAccount, wipeAccounts, type LocalAccount } from "./localAuth";
 import type { Role } from "./types";
 
@@ -93,6 +94,7 @@ export async function signIn(identifier: string, password: string, keep = false)
 
 /** Cloud: returns true when signed in, false when email confirmation is required first. */
 export async function signUp(email: string, password: string, fullName: string, keep = false) {
+  await assertNotLeaked(password);
   setKeepSignedIn(keep);
   const { data, error } = await need().auth.signUp({ email: email.trim(), password, options: { data: { full_name: fullName.trim() }, emailRedirectTo: window.location.origin } });
   if (error) throw error;
@@ -123,6 +125,7 @@ export async function sendPasswordReset(email: string) {
 }
 
 export async function setNewPassword(password: string) {
+  await assertNotLeaked(password);
   const { error } = await need().auth.updateUser({ password });
   if (error) throw error;
   set({ ...state, status: "signedIn" });
@@ -137,6 +140,7 @@ export async function changeMyPassword(current: string, next: string) {
   }
   const { error: e1 } = await need().auth.signInWithPassword({ email: state.email, password: current });
   if (e1) throw new Error("Your current password isn’t right");
+  await assertNotLeaked(next);
   const { error } = await need().auth.updateUser({ password: next });
   if (error) throw error;
 }

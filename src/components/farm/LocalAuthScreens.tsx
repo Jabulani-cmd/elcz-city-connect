@@ -31,7 +31,7 @@ export function LocalSetup() {
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <div><Label htmlFor="ls-name" className="mb-1.5 block">Your name</Label><Input id="ls-name" className="h-12 text-base" autoComplete="name" value={f.name} onChange={set("name")} /></div>
         <div><Label htmlFor="ls-user" className="mb-1.5 block">Username</Label><Input id="ls-user" className="h-12 text-base" autoComplete="username" autoCapitalize="none" value={f.username} onChange={set("username")} /></div>
-        <div><Label htmlFor="ls-pw" className="mb-1.5 block">Password (at least 8 characters)</Label><Input id="ls-pw" type="password" className="h-12 text-base" autoComplete="new-password" value={f.password} onChange={set("password")} /></div>
+        <div><Label htmlFor="ls-pw" className="mb-1.5 block">Password (at least 8 characters)</Label><Input id="ls-pw" type="password" className="h-12 text-base" autoComplete="new-password" value={f.password} onChange={set("password")} /><p className="mt-1.5 text-xs text-muted-foreground">We check new passwords against known data breaches. Your password itself is never sent anywhere.</p></div>
         <div><Label htmlFor="ls-pw2" className="mb-1.5 block">Repeat password</Label><Input id="ls-pw2" type="password" className="h-12 text-base" autoComplete="new-password" value={f.confirm} onChange={set("confirm")} /></div>
         <KeepSignedIn checked={keep} onChange={setKeep} />
         <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create account</Button>

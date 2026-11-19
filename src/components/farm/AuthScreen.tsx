@@ -87,7 +87,7 @@ export function AuthScreen({ initialMode = "in" }: { initialMode?: "in" | "up" }
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           {mode === "up" && <div><Label htmlFor="au-name" className="mb-1.5 block">Your name</Label><Input id="au-name" required aria-required="true" className="h-12 text-base" autoComplete="name" value={f.name} onChange={set("name")} /></div>}
           <div><Label htmlFor="au-email" className="mb-1.5 block">Email</Label><Input id="au-email" type="email" required aria-required="true" className="h-12 text-base" autoComplete="email" inputMode="email" autoCapitalize="none" value={f.email} onChange={set("email")} /></div>
-          {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" required aria-required="true" minLength={8} className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} /></div>}
+          {mode !== "forgot" && <div><Label htmlFor="au-pw" className="mb-1.5 block">Password</Label><Input id="au-pw" type="password" required aria-required="true" minLength={8} className="h-12 text-base" autoComplete={mode === "up" ? "new-password" : "current-password"} value={f.password} onChange={set("password")} />{mode === "up" && <p className="mt-1.5 text-xs text-muted-foreground">We check new passwords against known data breaches. Your password itself is never sent anywhere.</p>}</div>}
           {mode !== "forgot" && <KeepSignedIn checked={keep} onChange={setKeep} />}
           <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy} aria-busy={busy}>{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}{mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}</Button>
           {mode === "in" && (
@@ -118,7 +118,7 @@ export function ResetPassword() {
   return (
     <Shell title="Choose a new password" home={true}>
       <form className="space-y-4" onSubmit={async (e) => { e.preventDefault(); if (pw.length < 8) return toast.error("Password must be at least 8 characters"); setBusy(true); try { await setNewPassword(pw); toast.success("Password updated"); } catch (err) { toast.error(friendly(err)); } finally { setBusy(false); } }}>
-        <div><Label htmlFor="rp" className="mb-1.5 block">New password</Label><Input id="rp" type="password" className="h-12 text-base" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} /></div>
+        <div><Label htmlFor="rp" className="mb-1.5 block">New password</Label><Input id="rp" type="password" className="h-12 text-base" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} /><p className="mt-1.5 text-xs text-muted-foreground">We check new passwords against known data breaches. Your password itself is never sent anywhere.</p></div>
         <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={busy}>Save password</Button>
       </form>
     </Shell>
