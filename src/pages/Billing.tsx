@@ -27,7 +27,8 @@ type Waiting = { id: string; text: string; code: string | null };
 
 export default function Billing() {
   const { status, daysLeft, endsAt, plan, plans, payments, farmId } = useBilling();
-  const owner = useUser().role === "Owner";
+  const user = useUser();
+  const owner = user.role === "Owner";
   const [interval, setInterval_] = useState<"month" | "year">("month");
   const [chosen, setChosen] = useState<Plan | null>(null);
   const [method, setMethod] = useState<CheckoutInput["method"]>("ecocash");
@@ -86,6 +87,8 @@ export default function Billing() {
     farm: farm?.name ?? "Your farm", planName: plans.find((x) => x.code === receiptPay.plan_code)?.name ?? receiptPay.plan_code, interval: receiptPay.billing_interval,
     amountUsd: receiptPay.amount_usd, method: receiptPay.method, reference: receiptPay.reference ?? receiptPay.id.slice(0, 8).toUpperCase(),
     paidAt: receiptPay.paid_at ?? receiptPay.created_at, activeUntil: endsAt ? endsAt.toISOString() : null,
+    billedToName: user.name, billedToEmail: receiptPay.receipt_to ?? undefined, farmLocation: farm?.location || undefined,
+    transactionRef: receiptPay.paynow_reference && receiptPay.paynow_reference !== "DEMO" ? receiptPay.paynow_reference : undefined,
   } : null;
 
   const statusLine = status === "trial" ? `Free trial: ${daysLeft} day${daysLeft === 1 ? "" : "s"} left (ends ${dateText(endsAt)})`

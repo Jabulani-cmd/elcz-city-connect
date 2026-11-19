@@ -19,27 +19,37 @@ describe("emailLine", () => {
 });
 
 describe("PaymentReceipt", () => {
-  it("shows the transaction as successful with every detail", () => {
+  it("shows an official receipt with every detail", () => {
     render(<PaymentReceipt data={data} payment={pay()} onClose={() => {}} />);
-    expect(screen.getByText("Payment successful")).toBeInTheDocument();
-    for (const t of ["Starter (monthly)", "$10.00 USD", "EcoCash (demo)", "DEMO-AB12CD34", "19 Nov 2026", "19 Dec 2026"]) expect(screen.getByText(t)).toBeInTheDocument();
-    expect(screen.getByText(/Demo: no real money was taken/)).toBeInTheDocument();
+    expect(screen.getByText(/Payment successful/)).toBeInTheDocument();
+    for (const t of ["OFFICIAL", "RECEIPT", "Kurima Digital", "✓ PAID", "BILLED TO", "Ndizvo Homestead", "DEMO-AB12CD34", "EcoCash (demo)", "19 Nov 2026, 16:20 UTC", "FarmHelper Starter plan – monthly subscription", "Total paid", "Balance due"]) expect(screen.getAllByText(t).length, t).toBeGreaterThan(0);
+    expect(screen.getAllByText("$10.00 USD").length).toBeGreaterThanOrEqual(3);
+    expect(screen.getByText(/Period covered: 19 Nov 2026 to 19 Dec 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/active until 19 Dec 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO RECEIPT/)).toBeInTheDocument();
     expect(screen.getByText(/receipt email to owner@example.com was simulated/)).toBeInTheDocument();
+    expect(screen.getByText(/does not need a signature/)).toBeInTheDocument();
+  });
+  it("shows the seller's logo", () => {
+    const { container } = render(<PaymentReceipt data={data} payment={pay()} onClose={() => {}} />);
+    expect(document.body.querySelector("img")).not.toBeNull();
+    expect(container).toBeTruthy();
   });
   it("does not call a real payment a demo", () => {
-    render(<PaymentReceipt data={{ ...data, method: "ecocash", reference: "FH-1" }} payment={pay({ method: "ecocash", receipt_status: "sent" })} onClose={() => {}} />);
-    expect(screen.queryByText(/Demo: no real money/)).toBeNull();
+    render(<PaymentReceipt data={{ ...data, method: "ecocash", reference: "FH-1", transactionRef: "PN-9" }} payment={pay({ method: "ecocash", receipt_status: "sent" })} onClose={() => {}} />);
+    expect(screen.queryByText(/DEMO RECEIPT/)).toBeNull();
+    expect(screen.getByText("PN-9")).toBeInTheDocument();
     expect(screen.getByText("A receipt was emailed to owner@example.com.")).toBeInTheDocument();
   });
-  it("closes with Done and offers the download", () => {
+  it("closes with Done and offers the PDF download", () => {
     const close = vi.fn();
     render(<PaymentReceipt data={data} payment={pay()} onClose={close} />);
-    expect(screen.getByRole("button", { name: /Download receipt/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Download PDF receipt/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Done" }));
     expect(close).toHaveBeenCalled();
   });
   it("renders nothing without a paid payment", () => {
     render(<PaymentReceipt data={null} payment={undefined} onClose={() => {}} />);
-    expect(screen.queryByText("Payment successful")).toBeNull();
+    expect(screen.queryByText(/Payment successful/)).toBeNull();
   });
 });
