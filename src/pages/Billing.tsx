@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Empty, PageHeader, Panel } from "@/components/farm/kit";
+import { PaymentReceipt } from "@/components/farm/PaymentReceipt";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { authMode } from "@/lib/auth";
 import { checkPayment, demoSetTrial, paymentsConfig, refreshBilling, startCheckout, useBilling, type CheckoutInput, type Plan } from "@/lib/billing";
-import { useUser } from "@/lib/store";
+import { useFarm, useUser } from "@/lib/store";
+import type { ReceiptInput } from "../../supabase/functions/_shared/receipt";
 
 const METHODS: { id: CheckoutInput["method"]; label: string; hint: string; phone?: boolean }[] = [
   { id: "ecocash", label: "EcoCash", hint: "Approve on your phone", phone: true },
@@ -32,6 +34,8 @@ export default function Billing() {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [waiting, setWaiting] = useState<Waiting | null>(null);
+  const [receiptId, setReceiptId] = useState<string | null>(null);
+  const farm = useFarm();
   const [params, setParams] = useSearchParams();
   const polling = useRef(false);
   const [cfg, setCfg] = useState<{ demo: boolean; configured: boolean } | null>(null);
@@ -47,9 +51,9 @@ export default function Billing() {
     try {
       for (let i = 0; i < 45; i++) {
         const s = await checkPayment(id).catch(() => "pending" as const);
-        if (s === "paid") { toast.success("Payment received. Thank you!"); setWaiting(null); setChosen(null); return; }
+        if (s === "paid") { toast.success("Payment received. Thank you!"); setWaiting(null); setChosen(null); await refreshBilling(farmId); setReceiptId(id); return; }
         if (s === "failed" || s === "cancelled") { toast.error(s === "cancelled" ? "The payment was cancelled." : "The payment didn’t go through."); setWaiting(null); return; }
-        await new Promise((r) => setTimeout(r, 4000));
+        await new Promise((r) => setTimeout(r, cfg?.demo ? 1500 : 4000));
       }
       toast.message("Still waiting for the payment. If you approved it, it will show here shortly.");
       setWaiting(null);
@@ -77,6 +81,13 @@ export default function Billing() {
     finally { setBusy(false); }
   };
 
+  const receiptPay = payments.find((p) => p.id === receiptId);
+  const receiptData: ReceiptInput | null = receiptPay && receiptPay.status === "paid" ? {
+    farm: farm?.name ?? "Your farm", planName: plans.find((x) => x.code === receiptPay.plan_code)?.name ?? receiptPay.plan_code, interval: receiptPay.billing_interval,
+    amountUsd: receiptPay.amount_usd, method: receiptPay.method, reference: receiptPay.reference ?? receiptPay.id.slice(0, 8).toUpperCase(),
+    paidAt: receiptPay.paid_at ?? receiptPay.created_at, activeUntil: endsAt ? endsAt.toISOString() : null,
+  } : null;
+
   const statusLine = status === "trial" ? `Free trial: ${daysLeft} day${daysLeft === 1 ? "" : "s"} left (ends ${dateText(endsAt)})`
     : status === "active" ? `${plans.find((p) => p.code === plan)?.name ?? "Plan"} plan is active until ${dateText(endsAt)}`
     : status === "expired" ? "Your trial has ended: records are read-only until you choose a plan"
@@ -87,7 +98,7 @@ export default function Billing() {
       <PageHeader title="Plan & billing" description="One plan covers the whole farm and everyone on it." />
       {cfg?.demo && (
         <div role="note" className="mb-4 rounded-2xl border-2 border-dashed border-warning bg-warning/10 p-4 text-sm">
-          <b>Demo mode: no real money is taken.</b> Payments are pretend so you can see how everything works. For EcoCash or OneMoney use <b>0771234567</b> (succeeds after a few seconds), <b>0773333333</b> (cancelled) or <b>0774444444</b> (not enough money).
+          <b>Demo mode: no real money is taken.</b> Payments are pretend so you can see how everything works. For EcoCash or OneMoney use <b>0771234567</b> (succeeds after a few seconds), <b>0773333333</b> (cancelled) or <b>0774444444</b> (not enough money). When a payment succeeds a receipt is emailed straight away; until an email account is connected that email is simulated and shown under Notifications → Recent messages.
           {owner && (
             <div className="mt-3 flex flex-wrap gap-2">
               <Button size="sm" variant="outline" onClick={() => demoSetTrial(farmId, "expire").then(() => toast.success("Trial ended. Records are now read-only.")).catch((e) => toast.error(e.message))}>Demo: end the trial now</Button>
@@ -135,7 +146,7 @@ export default function Billing() {
                   {payments.map((p) => (
                     <li key={p.id} className="flex items-center justify-between gap-3 py-2.5">
                       <span><b className="capitalize">{p.plan_code}</b> · {p.billing_interval === "year" ? "yearly" : "monthly"}{p.method?.startsWith("demo") ? " · demo" : ""}<br /><span className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleString()}</span></span>
-                      <span className="text-right"><b>{usd(p.amount_usd)}</b><br /><span className={`text-xs font-medium capitalize ${p.status === "paid" ? "text-success" : p.status === "pending" ? "text-muted-foreground" : "text-danger"}`}>{p.status}</span></span>
+                      <span className="flex items-center gap-3 text-right"><span><b>{usd(p.amount_usd)}</b><br /><span className={`text-xs font-medium capitalize ${p.status === "paid" ? "text-success" : p.status === "pending" ? "text-muted-foreground" : "text-danger"}`}>{p.status}</span></span>{p.status === "paid" && <Button size="sm" variant="outline" className="h-10" onClick={() => setReceiptId(p.id)}>Receipt</Button>}</span>
                     </li>
                   ))}
                 </ul>
@@ -175,6 +186,7 @@ export default function Billing() {
           )}
         </DialogContent>
       </Dialog>
+      <PaymentReceipt data={receiptData} payment={receiptPay} onClose={() => setReceiptId(null)} />
     </div>
   );
 }

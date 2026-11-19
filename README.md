@@ -155,3 +155,9 @@ Every Monday morning (07:00 Zimbabwe time) the daily digest function also emails
 - Needs the email provider (`RESEND_API_KEY`, `NOTIFY_EMAIL_FROM`) – or `NOTIFY_MODE=demo`, where the email is simulated and appears under Recent messages with the file name.
 - The weekly figures come from the database, so they only include records that have synced to the cloud. The "App activity" rows of the in-app Farm summary are left out because they come from the phone's own change log.
 - To send last week's report right now (for example to test it): call the digest function with `{"force_weekly": true}` and the digest secret, as the scheduled job does.
+
+### Payments demo and receipts (updated)
+
+**Payments are in demo mode by default until Paynow is connected.** If `PAYNOW_ID` and `PAYNOW_KEY` are not set (and `PAYMENTS_MODE` is not set), the Billing page works in demo mode: nothing goes to Paynow and no money moves, a banner says so, and a payment succeeds a few seconds after you press Pay. Adding the Paynow keys switches to real payments by itself. `PAYMENTS_MODE=demo` forces the demo, and `PAYMENTS_MODE=live` forces real payments. **Until the Paynow keys are added, any farm owner can "pay" for free**, so add them (or set `PAYMENTS_MODE=live`) before real customers use the app.
+
+**Receipts.** The moment a payment succeeds, the payer gets a success screen (plan, amount, reference, date, "plan active until") with a download button, and a receipt is emailed to them once. Paid rows in the payment history have a **Receipt** button. The email needs `RESEND_API_KEY` and `NOTIFY_EMAIL_FROM`; until then a demo payment's receipt email is simulated and appears under Notifications → Recent messages as "Demo – not actually sent" with the full text. A real payment with no email account connected shows "couldn't email the receipt" and still offers the download.

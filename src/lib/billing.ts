@@ -7,7 +7,7 @@ import { useFarm } from "./store";
 /** One subscription per farm, kept on the server. The trial starts when the farm is first saved to the cloud. */
 export type Sub = { farm_id: string; plan_code: string | null; billing_interval: "month" | "year" | null; trial_ends_at: string; paid_until: string | null };
 export type Plan = { code: string; name: string; monthly_usd: number; yearly_usd: number; max_members: number | null; description: string; sort: number };
-export type PaymentRow = { id: string; plan_code: string; billing_interval: "month" | "year"; amount_usd: number; method: string | null; status: "pending" | "paid" | "failed" | "cancelled"; created_at: string };
+export type PaymentRow = { id: string; plan_code: string; billing_interval: "month" | "year"; amount_usd: number; method: string | null; status: "pending" | "paid" | "failed" | "cancelled"; created_at: string; reference?: string; paid_at?: string | null; receipt_to?: string | null; receipt_status?: "sent" | "demo" | "not_configured" | "failed" | "no_email" | null };
 export type BillingStatus = "unknown" | "trial" | "active" | "expired";
 export type Billing = { status: BillingStatus; daysLeft: number; endsAt: Date | null; plan: string | null };
 
@@ -43,7 +43,7 @@ export async function refreshBilling(farmId: string): Promise<void> {
     const [s, p, pay] = await Promise.all([
       supabase.from("subscriptions").select("*").eq("farm_id", farmId).maybeSingle(),
       supabase.from("plans").select("*").order("sort"),
-      supabase.from("payments").select("id, plan_code, billing_interval, amount_usd, method, status, created_at").eq("farm_id", farmId).order("created_at", { ascending: false }).limit(20),
+      supabase.from("payments").select("id, plan_code, billing_interval, amount_usd, method, status, created_at, reference, paid_at, receipt_to, receipt_status").eq("farm_id", farmId).order("created_at", { ascending: false }).limit(20),
     ]);
     if (s.error) return;
     const sub = (s.data as Sub | null) ?? null;
