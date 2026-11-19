@@ -147,3 +147,11 @@ Both demos are switched on by a Supabase **Edge Function secret** (Project → E
 **Turn `PAYMENTS_MODE` off (delete the secret) before real customers use the app:** while it is on, any farm owner can "pay" for free. `NOTIFY_MODE=demo` is harmless but means no real messages go out until you remove it and add the provider keys.
 
 Demo script: sign in with a cloud account → Notifications → add yourself as a contact → **Send a test message** → watch it appear in Recent messages. Change a record (for example add an expense) and, after it syncs, an activity message appears too. Then Billing → choose a plan → pay with the demo number.
+
+### Weekly report by email (Mondays)
+
+Every Monday morning (07:00 Zimbabwe time) the daily digest function also emails **last week's report (Monday–Sunday) as a CSV attachment** to every notification contact who has **Email** and **Weekly report** switched on (both on by default; each contact can turn it off on Notifications → Who receives messages). The email body lists income, expenses and net for the week; the CSV is the full *Farm summary* (money, livestock, crops and tasks). It is sent once per person per week, even if the job runs twice.
+
+- Needs the email provider (`RESEND_API_KEY`, `NOTIFY_EMAIL_FROM`) – or `NOTIFY_MODE=demo`, where the email is simulated and appears under Recent messages with the file name.
+- The weekly figures come from the database, so they only include records that have synced to the cloud. The "App activity" rows of the in-app Farm summary are left out because they come from the phone's own change log.
+- To send last week's report right now (for example to test it): call the digest function with `{"force_weekly": true}` and the digest secret, as the scheduled job does.

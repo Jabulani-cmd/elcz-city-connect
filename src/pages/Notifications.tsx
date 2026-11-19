@@ -72,7 +72,7 @@ export default function Notifications() {
   );
 }
 
-const toggles: [keyof Contact, string][] = [["viaWhatsapp", "WhatsApp"], ["viaSms", "SMS"], ["viaEmail", "Email"], ["wantActivity", "Activity"], ["wantAlerts", "Alerts"]];
+const toggles: [keyof Contact, string][] = [["viaWhatsapp", "WhatsApp"], ["viaSms", "SMS"], ["viaEmail", "Email"], ["wantActivity", "Activity"], ["wantAlerts", "Alerts"], ["wantWeekly", "Weekly report"]];
 const blank = { name: "", phone: "", email: "" };
 
 /** People who get WhatsApp / SMS / email for this farm. Owners and farm managers only; needs a signed-in cloud farm. */

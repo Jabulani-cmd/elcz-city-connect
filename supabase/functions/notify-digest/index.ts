@@ -5,6 +5,7 @@
 // Not callable by browsers: it needs the secret from Vault (`notify_digest_secret`) in the `x-cron-secret` header.
 // Deploy:  supabase functions deploy notify-digest --no-verify-jwt
 import { admin, clip, deliver, json, type Ev } from "../_shared/send.ts";
+import { DATE_COLUMN, isMonday, previousWeek, summaryRows, toBase64, toCsv, weeklyFileName, type Week, type WeeklyData } from "../_shared/weekly.ts";
 
 const DAY = 86_400_000;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -64,18 +65,53 @@ Deno.serve(async (req) => {
   const { data: ok } = await admin.rpc("digest_secret_ok", { s: req.headers.get("x-cron-secret") ?? "" });
   if (req.method !== "POST" || ok !== true) return json({ error: "Not allowed" }, 401);
 
+  const body = await req.json().catch(() => ({})) as { force_weekly?: boolean };
   const today = iso(new Date());
   const { data: c } = await admin.from("notification_contacts").select("farm_id").eq("want_alerts", true);
   const farmIds = [...new Set((c ?? []).map((x) => x.farm_id as string))];
-  const summary = { farms: farmIds.length, sent: 0, failed: 0, empty: 0 };
+  const summary = { farms: farmIds.length, sent: 0, failed: 0, demo: 0, empty: 0, weekly: { farms: 0, sent: 0, failed: 0, demo: 0 } };
   for (const farmId of farmIds) {
     try {
       const items = await digestItems(farmId, today);
       if (!items.length) { summary.empty++; continue; }
       const { data: farm } = await admin.from("farms").select("name").eq("id", farmId).maybeSingle();
       const r = await deliver({ farmId, farmName: farm?.name ?? "", type: "digest", events: items.slice(0, 50), dedupe: `digest:${today}` });
-      summary.sent += r.sent; summary.failed += r.failed;
+      summary.sent += r.sent; summary.failed += r.failed; summary.demo += r.demo;
     } catch (e) { summary.failed++; console.error("digest failed for farm", farmId, (e as Error).message); }
+  }
+
+  // Mondays (or when forced for a manual run): email last week's report to everyone who wants it.
+  if (isMonday(today) || body.force_weekly === true) {
+    const week = previousWeek(today);
+    const { data: w } = await admin.from("notification_contacts").select("farm_id").eq("want_weekly", true).eq("via_email", true);
+    const weeklyFarms = [...new Set((w ?? []).map((x) => x.farm_id as string))];
+    summary.weekly.farms = weeklyFarms.length;
+    for (const farmId of weeklyFarms) {
+      try {
+        const { data: farm } = await admin.from("farms").select("name").eq("id", farmId).maybeSingle();
+        const name = farm?.name ?? "";
+        const table = summaryRows(await weeklyData(farmId, week), week);
+        const csv = toCsv(["Area", "Measure", "Value"], table);
+        const highlights: Ev[] = table.filter((r) => ["Income", "Expenses", "Net (income – expenses)"].includes(String(r[1]))).map((r) => ({ title: `${r[1]}: ${r[2]}` }));
+        highlights.push({ title: "The full report is attached as a CSV file (opens in Excel or Google Sheets)" });
+        // `actor` carries the week's label into the subject line ("weekly report, 16 Nov – 22 Nov 2026")
+        const r = await deliver({ farmId, farmName: name, type: "weekly", events: highlights, actor: week.label, channels: ["email"], dedupe: `weekly:${week.from}`, attachment: { filename: weeklyFileName(name, week), content: toBase64(csv) } });
+        summary.weekly.sent += r.sent; summary.weekly.failed += r.failed; summary.weekly.demo += r.demo;
+      } catch (e) { summary.weekly.failed++; console.error("weekly report failed for farm", farmId, (e as Error).message); }
+    }
   }
   return json(summary);
 });
+
+/** Everything the weekly report reads, limited to the week in the database query. */
+async function weeklyData(farm: string, week: Week): Promise<WeeklyData> {
+  const tables = { income: "income", expenses: "expenses", sales: "livestock_sales", purchases: "livestock_purchases", births: "birth_records", deaths: "mortality_records", health: "health_records", vaccinations: "vaccination_records", harvests: "harvest_records", fertilizer: "fertilizer_records", irrigation: "irrigation_records", tasks: "tasks" } as const;
+  const out = {} as WeeklyData;
+  await Promise.all((Object.keys(tables) as (keyof typeof tables)[]).map(async (k) => {
+    const col = DATE_COLUMN[k];
+    const cols = k === "income" || k === "expenses" ? `${col}, amount` : k === "tasks" ? `${col}, status` : col;
+    const { data } = await admin.from(tables[k]).select(cols).eq("farm_id", farm).is("deleted_at", null).gte(col, week.from).lte(col, week.to).limit(5000);
+    out[k] = (data ?? []) as unknown as Record<string, unknown>[];
+  }));
+  return out;
+}
