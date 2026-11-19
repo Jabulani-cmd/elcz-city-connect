@@ -58,7 +58,9 @@ export default function Notifications() {
       )}
       <Recipients />
       <Panel title="How you get notified" className="mt-8">
-        <p className="mb-3 text-sm text-muted-foreground">In-app notifications work everywhere. Push uses your browser’s notifications while the app is open. WhatsApp, SMS and email are sent by the server to the people listed under “Who receives messages” below, for urgent and soon-due items you switch on here.</p>
+        <p className="mb-3 text-sm text-muted-foreground">In-app notifications work everywhere. Push uses your browser’s notifications while the app is open. {supabase
+          ? "WhatsApp, SMS and email are sent by the server to the people listed under “Who receives messages” (owners and farm managers can edit that list), for urgent and soon-due items you switch on here."
+          : "WhatsApp, SMS and email are only sent for farms saved in the cloud (a signed-in account). On this device-only app your choices are saved but nothing is sent."}</p>
         <div className="overflow-x-auto"><table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="py-2">Notify me about</th>{CHANNELS.map(([, l]) => <th key={l} className="px-3 text-center">{l}</th>)}</tr></thead>
           <tbody className="divide-y">{NOTIFICATION_KINDS.map((k) => (
