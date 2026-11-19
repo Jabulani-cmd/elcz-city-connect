@@ -16,6 +16,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { sendDirectEmail } from "../_shared/send.ts";
 import { isDemoPayment, receiptSubject, receiptText } from "../_shared/receipt.ts";
+import { receiptHtml } from "../_shared/receiptHtml.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -61,16 +62,17 @@ type Payment = { id: string; reference: string; status: string; amount_usd: numb
 async function sendReceipt(paymentId: string) {
   try {
     const { data: p } = await admin.from("payments").update({ receipt_sent_at: new Date().toISOString() }).eq("id", paymentId).eq("status", "paid").is("receipt_sent_at", null)
-      .select("id, farm_id, plan_code, billing_interval, amount_usd, method, reference, paid_at, created_by").maybeSingle();
+      .select("id, farm_id, plan_code, billing_interval, amount_usd, method, reference, paynow_reference, paid_at, created_by").maybeSingle();
     if (!p) return; // already sent, or not paid
-    const { data: farm } = await admin.from("farms").select("name").eq("id", p.farm_id).maybeSingle();
+    const { data: farm } = await admin.from("farms").select("name, location").eq("id", p.farm_id).maybeSingle();
+    const { data: profile } = p.created_by ? await admin.from("profiles").select("full_name").eq("id", p.created_by).maybeSingle() : { data: null };
     const { data: plan } = await admin.from("plans").select("name").eq("code", p.plan_code).maybeSingle();
     const { data: sub } = await admin.from("subscriptions").select("paid_until").eq("farm_id", p.farm_id).maybeSingle();
     const { data: u } = p.created_by ? await admin.auth.admin.getUserById(p.created_by) : { data: { user: null } };
     const to = u?.user?.email ?? "";
     if (!to) { await admin.from("payments").update({ receipt_status: "no_email" }).eq("id", p.id); return; }
-    const r = { farm: farm?.name ?? "Your farm", planName: plan?.name ?? p.plan_code, interval: (p.billing_interval === "year" ? "year" : "month") as "year" | "month", amountUsd: Number(p.amount_usd), method: p.method as string | null, reference: p.reference as string, paidAt: (p.paid_at as string | null) ?? new Date().toISOString(), activeUntil: (sub?.paid_until as string | null) ?? null };
-    const status = await sendDirectEmail({ farmId: p.farm_id, to, subject: receiptSubject(r), text: receiptText(r), kind: "receipt", simulateIfUnconfigured: isDemoPayment(r.method) });
+    const r = { farm: farm?.name ?? "Your farm", planName: plan?.name ?? p.plan_code, interval: (p.billing_interval === "year" ? "year" : "month") as "year" | "month", amountUsd: Number(p.amount_usd), method: p.method as string | null, reference: p.reference as string, paidAt: (p.paid_at as string | null) ?? new Date().toISOString(), activeUntil: (sub?.paid_until as string | null) ?? null, billedToName: (profile?.full_name as string | undefined) || undefined, billedToEmail: to, farmLocation: (farm?.location as string | undefined) || undefined, transactionRef: p.paynow_reference && p.paynow_reference !== "DEMO" ? (p.paynow_reference as string) : null };
+    const status = await sendDirectEmail({ farmId: p.farm_id, to, subject: receiptSubject(r), text: receiptText(r), html: receiptHtml(r), kind: "receipt", simulateIfUnconfigured: isDemoPayment(r.method) });
     await admin.from("payments").update({ receipt_to: to, receipt_status: status }).eq("id", p.id);
   } catch (e) { console.error("receipt failed", (e as Error).message); }
 }

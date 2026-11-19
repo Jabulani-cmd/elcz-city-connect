@@ -52,12 +52,12 @@ async function twilio(to: string, from: string, body?: string, contentSid?: stri
   if (!res.ok) throw new Error(`Twilio ${res.status}: ${clip((await res.json().catch(() => ({})))?.message ?? "request failed", 160)}`);
 }
 
-async function resend(to: string, subject: string, text: string, attachment?: Attachment) {
+async function resend(to: string, subject: string, text: string, attachment?: Attachment, html?: string) {
   const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env("RESEND_API_KEY")}`, "content-type": "application/json" },
-    body: JSON.stringify({ from: env("NOTIFY_EMAIL_FROM"), to: [to], subject, text, ...(attachment ? { attachments: [attachment] } : {}), html: `<div style="font-family:sans-serif;white-space:pre-line">${esc(text)}</div>` }),
+    body: JSON.stringify({ from: env("NOTIFY_EMAIL_FROM"), to: [to], subject, text, ...(attachment ? { attachments: [attachment] } : {}), html: html ?? `<div style="font-family:sans-serif;white-space:pre-line">${esc(text)}</div>` }),
   });
   if (!res.ok) throw new Error(`Resend ${res.status}: ${clip((await res.json().catch(() => ({})))?.message ?? "request failed", 160)}`);
 }
@@ -77,14 +77,14 @@ export const demoMode = () => env("NOTIFY_MODE") === "demo";
  * Returns what happened. With `simulateIfUnconfigured` (demo payments) a missing email provider is shown as a simulated "demo" email
  * instead of "not set up", so the whole flow can be demonstrated before an email account exists.
  */
-export async function sendDirectEmail(o: { farmId: string; to: string; subject: string; text: string; kind: string; simulateIfUnconfigured?: boolean }): Promise<"sent" | "demo" | "not_configured" | "failed"> {
+export async function sendDirectEmail(o: { farmId: string; to: string; subject: string; text: string; html?: string; kind: string; simulateIfUnconfigured?: boolean }): Promise<"sent" | "demo" | "not_configured" | "failed"> {
   const preview = `${o.subject}\n\n${o.text}`.slice(0, 1500);
   let status: "sent" | "demo" | "not_configured" | "failed" = "sent";
   let error = "";
   if (demoMode() || (o.simulateIfUnconfigured && !configured.email())) status = "demo";
   else if (!configured.email()) status = "not_configured";
   else {
-    try { await resend(o.to, o.subject, o.text); } catch (e) { status = "failed"; error = clip((e as Error).message, 300); }
+    try { await resend(o.to, o.subject, o.text, undefined, o.html); } catch (e) { status = "failed"; error = clip((e as Error).message, 300); }
   }
   await admin.from("notification_log").insert({ farm_id: o.farmId, contact_id: null, channel: "email", kind: o.kind, dedupe_key: null, status, error: error || null, preview, recipient: clip(o.to, 200) });
   return status;
