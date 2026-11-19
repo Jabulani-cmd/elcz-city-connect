@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { askFarmQuestion, CHAT_TOPICS, type ChatMsg } from "@/lib/farmChat";
 import { cn } from "@/lib/utils";
 
-const WELCOME = "Hello! I'm the FarmHelper assistant. Ask me anything about livestock, crops or farm money – or about using FarmHelper.";
+const WELCOME = "Hello! I'm the FarmHelper assistant. Ask me anything about livestock, crops or farm finances – or about using FarmHelper.";
 
 /** Floating "Ask FarmHelper" chat on the home page for general farming questions (no sign-in needed). */
 export function LandingAssistant() {

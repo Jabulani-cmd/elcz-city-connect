@@ -61,7 +61,7 @@ export function Landing() {
       <main className="flex flex-1 items-end px-6 py-8 [@media(max-height:500px)]:py-3">
         <div className="mx-auto w-full max-w-lg">
           <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl [@media(max-height:500px)]:text-3xl">One platform to manage the entire farm.</h1>
-          <p className="mt-6 max-w-md text-xl text-white/90 sm:text-2xl [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-base">Livestock, crops, money and your team, on your phone, even with no signal.</p>
+          <p className="mt-6 max-w-md text-xl text-white/90 sm:text-2xl [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-base">Livestock, crops, finances and your team, on your phone, even with no signal.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row [@media(max-height:500px)]:mt-4">
             <Button asChild size="lg" className="h-12 px-6 text-base font-semibold bg-white text-[hsl(142_60%_18%)] shadow-md hover:bg-white/90 transition-all hover:scale-105 active:scale-95">
               <Link to="/signup">Start Your Free Trial</Link>
