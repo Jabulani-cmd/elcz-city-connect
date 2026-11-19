@@ -2,9 +2,9 @@
 // what needs attention on every farm that has notification contacts and sends ONE message per person and channel.
 // Covers the date-driven items: vaccinations due, vet visits, overdue/near tasks, calvings, expiring or low-stock inventory.
 // (Feed levels that depend on usage totals are only alerted live from the app.)
-// Not callable by browsers: it needs the shared secret in the `x-cron-secret` header (secret CRON_SECRET).
+// Not callable by browsers: it needs the secret from Vault (`notify_digest_secret`) in the `x-cron-secret` header.
 // Deploy:  supabase functions deploy notify-digest --no-verify-jwt
-import { admin, clip, deliver, env, json, type Ev } from "../_shared/send.ts";
+import { admin, clip, deliver, json, type Ev } from "../_shared/send.ts";
 
 const DAY = 86_400_000;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -60,9 +60,9 @@ export async function digestItems(farm: string, today: string): Promise<(Ev & { 
 }
 
 Deno.serve(async (req) => {
-  const secret = env("CRON_SECRET");
-  const got = req.headers.get("x-cron-secret") ?? "";
-  if (req.method !== "POST" || !secret || got.length !== secret.length || [...got].reduce((n, c, i) => n | (c.charCodeAt(0) ^ secret.charCodeAt(i)), 0) !== 0) return json({ error: "Not allowed" }, 401);
+  // The scheduler sends the secret kept in Vault (notify_digest_secret); the database checks it, so no copy lives in function settings.
+  const { data: ok } = await admin.rpc("digest_secret_ok", { s: req.headers.get("x-cron-secret") ?? "" });
+  if (req.method !== "POST" || ok !== true) return json({ error: "Not allowed" }, 401);
 
   const today = iso(new Date());
   const { data: c } = await admin.from("notification_contacts").select("farm_id").eq("want_alerts", true);
