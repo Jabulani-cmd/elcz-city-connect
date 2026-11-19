@@ -14,7 +14,11 @@ describe("receiptHtml", () => {
   });
   it("carries everything an official receipt should", () => {
     for (const s of ["Kurima Digital", "OFFICIAL", "RECEIPT", "PAID", "$10.00 USD", "BILLED TO", "Ndizvo Homestead", "Francis Moyo", "owner@example.com", "Mashonaland East", "FH-AB12CD34", "19 Nov 2026, 16:20 UTC", "EcoCash", "PN-123",
-      "FarmHelper Starter plan – monthly subscription", "Period covered: 19 Nov 2026 to 19 Dec 2026", "Subtotal", "Total paid", "Balance due", "$0.00 USD", "active until 19 Dec 2026", "MavingTech Business Solutions", "14601 Isiliwane Crescent", "Bulawayo, Zimbabwe", "+263 78 982 4741", "info@mavingtech.com", "www.mavingtech.com", "Company Reg No: 115409A0252026", "ZIMRA TIN: 2002517356", "does not need a signature"]) expect(html, s).toContain(s);
+      "FarmHelper Starter plan – monthly subscription", "Period covered: 19 Nov 2026 to 19 Dec 2026", "Subtotal", "Total paid", "Balance due", "$0.00 USD", "active until 19 Dec 2026", "14601 Isiliwane Crescent", "Bulawayo, Zimbabwe", "+263 78 982 4741", "info@mavingtech.com", "www.mavingtech.com", "Company Reg No: 115409A0252026", "ZIMRA TIN: 2002517356", "does not need a signature"]) expect(html, s).toContain(s);
+  });
+  it("is in the name of Kurima Digital only", () => {
+    expect(html).not.toMatch(/MavingTech Business/);
+    expect(html).toContain('<strong style="color:#374151">Kurima Digital</strong>');
   });
   it("only shows the demo banner for demo payments", () => {
     expect(html).not.toContain("DEMO RECEIPT");

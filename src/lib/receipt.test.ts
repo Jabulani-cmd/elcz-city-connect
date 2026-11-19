@@ -46,9 +46,11 @@ describe("seller details", () => {
     expect(all).not.toMatch(/VAT No/); // no VAT number yet, so none is printed
     expect(lines.every((l) => l.trim() !== "")).toBe(true);
   });
-  it("names the registered business that issues the receipt", () => {
-    expect(COMPANY.legalName).toBe("MavingTech Business Solutions");
-    expect(receiptText(base)).toContain("Issued by MavingTech Business Solutions");
+  it("is issued in the name of Kurima Digital, and doesn't name any other business", () => {
+    expect(COMPANY.name).toBe("Kurima Digital");
+    expect(COMPANY.legalName).toBe("Kurima Digital");
+    expect(receiptText(base)).toContain("KURIMA DIGITAL – OFFICIAL RECEIPT");
+    expect(receiptText(base)).not.toMatch(/MavingTech Business|Issued by/);
   });
   it("prints a VAT number once there is one, and leaves details off when they are empty", () => {
     expect(companyLines({ ...COMPANY, vatNumber: "456" }).join("\n")).toContain("VAT No: 456");

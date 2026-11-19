@@ -1,6 +1,7 @@
 // Who is issuing the receipts. One place, used by the emailed receipt, the PDF and the on-screen receipt.
 // Anything left empty ("" or []) is simply left off the receipt, so no placeholder text ever shows up on a customer's receipt.
-// The seller details below are the registered business's letterhead; add a VAT number once there is one.
+// The name is Kurima Digital; the address, contact details, registration number and TIN are taken from the business letterhead.
+// Add a VAT number once there is one.
 
 export type Company = {
   /** Brand shown in the receipt's header, next to the logo. */
@@ -26,7 +27,7 @@ export type Company = {
 
 export const COMPANY: Company = {
   name: "Kurima Digital",
-  legalName: "MavingTech Business Solutions",
+  legalName: "Kurima Digital",
   product: "FarmHelper",
   tagline: "Empowering Zimbabwean farmers",
   addressLines: ["14601 Isiliwane Crescent, Selbourne Park", "Bulawayo, Zimbabwe"],

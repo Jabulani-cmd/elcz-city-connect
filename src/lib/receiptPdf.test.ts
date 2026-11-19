@@ -12,7 +12,10 @@ describe("receipt PDF", () => {
     expect(t.startsWith("%PDF-")).toBe(true);
     expect((t.match(/\/Type \/Page\b/g) ?? []).length).toBe(1);
     expect(t).toMatch(/\/MediaBox \[0 0 595\.2\d* 841\.8\d*\]/); // A4
-    for (const s of ["Kurima Digital", "RECEIPT", "OFFICIAL", "PAID", "$10.00 USD", "Ndizvo Homestead", "Francis Moyo", "owner@example.com", "FH-AB12CD34", "PN-123", "FarmHelper Starter plan", "Period covered", "Total paid", "Balance due", "MavingTech Business Solutions", "14601 Isiliwane Crescent", "info@mavingtech.com", "115409A0252026", "2002517356", "does not need a signature"]) expect(t, s).toContain(s);
+    for (const s of ["Kurima Digital", "RECEIPT", "OFFICIAL", "PAID", "$10.00 USD", "Ndizvo Homestead", "Francis Moyo", "owner@example.com", "FH-AB12CD34", "PN-123", "FarmHelper Starter plan", "Period covered", "Total paid", "Balance due", "14601 Isiliwane Crescent", "info@mavingtech.com", "115409A0252026", "2002517356", "does not need a signature"]) expect(t, s).toContain(s);
+  });
+  it("is in the name of Kurima Digital only", async () => {
+    expect(text(await buildReceiptPdfBytes(base))).not.toContain("MavingTech Business");
   });
   it("has a demo banner and watermark only for demo payments", async () => {
     expect(text(await buildReceiptPdfBytes(base))).not.toContain("DEMO");
