@@ -1,3 +1,4 @@
+import { assertNotLeaked } from "./leakedPasswords";
 import type { Role } from "./types";
 
 /**
@@ -36,6 +37,7 @@ function validate(name: string, username: string, password: string) {
 
 export async function addAccount(name: string, username: string, password: string, role: Role): Promise<LocalAccount> {
   validate(name, username, password);
+  await assertNotLeaked(password);
   const all = listAccounts();
   if (all.some((a) => a.username === normUser(username))) throw new Error("That username is already used");
   const salt = newSalt();
@@ -53,6 +55,7 @@ export async function verifyAccount(username: string, password: string): Promise
 
 export async function setAccountPassword(id: string, password: string) {
   if (password.length < 8) throw new Error("Password must be at least 8 characters");
+  await assertNotLeaked(password);
   const salt = newSalt();
   const hash = await hashPassword(password, salt);
   save(listAccounts().map((a) => (a.id === id ? { ...a, salt, hash } : a)));
