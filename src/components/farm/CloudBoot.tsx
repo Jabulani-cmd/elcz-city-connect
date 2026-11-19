@@ -4,6 +4,7 @@ import { getFile } from "@/lib/files";
 import { useAuth } from "@/lib/auth";
 import { supabaseRemote } from "@/lib/remote";
 import { attachUser, detachUser, getState } from "@/lib/store";
+import { notifyActivity, notifyAlerts } from "@/lib/notify";
 import { createSyncEngine, setSyncEngine, useOnline } from "@/lib/sync";
 import { Splash } from "./AuthScreen";
 
@@ -17,7 +18,8 @@ export function CloudBoot({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!supabase) return;
     attachUser(userId, name);
-    const engine = createSyncEngine({ remote: supabaseRemote(supabase), readFile: (id) => getFile(id), online: () => navigator.onLine });
+    const engine = createSyncEngine({ remote: supabaseRemote(supabase), readFile: (id) => getFile(id), online: () => navigator.onLine,
+      onPushed: (items) => { void notifyActivity(items); }, onSynced: () => { void notifyAlerts(); } });
     setSyncEngine(engine);
     let stop = () => {};
     let cancelled = false;

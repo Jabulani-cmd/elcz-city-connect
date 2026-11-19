@@ -30,7 +30,7 @@ export const WRITE_AREAS: Record<string, string[]> = {
 /** Extra record types that live in resources without a schema entry. */
 const PREFS_FIELDS: Field[] = [
   { key: "type", label: "Type", type: "text" }, { key: "kind", label: "Kind", type: "text" }, { key: "alertId", label: "Alert", type: "text" },
-  { key: "inApp", label: "In-app", type: "text" }, { key: "push", label: "Push", type: "text" }, { key: "email", label: "Email", type: "text" }, { key: "sms", label: "SMS", type: "text" },
+  { key: "inApp", label: "In-app", type: "text" }, { key: "push", label: "Push", type: "text" }, { key: "email", label: "Email", type: "text" }, { key: "sms", label: "SMS", type: "text" }, { key: "whatsapp", label: "WhatsApp", type: "text" },
 ];
 
 export const fieldsOf = (collection: string): Field[] => (collection === "prefs" ? PREFS_FIELDS : RESOURCES[collection].fields);
