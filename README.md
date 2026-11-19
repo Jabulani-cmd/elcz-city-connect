@@ -134,3 +134,16 @@ The function only lets signed-in farm members who can write trigger a message, t
 ### Daily and weekly CSV reports
 
 **Reports → Daily & weekly**: choose Daily (Today, Yesterday or any date) or Weekly (This week, Last week or the week around any date; weeks run Monday–Sunday), then tap **CSV** next to any report. You get a *Farm summary* (money, livestock, crops, tasks and app activity for the period), an *Activity log* (who added, changed or removed what, from the audit trail), and every report in the catalogue limited to the same dates. Reports that show the farm as it is now (herd list, weights, yields…) are marked "as of today". Files are named like `farm-name_farm-summary_2026-11-16_to_2026-11-22.csv`. Everything is built on the phone from the farm's records, so it works offline. Emailing these automatically is not set up.
+
+### Demonstrating notifications and payments (no real messages, no real money)
+
+Both demos are switched on by a Supabase **Edge Function secret** (Project → Edge Functions → Secrets). Neither needs a provider account.
+
+| Secret | Value | What it does |
+| --- | --- | --- |
+| `NOTIFY_MODE` | `demo` | Nothing is sent to Twilio or Resend. Every WhatsApp, SMS and email is simulated and appears under **Notifications → Recent messages** with the label "Demo – not actually sent" and the exact text that would have gone out. |
+| `PAYMENTS_MODE` | `demo` | Subscription payments are pretend: nothing goes to Paynow and no money moves. The Billing page shows a "Demo mode" banner, EcoCash/OneMoney number `0771234567` succeeds after a few seconds (`…3333333` cancels, `…4444444` fails for insufficient funds), and the owner gets buttons to end the trial or start a fresh one. |
+
+**Turn `PAYMENTS_MODE` off (delete the secret) before real customers use the app:** while it is on, any farm owner can "pay" for free. `NOTIFY_MODE=demo` is harmless but means no real messages go out until you remove it and add the provider keys.
+
+Demo script: sign in with a cloud account → Notifications → add yourself as a contact → **Send a test message** → watch it appear in Recent messages. Change a record (for example add an expense) and, after it syncs, an activity message appears too. Then Billing → choose a plan → pay with the demo number.

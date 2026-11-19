@@ -104,7 +104,8 @@ export async function sendTestNotification(farmId: string): Promise<{ ok: boolea
   if (!navigator.onLine) return { ok: false, message: "You’re offline." };
   const { data, error } = await supabase.functions.invoke("notify", { body: { farm_id: farmId, type: "test" } });
   if (error) return { ok: false, message: "Couldn’t reach the notification service. Is the `notify` function deployed?" };
-  const r = data as { sent: number; failed: number; notConfigured: string[] };
+  const r = data as { sent: number; failed: number; demo?: number; notConfigured: string[] };
+  if (r.demo) return { ok: true, message: `Demo: ${r.demo} message${r.demo === 1 ? "" : "s"} simulated – nothing was actually sent. See “Recent messages” below.` };
   if (r.sent) return { ok: true, message: `Sent ${r.sent} message${r.sent === 1 ? "" : "s"}${r.failed ? `, ${r.failed} failed` : ""}.` };
   if (r.notConfigured?.length) return { ok: false, message: `Not set up on the server yet: ${r.notConfigured.join(", ")}. Add the provider keys (see README).` };
   return { ok: false, message: r.failed ? "Sending failed – check the numbers/addresses and provider keys." : "Add at least one contact with a phone number or email first." };
@@ -137,3 +138,29 @@ export async function listContacts(farmId: string): Promise<Contact[]> {
 export async function addContact(farmId: string, c: Partial<Contact>) { fail((await sb().from("notification_contacts").insert({ farm_id: farmId, ...toDb(c) })).error); }
 export async function updateContact(id: string, c: Partial<Contact>) { fail((await sb().from("notification_contacts").update(toDb(c)).eq("id", id)).error); }
 export async function removeContact(id: string) { fail((await sb().from("notification_contacts").delete().eq("id", id)).error); }
+
+/* ---------- recent messages (what was sent, or – in demo mode – what would have been) ---------- */
+export type LogEntry = { id: number; at: string; channel: Channel; kind: string; status: string; who: string; preview: string; error: string };
+
+export const STATUS_LABEL: Record<string, string> = {
+  sent: "Sent",
+  demo: "Demo – not actually sent",
+  failed: "Failed",
+  not_configured: "Not set up yet",
+};
+export const statusLabel = (s: string) => STATUS_LABEL[s] ?? s;
+
+export const CHANNEL_LABEL: Record<Channel, string> = { whatsapp: "WhatsApp", sms: "SMS", email: "Email" };
+const KIND_LABEL: Record<string, string> = { activity: "Activity", alert: "Alert", digest: "Daily summary", test: "Test" };
+export const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
+
+export async function listMessageLog(farmId: string, limit = 15): Promise<LogEntry[]> {
+  const { data, error } = await sb().from("notification_log")
+    .select("id, at, channel, kind, status, error, preview, notification_contacts(name)")
+    .eq("farm_id", farmId).order("at", { ascending: false }).limit(limit);
+  fail(error);
+  return (data ?? []).map((d: Db) => ({
+    id: Number(d.id), at: String(d.at), channel: d.channel as Channel, kind: String(d.kind), status: String(d.status),
+    who: String((d.notification_contacts as { name?: string } | null)?.name ?? ""), preview: String(d.preview ?? ""), error: String(d.error ?? ""),
+  }));
+}
