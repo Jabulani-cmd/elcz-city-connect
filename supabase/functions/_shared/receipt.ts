@@ -43,6 +43,7 @@ export function receiptText(r: ReceiptInput, c: Company = COMPANY): string {
     demo ? "DEMO RECEIPT – no real money was taken. This is not a tax invoice." : "",
     "",
     `${c.name.toUpperCase()} – OFFICIAL RECEIPT`,
+    ...(c.legalName && c.legalName !== c.name ? [`Issued by ${c.legalName}`] : []),
     ...companyLines(c),
     "",
     `Receipt no: ${r.reference}`,

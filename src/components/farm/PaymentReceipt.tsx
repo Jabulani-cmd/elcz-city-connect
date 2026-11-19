@@ -87,7 +87,7 @@ export function PaymentReceipt({ data, payment, onClose }: { data: ReceiptInput 
                 <Button variant="outline" className="h-12 flex-1" disabled={busy} onClick={download}>{busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Download className="mr-1.5 h-4 w-4" />}Download PDF receipt</Button>
                 <Button className="h-12 flex-1" onClick={onClose}>Done</Button>
               </div>
-              <div className="border-t pt-3 text-center text-xs text-muted-foreground">{companyLines().map((l) => <div key={l}>{l}</div>)}<div className="mt-1 text-[11px]">This is a computer-generated receipt and does not need a signature.</div></div>
+              <div className="border-t pt-3 text-center text-xs text-muted-foreground"><div className="font-semibold text-foreground">{COMPANY.legalName || COMPANY.name}</div>{companyLines().map((l) => <div key={l}>{l}</div>)}<div className="mt-1 text-[11px]">This is a computer-generated receipt and does not need a signature.</div></div>
             </div>
           </>
         )}

@@ -35,17 +35,25 @@ describe("receipt text", () => {
 describe("seller details", () => {
   it("leaves out whatever isn't filled in", () => {
     const lines = companyLines(COMPANY);
-    expect(lines.join("\n")).toContain("+263 78 982 4741");
-    expect(lines.join("\n")).toContain("www.kurima-mavingtech.online");
-    expect(lines.join("\n")).not.toMatch(/Reg \/ TIN|VAT No/);
+    const all = lines.join("\n");
+    expect(all).toContain("14601 Isiliwane Crescent, Selbourne Park");
+    expect(all).toContain("Bulawayo, Zimbabwe");
+    expect(all).toContain("+263 78 982 4741");
+    expect(all).toContain("info@mavingtech.com");
+    expect(all).toContain("www.mavingtech.com");
+    expect(all).toContain("Company Reg No: 115409A0252026");
+    expect(all).toContain("ZIMRA TIN: 2002517356");
+    expect(all).not.toMatch(/VAT No/); // no VAT number yet, so none is printed
     expect(lines.every((l) => l.trim() !== "")).toBe(true);
   });
-  it("shows the address and registration numbers once they are filled in", () => {
-    const lines = companyLines({ ...COMPANY, addressLines: ["12 Example Road", "Harare"], email: "hello@example.com", registration: "123", vatNumber: "456" });
-    expect(lines[0]).toBe("12 Example Road");
-    expect(lines.join("\n")).toContain("hello@example.com");
-    expect(lines.join("\n")).toContain("Reg / TIN: 123");
-    expect(lines.join("\n")).toContain("VAT No: 456");
+  it("names the registered business that issues the receipt", () => {
+    expect(COMPANY.legalName).toBe("MavingTech Business Solutions");
+    expect(receiptText(base)).toContain("Issued by MavingTech Business Solutions");
+  });
+  it("prints a VAT number once there is one, and leaves details off when they are empty", () => {
+    expect(companyLines({ ...COMPANY, vatNumber: "456" }).join("\n")).toContain("VAT No: 456");
+    const bare = companyLines({ ...COMPANY, addressLines: [], email: "", registration: "", tin: "", vatNumber: "" }).join("\n");
+    expect(bare).not.toMatch(/Reg No|TIN|VAT|undefined/);
   });
 });
 

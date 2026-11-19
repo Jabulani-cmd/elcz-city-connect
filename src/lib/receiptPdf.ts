@@ -120,7 +120,7 @@ export async function buildReceiptPdfBytes(r: ReceiptInput, opts: { company?: Co
   const lines = companyLines(c);
   const fy = Math.min(262, 291 - (11 + lines.length * 4.2 + 6));
   doc.setDrawColor(229, 231, 235); doc.setLineWidth(0.3); doc.line(M, fy, R, fy);
-  doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(55, 65, 81); doc.text(c.name, W / 2, fy + 6, { align: "center" });
+  doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(55, 65, 81); doc.text(c.legalName || c.name, W / 2, fy + 6, { align: "center" });
   doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(...gray);
   lines.forEach((l, i) => doc.text(l, W / 2, fy + 11 + i * 4.2, { align: "center" }));
   doc.setFontSize(8); doc.setTextColor(156, 163, 175);

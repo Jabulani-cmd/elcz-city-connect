@@ -84,7 +84,7 @@ export function receiptHtml(r: ReceiptInput, c: Company = COMPANY): string {
 
   <tr><td style="padding:24px 28px 26px">
     <div style="border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;color:#6b7280;line-height:1.7;text-align:center">
-      <strong style="color:#374151">${esc(c.name)}</strong><br>${from}<br>
+      <strong style="color:#374151">${esc(c.legalName || c.name)}</strong><br>${from}<br>
       <span style="color:#9ca3af">This is a computer-generated receipt and does not need a signature.</span>
     </div>
   </td></tr>

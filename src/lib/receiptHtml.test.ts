@@ -14,7 +14,7 @@ describe("receiptHtml", () => {
   });
   it("carries everything an official receipt should", () => {
     for (const s of ["Kurima Digital", "OFFICIAL", "RECEIPT", "PAID", "$10.00 USD", "BILLED TO", "Ndizvo Homestead", "Francis Moyo", "owner@example.com", "Mashonaland East", "FH-AB12CD34", "19 Nov 2026, 16:20 UTC", "EcoCash", "PN-123",
-      "FarmHelper Starter plan – monthly subscription", "Period covered: 19 Nov 2026 to 19 Dec 2026", "Subtotal", "Total paid", "Balance due", "$0.00 USD", "active until 19 Dec 2026", "+263 78 982 4741", "www.kurima-mavingtech.online", "does not need a signature"]) expect(html, s).toContain(s);
+      "FarmHelper Starter plan – monthly subscription", "Period covered: 19 Nov 2026 to 19 Dec 2026", "Subtotal", "Total paid", "Balance due", "$0.00 USD", "active until 19 Dec 2026", "MavingTech Business Solutions", "14601 Isiliwane Crescent", "Bulawayo, Zimbabwe", "+263 78 982 4741", "info@mavingtech.com", "www.mavingtech.com", "Company Reg No: 115409A0252026", "ZIMRA TIN: 2002517356", "does not need a signature"]) expect(html, s).toContain(s);
   });
   it("only shows the demo banner for demo payments", () => {
     expect(html).not.toContain("DEMO RECEIPT");
@@ -34,10 +34,11 @@ describe("receiptHtml", () => {
   it("leaves out unknown details instead of printing placeholders", () => {
     const bare = receiptHtml({ ...base, billedToName: undefined, billedToEmail: undefined, farmLocation: undefined, transactionRef: undefined });
     expect(bare).not.toMatch(/undefined|null|Transaction ref/);
-    expect(bare).not.toMatch(/Reg \/ TIN|VAT No/);
+    expect(bare).not.toMatch(/VAT No/);
   });
-  it("shows the full seller details when they are filled in", () => {
-    const full = receiptHtml(base, { ...COMPANY, addressLines: ["12 Example Road", "Harare"], email: "hello@example.com", registration: "123", vatNumber: "456" });
-    for (const s of ["12 Example Road", "Harare", "hello@example.com", "Reg / TIN: 123", "VAT No: 456"]) expect(full, s).toContain(s);
+  it("shows a VAT number once there is one, and leaves empty details off", () => {
+    expect(receiptHtml(base, { ...COMPANY, vatNumber: "VAT 456" })).toContain("VAT No: VAT 456");
+    const bare = receiptHtml(base, { ...COMPANY, addressLines: [], email: "", registration: "", tin: "", vatNumber: "" });
+    expect(bare).not.toMatch(/Reg No|TIN|undefined/);
   });
 });
