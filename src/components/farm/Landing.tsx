@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
 import { Credit } from "./Credit";
 import { LandingAssistant } from "./LandingAssistant";
+import { WhatsAppButton } from "./WhatsAppButton";
 import livestock from "@/assets/landing/livestock.webp";
 import crops from "@/assets/landing/crops.webp";
 import logo from "@/assets/landing/logo.webp";
@@ -80,6 +81,7 @@ export function Landing() {
           <Link to="/install" className="shrink-0 underline underline-offset-2">Install the app</Link>
         </div>
       </footer>
+      <WhatsAppButton />
       <LandingAssistant />
     </div>
   );
