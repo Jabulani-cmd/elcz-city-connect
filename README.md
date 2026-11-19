@@ -130,3 +130,7 @@ The function only lets signed-in farm members who can write trigger a message, t
 1. Run `supabase/migrations/20261121000000_daily_digest.sql` (enables `pg_cron` and `pg_net`; if your plan doesn't allow them, enable them under Database → Extensions first).
 2. `supabase functions deploy notify-digest --no-verify-jwt`
 3. Run `supabase/migrations/20261122000000_digest_secret_check.sql`, then in the SQL editor store the function URL and a random secret in Vault (commands at the top of the daily digest migration; the secret lives only in Vault – there is no `CRON_SECRET` function secret). Until they exist the daily job does nothing.
+
+### Daily and weekly CSV reports
+
+**Reports → Daily & weekly**: choose Daily (Today, Yesterday or any date) or Weekly (This week, Last week or the week around any date; weeks run Monday–Sunday), then tap **CSV** next to any report. You get a *Farm summary* (money, livestock, crops, tasks and app activity for the period), an *Activity log* (who added, changed or removed what, from the audit trail), and every report in the catalogue limited to the same dates. Reports that show the farm as it is now (herd list, weights, yields…) are marked "as of today". Files are named like `farm-name_farm-summary_2026-11-16_to_2026-11-22.csv`. Everything is built on the phone from the farm's records, so it works offline. Emailing these automatically is not set up.
