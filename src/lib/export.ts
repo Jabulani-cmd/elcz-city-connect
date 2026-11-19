@@ -16,14 +16,14 @@ function download(name: string, content: BlobPart, type: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report";
+export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report";
 const html = (s: string | number) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 export function toCsv(t: Table): string {
   return [t.headers, ...t.rows].map((r) => r.map(esc).join(",")).join("\r\n");
 }
 
-export const exportCsv = (t: Table) => download(`${slug(t.title)}.csv`, "﻿" + toCsv(t), "text/csv;charset=utf-8");
+export const exportCsv = (t: Table, filename?: string) => download(filename ?? `${slug(t.title)}.csv`, "﻿" + toCsv(t), "text/csv;charset=utf-8");
 
 /** Excel opens an HTML table saved as .xls, so no extra dependency is needed. */
 export function exportExcel(t: Table) {

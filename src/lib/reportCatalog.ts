@@ -7,7 +7,9 @@ import { cropCost, cropRevenue, labelOf, RESOURCES } from "./schema";
 import { rowsOf } from "./store";
 import type { Row } from "./types";
 
-export type ReportDef = { id: string; group: "Livestock" | "Agriculture" | "Financial"; title: string; build: (range: FinanceFilter) => Table };
+export type ReportDef = { id: string; group: "Livestock" | "Agriculture" | "Financial"; title: string; build: (range: FinanceFilter) => Table;
+  /** A picture of the farm right now (herd list, weights, yields…) rather than something that happened in a date range. */
+  snapshot?: boolean };
 
 const within = (rows: Row[], key: string, r: FinanceFilter) => (r.from || r.to ? rows.filter((x) => inRange(x[key], r)) : rows);
 const label = (c: string, id?: string) => labelOf(c, rowsOf(c).find((r) => r.id === id));
@@ -38,9 +40,9 @@ const monthsOf = (...lists: Row[][]) => [...new Set(lists.flat().map((r) => Stri
 
 export const REPORTS: ReportDef[] = [
   /* ----- Livestock ----- */
-  fromResource("herd-inventory", "Livestock", "Herd inventory", "animals", undefined, ["tag", "name", "species", "breed", "category", "sex", "age", "herd", "pastureId", "currentWeight", "estimatedValue", "status"]),
+  { ...fromResource("herd-inventory", "Livestock", "Herd inventory", "animals", undefined, ["tag", "name", "species", "breed", "category", "sex", "age", "herd", "pastureId", "currentWeight", "estimatedValue", "status"]), snapshot: true },
   {
-    id: "herd-growth", group: "Livestock", title: "Herd growth",
+    id: "herd-growth", snapshot: true, group: "Livestock", title: "Herd growth",
     build: () => {
       const animals = rowsOf("animals");
       const s = herdSeries(animals, "monthly");
@@ -49,7 +51,7 @@ export const REPORTS: ReportDef[] = [
     },
   },
   {
-    id: "weights", group: "Livestock", title: "Animal weight report",
+    id: "weights", snapshot: true, group: "Livestock", title: "Animal weight report",
     build: () => {
       const latest = latestWeights(rowsOf("weights"));
       const rows = rowsOf("animals").filter((a) => a.status === "Active" || a.status === "Quarantined").sort((a, b) => String(a.tag).localeCompare(String(b.tag), undefined, { numeric: true })).map((a) => {
@@ -78,12 +80,12 @@ export const REPORTS: ReportDef[] = [
       return { title: "Feed consumption report", headers: ["Feed", "Type", "Unit", "Used in period", "Cost of feed used", "Available now"], rows };
     },
   },
-  fromResource("feedlot", "Livestock", "Feedlot performance", "feedlot"),
+  { ...fromResource("feedlot", "Livestock", "Feedlot performance", "feedlot"), snapshot: true },
 
   /* ----- Agriculture ----- */
   fromResource("crop-production", "Agriculture", "Crop production", "crops", "plantingDate"),
   {
-    id: "crop-yield", group: "Agriculture", title: "Crop yield",
+    id: "crop-yield", snapshot: true, group: "Agriculture", title: "Crop yield",
     build: () => ({
       title: "Crop yield", headers: ["Crop", "Field", "Area (ha)", "Expected yield (t)", "Actual yield (t)", "Yield (t/ha)", "% of expected"],
       rows: rowsOf("crops").map((c) => [labelOf("crops", c), label("fields", c.fieldId), toNum(c.areaHa), toNum(c.expectedYield), c.actualYield === "" || c.actualYield == null ? "" : toNum(c.actualYield), toNum(c.areaHa) && c.actualYield !== "" && c.actualYield != null ? round(toNum(c.actualYield) / toNum(c.areaHa)) : "", toNum(c.expectedYield) && c.actualYield !== "" && c.actualYield != null ? round((toNum(c.actualYield) / toNum(c.expectedYield)) * 100, 0) : ""]),
@@ -95,7 +97,7 @@ export const REPORTS: ReportDef[] = [
   fromResource("chemicals", "Agriculture", "Chemical usage", "protection", "applicationDate"),
   fromResource("irrigation", "Agriculture", "Irrigation", "irrigation", "date"),
   {
-    id: "field-performance", group: "Agriculture", title: "Field performance",
+    id: "field-performance", snapshot: true, group: "Agriculture", title: "Field performance",
     build: () => ({
       title: "Field performance", headers: ["Field", "Size (ha)", "Crops grown", "Total yield (t)", "Revenue", "Cost", "Profit"],
       rows: rowsOf("fields").map((f) => {
@@ -106,7 +108,7 @@ export const REPORTS: ReportDef[] = [
     }),
   },
   {
-    id: "crop-profit", group: "Agriculture", title: "Crop profitability",
+    id: "crop-profit", snapshot: true, group: "Agriculture", title: "Crop profitability",
     build: () => ({
       title: "Crop profitability", headers: ["Crop", "Field", "Revenue", "Cost", "Profit", "Margin %"],
       rows: rowsOf("crops").map((c) => { const rev = cropRevenue(c), cost = cropCost(c, ctx()); return [labelOf("crops", c), label("fields", c.fieldId), round(rev), round(cost), round(rev - cost), rev > 0 ? round(((rev - cost) / rev) * 100, 1) : ""]; }),
@@ -147,7 +149,7 @@ export const REPORTS: ReportDef[] = [
     },
   },
   {
-    id: "budget-actual", group: "Financial", title: "Budget vs actual",
+    id: "budget-actual", snapshot: true, group: "Financial", title: "Budget vs actual",
     build: () => ({
       title: "Budget vs actual", headers: ["Month", "Category", "Budget", "Actual", "Variance", "Used %"],
       rows: [...rowsOf("budgets")].sort((a, b) => String(b.month).localeCompare(String(a.month))).map((b) => { const actual = sum(rowsOf("expenses").filter((e) => e.category === b.category && String(e.date).startsWith(b.month)), "amount"); return [b.month, b.category, toNum(b.amount), round(actual), round(toNum(b.amount) - actual), toNum(b.amount) ? round((actual / toNum(b.amount)) * 100, 0) : ""]; }),
