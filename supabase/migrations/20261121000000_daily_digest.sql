@@ -3,7 +3,7 @@
 --
 -- One-time set-up after deploying the function (SQL editor), with your own project URL and a long random secret:
 --   select vault.create_secret('https://<project-ref>.supabase.co/functions/v1/notify-digest', 'notify_digest_url');
---   select vault.create_secret('<the same value you set as the CRON_SECRET function secret>', 'notify_digest_secret');
+--   select vault.create_secret('<a long random value>', 'notify_digest_secret');
 -- Until both exist the job does nothing, so running this migration first is harmless.
 
 create extension if not exists pg_cron;

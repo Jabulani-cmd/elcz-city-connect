@@ -128,5 +128,5 @@ The function only lets signed-in farm members who can write trigger a message, t
 
 **Daily digest set-up** (one message per person each morning, covering vaccinations, vet visits, tasks, calvings, expiring/low-stock items – only sent when something needs attention):
 1. Run `supabase/migrations/20261121000000_daily_digest.sql` (enables `pg_cron` and `pg_net`; if your plan doesn't allow them, enable them under Database → Extensions first).
-2. Set a long random function secret `CRON_SECRET`, then `supabase functions deploy notify-digest --no-verify-jwt`.
-3. In the SQL editor store the URL and the same secret (commands are at the top of the migration file). Until they exist the daily job does nothing.
+2. `supabase functions deploy notify-digest --no-verify-jwt`
+3. Run `supabase/migrations/20261122000000_digest_secret_check.sql`, then in the SQL editor store the function URL and a random secret in Vault (commands at the top of the daily digest migration; the secret lives only in Vault – there is no `CRON_SECRET` function secret). Until they exist the daily job does nothing.
