@@ -114,15 +114,15 @@ export async function sendTestNotification(farmId: string): Promise<{ ok: boolea
 /* ---------- who gets messages (owners and farm managers manage this) ---------- */
 export type Contact = {
   id: string; name: string; phone: string; email: string;
-  viaWhatsapp: boolean; viaSms: boolean; viaEmail: boolean; wantActivity: boolean; wantAlerts: boolean;
+  viaWhatsapp: boolean; viaSms: boolean; viaEmail: boolean; wantActivity: boolean; wantAlerts: boolean; wantWeekly: boolean;
 };
 type Db = Record<string, unknown>;
 const fromDb = (d: Db): Contact => ({
   id: String(d.id), name: String(d.name ?? ""), phone: String(d.phone ?? ""), email: String(d.email ?? ""),
-  viaWhatsapp: !!d.via_whatsapp, viaSms: !!d.via_sms, viaEmail: !!d.via_email, wantActivity: !!d.want_activity, wantAlerts: !!d.want_alerts,
+  viaWhatsapp: !!d.via_whatsapp, viaSms: !!d.via_sms, viaEmail: !!d.via_email, wantActivity: !!d.want_activity, wantAlerts: !!d.want_alerts, wantWeekly: d.want_weekly !== false,
 });
 const toDb = (c: Partial<Contact>): Db => {
-  const m: Record<string, string> = { name: "name", phone: "phone", email: "email", viaWhatsapp: "via_whatsapp", viaSms: "via_sms", viaEmail: "via_email", wantActivity: "want_activity", wantAlerts: "want_alerts" };
+  const m: Record<string, string> = { name: "name", phone: "phone", email: "email", viaWhatsapp: "via_whatsapp", viaSms: "via_sms", viaEmail: "via_email", wantActivity: "want_activity", wantAlerts: "want_alerts", wantWeekly: "want_weekly" };
   const out: Db = {};
   for (const [k, v] of Object.entries(c)) if (m[k]) out[m[k]] = typeof v === "string" ? v.trim() || null : v;
   return out;
@@ -151,7 +151,7 @@ export const STATUS_LABEL: Record<string, string> = {
 export const statusLabel = (s: string) => STATUS_LABEL[s] ?? s;
 
 export const CHANNEL_LABEL: Record<Channel, string> = { whatsapp: "WhatsApp", sms: "SMS", email: "Email" };
-const KIND_LABEL: Record<string, string> = { activity: "Activity", alert: "Alert", digest: "Daily summary", test: "Test" };
+const KIND_LABEL: Record<string, string> = { activity: "Activity", alert: "Alert", digest: "Daily summary", weekly: "Weekly report", test: "Test" };
 export const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
 
 export async function listMessageLog(farmId: string, limit = 15): Promise<LogEntry[]> {
