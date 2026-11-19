@@ -151,16 +151,16 @@ export const STATUS_LABEL: Record<string, string> = {
 export const statusLabel = (s: string) => STATUS_LABEL[s] ?? s;
 
 export const CHANNEL_LABEL: Record<Channel, string> = { whatsapp: "WhatsApp", sms: "SMS", email: "Email" };
-const KIND_LABEL: Record<string, string> = { activity: "Activity", alert: "Alert", digest: "Daily summary", weekly: "Weekly report", test: "Test" };
+const KIND_LABEL: Record<string, string> = { activity: "Activity", alert: "Alert", digest: "Daily summary", weekly: "Weekly report", receipt: "Payment receipt", test: "Test" };
 export const kindLabel = (k: string) => KIND_LABEL[k] ?? k;
 
 export async function listMessageLog(farmId: string, limit = 15): Promise<LogEntry[]> {
   const { data, error } = await sb().from("notification_log")
-    .select("id, at, channel, kind, status, error, preview, notification_contacts(name)")
+    .select("id, at, channel, kind, status, error, preview, recipient, notification_contacts(name)")
     .eq("farm_id", farmId).order("at", { ascending: false }).limit(limit);
   fail(error);
   return (data ?? []).map((d: Db) => ({
     id: Number(d.id), at: String(d.at), channel: d.channel as Channel, kind: String(d.kind), status: String(d.status),
-    who: String((d.notification_contacts as { name?: string } | null)?.name ?? ""), preview: String(d.preview ?? ""), error: String(d.error ?? ""),
+    who: String((d.notification_contacts as { name?: string } | null)?.name || d.recipient || ""), preview: String(d.preview ?? ""), error: String(d.error ?? ""),
   }));
 }

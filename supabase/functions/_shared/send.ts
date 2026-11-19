@@ -72,6 +72,24 @@ export const configured: Record<Channel, () => boolean> = {
 /** NOTIFY_MODE=demo: nothing is sent to Twilio/Resend; each message is logged as "demo" with its text so the app can show what would have gone out. */
 export const demoMode = () => env("NOTIFY_MODE") === "demo";
 
+/**
+ * Email one person who is not a notification contact (e.g. a payment receipt) and record it in the message log.
+ * Returns what happened. With `simulateIfUnconfigured` (demo payments) a missing email provider is shown as a simulated "demo" email
+ * instead of "not set up", so the whole flow can be demonstrated before an email account exists.
+ */
+export async function sendDirectEmail(o: { farmId: string; to: string; subject: string; text: string; kind: string; simulateIfUnconfigured?: boolean }): Promise<"sent" | "demo" | "not_configured" | "failed"> {
+  const preview = `${o.subject}\n\n${o.text}`.slice(0, 1500);
+  let status: "sent" | "demo" | "not_configured" | "failed" = "sent";
+  let error = "";
+  if (demoMode() || (o.simulateIfUnconfigured && !configured.email())) status = "demo";
+  else if (!configured.email()) status = "not_configured";
+  else {
+    try { await resend(o.to, o.subject, o.text); } catch (e) { status = "failed"; error = clip((e as Error).message, 300); }
+  }
+  await admin.from("notification_log").insert({ farm_id: o.farmId, contact_id: null, channel: "email", kind: o.kind, dedupe_key: null, status, error: error || null, preview, recipient: clip(o.to, 200) });
+  return status;
+}
+
 export type Delivery = { sent: number; failed: number; demo: number; notConfigured: string[]; skipped: number };
 
 /** Send one message to every contact who wants this kind and has the channel on. `dedupe` stops a repeat to the same person on the same channel. */

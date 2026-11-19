@@ -14,6 +14,8 @@
 // Money is never taken on trust from the browser: the price comes from the plans table, and a payment only counts after
 // the function asks Paynow directly (using the poll URL it stored) and Paynow says "Paid" for at least the right amount.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { sendDirectEmail } from "../_shared/send.ts";
+import { isDemoPayment, receiptSubject, receiptText } from "../_shared/receipt.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -51,6 +53,28 @@ async function post(url: string, fields: [string, string][], key: string) {
 
 type Payment = { id: string; reference: string; status: string; amount_usd: number; poll_url: string | null; created_at?: string };
 
+/**
+ * Email the payer a receipt the moment a payment is confirmed. Sent once: the receipt_sent_at column is claimed in a single update, so
+ * overlapping status checks (or Paynow's webhook) cannot send two. A failure here never undoes or delays the payment itself.
+ * Demo payments with no email account connected are logged as a simulated email instead (see sendDirectEmail).
+ */
+async function sendReceipt(paymentId: string) {
+  try {
+    const { data: p } = await admin.from("payments").update({ receipt_sent_at: new Date().toISOString() }).eq("id", paymentId).eq("status", "paid").is("receipt_sent_at", null)
+      .select("id, farm_id, plan_code, billing_interval, amount_usd, method, reference, paid_at, created_by").maybeSingle();
+    if (!p) return; // already sent, or not paid
+    const { data: farm } = await admin.from("farms").select("name").eq("id", p.farm_id).maybeSingle();
+    const { data: plan } = await admin.from("plans").select("name").eq("code", p.plan_code).maybeSingle();
+    const { data: sub } = await admin.from("subscriptions").select("paid_until").eq("farm_id", p.farm_id).maybeSingle();
+    const { data: u } = p.created_by ? await admin.auth.admin.getUserById(p.created_by) : { data: { user: null } };
+    const to = u?.user?.email ?? "";
+    if (!to) { await admin.from("payments").update({ receipt_status: "no_email" }).eq("id", p.id); return; }
+    const r = { farm: farm?.name ?? "Your farm", planName: plan?.name ?? p.plan_code, interval: (p.billing_interval === "year" ? "year" : "month") as "year" | "month", amountUsd: Number(p.amount_usd), method: p.method as string | null, reference: p.reference as string, paidAt: (p.paid_at as string | null) ?? new Date().toISOString(), activeUntil: (sub?.paid_until as string | null) ?? null };
+    const status = await sendDirectEmail({ farmId: p.farm_id, to, subject: receiptSubject(r), text: receiptText(r), kind: "receipt", simulateIfUnconfigured: isDemoPayment(r.method) });
+    await admin.from("payments").update({ receipt_to: to, receipt_status: status }).eq("id", p.id);
+  } catch (e) { console.error("receipt failed", (e as Error).message); }
+}
+
 /** Ask Paynow directly what happened to this payment and record the result. Safe to call repeatedly. */
 async function settle(p: Payment, key: string, demo = false): Promise<string> {
   if (p.status !== "pending") return p.status;
@@ -62,10 +86,11 @@ async function settle(p: Payment, key: string, demo = false): Promise<string> {
       await admin.from("payments").update({ status: outcome }).eq("id", p.id).eq("status", "pending");
       return outcome;
     }
-    if (Date.now() - Date.parse(p.created_at ?? "") < 5000) return "pending";
+    if (Date.now() - Date.parse(p.created_at ?? "") < 3000) return "pending";
     await admin.from("payments").update({ paynow_reference: "DEMO" }).eq("id", p.id);
     const { error } = await admin.rpc("apply_payment", { ref: p.reference });
     if (error) throw new Error(error.message);
+    await sendReceipt(p.id);
     return "paid";
   }
   if (!p.poll_url || new URL(p.poll_url).hostname !== "www.paynow.co.zw") return "pending";
@@ -76,6 +101,7 @@ async function settle(p: Payment, key: string, demo = false): Promise<string> {
     await admin.from("payments").update({ paynow_reference: map.paynowreference ?? null }).eq("id", p.id);
     const { error } = await admin.rpc("apply_payment", { ref: p.reference });
     if (error) throw new Error(error.message);
+    await sendReceipt(p.id);
     return "paid";
   }
   if (DEAD.includes(status)) {
@@ -97,7 +123,9 @@ Deno.serve(async (req) => {
   const id = Deno.env.get("PAYNOW_ID");
   const key = Deno.env.get("PAYNOW_KEY");
   const contentType = req.headers.get("content-type") ?? "";
-  const demo = Deno.env.get("PAYMENTS_MODE") === "demo";
+  // PAYMENTS_MODE=demo → always pretend; PAYMENTS_MODE=live → always real; unset → pretend until Paynow keys are added, then real.
+  const mode = (Deno.env.get("PAYMENTS_MODE") ?? "").trim().toLowerCase();
+  const demo = mode === "demo" || (mode !== "live" && !(id && key));
 
   try {
     // ---- Paynow's result URL (form post) -------------------------------------------------------------------------
