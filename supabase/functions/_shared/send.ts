@@ -8,6 +8,8 @@ export const CORS = {
 export const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, "content-type": "application/json" } });
 export const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 export const env = (k: string) => (Deno.env.get(k) ?? "").trim();
+// strip control characters (keeps tab and line breaks) so nothing odd reaches a phone or inbox
+// eslint-disable-next-line no-control-regex
 export const clip = (v: unknown, n: number) => (typeof v === "string" ? v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, n) : "");
 
 export const MAX_PER_HOUR = 300; // messages per farm per hour, all channels

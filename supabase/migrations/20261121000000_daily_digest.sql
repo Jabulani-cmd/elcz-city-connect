@@ -7,7 +7,7 @@
 -- Until both exist the job does nothing, so running this migration first is harmless.
 
 create extension if not exists pg_cron;
-create extension if not exists pg_net;
+create extension if not exists pg_net with schema extensions;
 
 create or replace function public.run_notify_digest() returns void language plpgsql security definer set search_path = public, extensions as $$
 declare u text; s text;
