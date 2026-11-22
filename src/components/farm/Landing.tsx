@@ -29,7 +29,7 @@ function Carousel() {
       <div className="flex" role="tablist" aria-label="Choose a photo">
         {SLIDES.map((s, n) => (
           <button key={s.caption} type="button" role="tab" aria-selected={n === i} onClick={() => setI(n)}
-            className={`h-11 flex-1 border-b-4 text-sm font-semibold transition-colors motion-reduce:transition-none ${n === i ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>{s.caption}</button>
+            className={`h-11 flex-1 border-b-4 text-sm font-semibold transition-colors motion-reduce:transition-none ${n === i ? "border-accent text-white" : "border-transparent text-white/70 hover:text-white"}`}>{s.caption}</button>
         ))}
       </div>
       <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -49,35 +49,35 @@ export function Landing() {
   const { status } = useAuth();
   const canRegister = authMode === "cloud" || status === "setup";
   return (
-    <div className="grid min-h-[100svh] bg-background text-foreground lg:grid-cols-2 lg:grid-rows-[auto_1fr_auto]">
+    <div className="bg-hero grid min-h-[100svh] text-white lg:grid-cols-2 lg:grid-rows-[auto_1fr_auto]">
       <header className="px-6 pb-3 pt-[max(1rem,env(safe-area-inset-top))] lg:col-start-1 lg:px-14 lg:pt-8">
-        <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-20 w-auto lg:h-24" />
+        <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-20 w-auto rounded-2xl bg-white p-1.5 lg:h-24" />
       </header>
 
       <Carousel />
 
       <main className="px-6 py-8 lg:col-start-1 lg:flex lg:items-center lg:px-14 lg:py-12">
         <div className="max-w-xl">
-          <h1 className="text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-primary sm:text-5xl lg:text-6xl">
+          <h1 className="text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
             Records for every animal, field and dollar on your farm.
           </h1>
-          <p className="mt-5 max-w-[34ch] text-lg leading-relaxed text-foreground/80 sm:text-xl">
+          <p className="mt-5 max-w-[34ch] text-lg leading-relaxed text-white/85 sm:text-xl">
             FarmHelper works on your phone, even when there is no signal.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-12 px-8 text-base font-semibold">
+            <Button asChild size="lg" className="h-12 bg-accent px-8 text-base font-semibold text-accent-foreground hover:bg-accent/90">
               <Link to="/signup">Start free trial</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base font-semibold">
+            <Button asChild size="lg" variant="outline" className="h-12 border-white/60 bg-transparent px-8 text-base font-semibold text-white hover:bg-white/10 hover:text-white">
               <Link to="/login">Sign in</Link>
             </Button>
           </div>
-          {canRegister && <p className="mt-3 text-sm text-muted-foreground">7 days free.</p>}
+          {canRegister && <p className="mt-3 text-sm text-white/80">7 days free.</p>}
         </div>
       </main>
 
-      <footer className="px-6 pb-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] pt-2 text-muted-foreground lg:col-start-1 lg:px-14 lg:pb-8">
-        <div className="mb-3 flex flex-wrap gap-x-6 gap-y-1 text-sm font-medium text-foreground">
+      <footer className="px-6 pb-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] pt-2 text-white/75 lg:col-start-1 lg:px-14 lg:pb-8">
+        <div className="mb-3 flex flex-wrap gap-x-6 gap-y-1 text-sm font-medium text-white">
           <Link to="/install" className="underline underline-offset-4">Install the app</Link>
           <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Chat on WhatsApp</a>
         </div>
