@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
-import { Credit } from "./Credit";
 import { LandingAssistant } from "./LandingAssistant";
 import { whatsappLink } from "./WhatsAppButton";
 import livestock from "@/assets/landing/livestock.webp";
@@ -25,11 +24,11 @@ function Carousel() {
     return () => clearInterval(t);
   }, [i]);
   return (
-    <figure className="flex h-[40svh] min-h-60 flex-col lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:h-full lg:min-h-[100svh]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
+    <figure className="flex h-[36svh] min-h-52 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-full lg:min-h-[100svh]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
       <div className="flex" role="tablist" aria-label="Choose a photo">
         {SLIDES.map((s, n) => (
           <button key={s.caption} type="button" role="tab" aria-selected={n === i} onClick={() => setI(n)}
-            className={`h-11 flex-1 border-b-4 text-sm font-semibold transition-colors motion-reduce:transition-none ${n === i ? "border-accent text-white" : "border-transparent text-white/70 hover:text-white"}`}>{s.caption}</button>
+            className={`h-11 flex-1 border-b-4 text-sm font-semibold transition-colors motion-reduce:transition-none ${n === i ? "border-accent text-primary" : "border-transparent text-foreground/65 hover:text-foreground"}`}>{s.caption}</button>
         ))}
       </div>
       <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -49,44 +48,42 @@ export function Landing() {
   const { status } = useAuth();
   const canRegister = authMode === "cloud" || status === "setup";
   return (
-    <div className="bg-hero grid min-h-[100svh] text-white lg:grid-cols-2 lg:grid-rows-[auto_1fr_auto]">
+    <div className="grid min-h-[100svh] bg-[linear-gradient(160deg,hsl(96_48%_91%)_0%,hsl(102_42%_80%)_100%)] text-foreground lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
       <header className="px-6 pb-3 pt-[max(1rem,env(safe-area-inset-top))] lg:col-start-1 lg:px-14 lg:pt-8">
-        <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-20 w-auto rounded-2xl bg-white p-1.5 lg:h-24" />
+        <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-16 w-auto rounded-2xl bg-white p-1.5 lg:h-24" />
       </header>
 
       <Carousel />
 
-      <main className="px-6 py-8 lg:col-start-1 lg:flex lg:items-center lg:px-14 lg:py-12">
+      <main className="px-6 pb-28 pt-6 lg:col-start-1 lg:flex lg:items-center lg:px-14 lg:py-12">
         <div className="max-w-xl">
-          <h1 className="text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-primary sm:text-5xl lg:text-6xl">
             Records for every animal, field and dollar on your farm.
           </h1>
-          <p className="mt-5 max-w-[34ch] text-lg leading-relaxed text-white/85 sm:text-xl">
+          <p className="mt-5 max-w-[34ch] text-lg leading-relaxed text-foreground/80 sm:text-xl">
             FarmHelper works on your phone, even when there is no signal.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-12 bg-accent px-8 text-base font-semibold text-accent-foreground hover:bg-accent/90">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg" className="h-12 px-8 text-base font-semibold">
               <Link to="/signup">Start free trial</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="h-12 border-white/60 bg-transparent px-8 text-base font-semibold text-white hover:bg-white/10 hover:text-white">
+            <Button asChild size="lg" variant="outline" className="h-12 border-primary/50 bg-white/60 px-8 text-base font-semibold text-primary hover:bg-white">
               <Link to="/login">Sign in</Link>
             </Button>
           </div>
-          {canRegister && <p className="mt-3 text-sm text-white/80">7 days free.</p>}
+          <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+            {canRegister && <p className="text-foreground/75">7 days free.</p>}
+            <Link to="/install" className="font-medium text-primary underline underline-offset-4">Install the app</Link>
+          </div>
         </div>
       </main>
 
-      <footer className="px-6 pb-[max(6rem,calc(env(safe-area-inset-bottom)+5rem))] pt-2 text-white/75 lg:col-start-1 lg:px-14 lg:pb-8">
-        <div className="mb-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm font-medium text-white">
-          <Link to="/install" className="underline underline-offset-4">Install the app</Link>
-          <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp" className="-my-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-white/10">
-            <svg viewBox="0 0 32 32" className="h-7 w-7" fill="currentColor" aria-hidden="true">
-              <path d="M16.004 3C9.38 3 4 8.376 4 14.998c0 2.12.553 4.19 1.604 6.015L4 29l8.2-1.576a12 12 0 0 0 3.804.616h.004C22.62 28.04 28 22.664 28 16.04 28 9.376 22.628 3 16.004 3Zm0 21.99h-.003a9.95 9.95 0 0 1-5.07-1.39l-.364-.216-4.866.935.97-4.74-.236-.376a9.94 9.94 0 0 1-1.52-5.2c0-5.5 4.48-9.98 9.99-9.98 2.665 0 5.17 1.04 7.05 2.926a9.9 9.9 0 0 1 2.92 7.06c-.003 5.5-4.48 9.98-9.99 9.98Zm5.48-7.47c-.3-.15-1.777-.877-2.052-.977-.275-.1-.475-.15-.675.15-.2.3-.775.977-.95 1.177-.175.2-.35.225-.65.075-.3-.15-1.268-.467-2.416-1.49-.893-.797-1.496-1.78-1.67-2.08-.175-.3-.018-.462.132-.612.135-.134.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.627-.925-2.227-.243-.585-.49-.506-.675-.515l-.575-.01c-.2 0-.525.075-.8.375-.275.3-1.05 1.025-1.05 2.5s1.075 2.9 1.225 3.1c.15.2 2.116 3.23 5.126 4.53.716.31 1.275.495 1.71.633.72.228 1.375.196 1.892.12.577-.086 1.777-.726 2.027-1.427.25-.7.25-1.3.175-1.427-.075-.125-.275-.2-.575-.35Z" />
-            </svg>
-          </a>
-        </div>
-        <Credit />
-      </footer>
+      <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl ring-4 ring-background/20 hover:brightness-95 sm:left-6">
+        <svg viewBox="0 0 32 32" className="h-7 w-7" fill="currentColor" aria-hidden="true">
+          <path d="M16.004 3C9.38 3 4 8.376 4 14.998c0 2.12.553 4.19 1.604 6.015L4 29l8.2-1.576a12 12 0 0 0 3.804.616h.004C22.62 28.04 28 22.664 28 16.04 28 9.376 22.628 3 16.004 3Zm0 21.99h-.003a9.95 9.95 0 0 1-5.07-1.39l-.364-.216-4.866.935.97-4.74-.236-.376a9.94 9.94 0 0 1-1.52-5.2c0-5.5 4.48-9.98 9.99-9.98 2.665 0 5.17 1.04 7.05 2.926a9.9 9.9 0 0 1 2.92 7.06c-.003 5.5-4.48 9.98-9.99 9.98Zm5.48-7.47c-.3-.15-1.777-.877-2.052-.977-.275-.1-.475-.15-.675.15-.2.3-.775.977-.95 1.177-.175.2-.35.225-.65.075-.3-.15-1.268-.467-2.416-1.49-.893-.797-1.496-1.78-1.67-2.08-.175-.3-.018-.462.132-.612.135-.134.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.627-.925-2.227-.243-.585-.49-.506-.675-.515l-.575-.01c-.2 0-.525.075-.8.375-.275.3-1.05 1.025-1.05 2.5s1.075 2.9 1.225 3.1c.15.2 2.116 3.23 5.126 4.53.716.31 1.275.495 1.71.633.72.228 1.375.196 1.892.12.577-.086 1.777-.726 2.027-1.427.25-.7.25-1.3.175-1.427-.075-.125-.275-.2-.575-.35Z" />
+        </svg>
+      </a>
       <LandingAssistant />
     </div>
   );
