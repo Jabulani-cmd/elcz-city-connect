@@ -48,7 +48,7 @@ export function Landing() {
   const { status } = useAuth();
   const canRegister = authMode === "cloud" || status === "setup";
   return (
-    <div className="grid min-h-[100svh] bg-[linear-gradient(160deg,hsl(96_48%_91%)_0%,hsl(102_42%_80%)_100%)] text-foreground lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
+    <div className="grid min-h-[100svh] bg-[linear-gradient(160deg,hsl(98_44%_84%)_0%,hsl(103_40%_72%)_100%)] text-foreground lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
       <header className="px-6 pb-3 pt-[max(1rem,env(safe-area-inset-top))] lg:col-start-1 lg:px-14 lg:pt-8">
         <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-16 w-auto rounded-2xl bg-white p-1.5 lg:h-24" />
       </header>
@@ -72,8 +72,8 @@ export function Landing() {
             </Button>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
-            {canRegister && <p className="text-foreground/75">7 days free.</p>}
-            <Link to="/install" className="font-medium text-primary underline underline-offset-4">Install the app</Link>
+            {canRegister && <p className="text-foreground/80">7 days free trial</p>}
+            <Link to="/install" className="font-medium text-foreground underline underline-offset-4">Install the app</Link>
           </div>
         </div>
       </main>
