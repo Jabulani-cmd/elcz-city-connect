@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { authMode, useAuth } from "@/lib/auth";
@@ -5,10 +6,43 @@ import { Credit } from "./Credit";
 import { LandingAssistant } from "./LandingAssistant";
 import { whatsappLink } from "./WhatsAppButton";
 import livestock from "@/assets/landing/livestock.webp";
+import crops from "@/assets/landing/crops.webp";
+import field from "@/assets/landing/field.webp";
 import logo from "@/assets/landing/logo.webp";
 
+const SLIDES = [
+  { src: livestock, alt: "Two farm workers recording cattle details on a phone at the loading bay", caption: "Livestock", focus: "60% 20%" },
+  { src: crops, alt: "A grower checking a tomato plant for disease with a phone", caption: "Crops", focus: "55% 40%" },
+  { src: field, alt: "A farmer using a phone in a maize field with irrigation behind him", caption: "Fields", focus: "42% 15%" },
+];
+
+/** Photo carousel: fades between slides every 5 seconds (paused for reduced-motion users). The photo is never covered by text; the slide names above it double as the controls. */
+function Carousel() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setI((n) => (n + 1) % SLIDES.length), 5000);
+    return () => clearInterval(t);
+  }, [i]);
+  return (
+    <figure className="flex h-[40svh] min-h-60 flex-col lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:h-full lg:min-h-[100svh]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
+      <div className="flex" role="tablist" aria-label="Choose a photo">
+        {SLIDES.map((s, n) => (
+          <button key={s.caption} type="button" role="tab" aria-selected={n === i} onClick={() => setI(n)}
+            className={`h-11 flex-1 border-b-4 text-sm font-semibold transition-colors motion-reduce:transition-none ${n === i ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>{s.caption}</button>
+        ))}
+      </div>
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        {SLIDES.map((s, n) => (
+          <img key={s.src} src={s.src} alt={s.alt} style={{ objectPosition: s.focus }} aria-hidden={n !== i} loading={n === 0 ? "eager" : "lazy"} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 motion-reduce:transition-none ${n === i ? "opacity-100" : "opacity-0"}`} />
+        ))}
+      </div>
+    </figure>
+  );
+}
+
 /**
- * Home page for visitors who are not signed in. The photo and the words never overlap:
+ * Home page for visitors who are not signed in. The photos and the words never overlap:
  * on a phone the photo sits above the headline, on a wide screen it fills the right half.
  */
 export function Landing() {
@@ -20,14 +54,7 @@ export function Landing() {
         <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-20 w-auto lg:h-24" />
       </header>
 
-      <figure className="h-[38svh] min-h-56 overflow-hidden lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:h-full lg:min-h-[100svh]">
-        <img
-          src={livestock}
-          alt="Two farm workers recording cattle details on a phone at the loading bay"
-          style={{ objectPosition: "60% 20%" }}
-          className="h-full w-full object-cover"
-        />
-      </figure>
+      <Carousel />
 
       <main className="px-6 py-8 lg:col-start-1 lg:flex lg:items-center lg:px-14 lg:py-12">
         <div className="max-w-xl">
