@@ -24,7 +24,7 @@ function Carousel() {
     return () => clearInterval(t);
   }, [i]);
   return (
-    <figure className="flex h-[36svh] min-h-52 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-full lg:min-h-[100svh]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
+    <figure className="flex h-[33svh] min-h-48 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-full lg:min-h-[100svh]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
       <div className="flex" role="tablist" aria-label="Choose a photo">
         {SLIDES.map((s, n) => (
           <button key={s.caption} type="button" role="tab" aria-selected={n === i} onClick={() => setI(n)}
@@ -50,7 +50,7 @@ export function Landing() {
   return (
     <div className="grid min-h-[100svh] bg-[linear-gradient(160deg,hsl(98_44%_84%)_0%,hsl(103_40%_72%)_100%)] text-foreground lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
       <header className="px-6 pb-3 pt-[max(1rem,env(safe-area-inset-top))] lg:col-start-1 lg:px-14 lg:pt-8">
-        <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-16 w-auto rounded-2xl bg-white p-1.5 lg:h-24" />
+        <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-20 w-auto rounded-2xl bg-white p-1.5 lg:h-28" />
       </header>
 
       <Carousel />
