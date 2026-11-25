@@ -24,7 +24,7 @@ function Carousel() {
     return () => clearInterval(t);
   }, [i]);
   return (
-    <figure className="flex h-[33svh] min-h-48 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-full lg:min-h-[100svh]" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
+    <figure className="flex h-[33svh] min-h-48 flex-col lg:col-start-2 lg:row-start-2 lg:h-full lg:min-h-0" role="group" aria-roledescription="carousel" aria-label="FarmHelper in use">
       <div className="flex" role="tablist" aria-label="Choose a photo">
         {SLIDES.map((s, n) => (
           <button key={s.caption} type="button" role="tab" aria-selected={n === i} onClick={() => setI(n)}
@@ -49,13 +49,13 @@ export function Landing() {
   const canRegister = authMode === "cloud" || status === "setup";
   return (
     <div className="grid min-h-[100svh] bg-[linear-gradient(160deg,hsl(98_44%_84%)_0%,hsl(103_40%_72%)_100%)] text-foreground lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
-      <header className="px-6 pb-3 pt-[max(1rem,env(safe-area-inset-top))] lg:col-start-1 lg:px-14 lg:pt-8">
+      <header className="flex justify-center px-6 pb-3 pt-[max(1rem,env(safe-area-inset-top))] lg:col-span-2 lg:px-14 lg:pt-8">
         <img src={logo} alt="Kurima Digital – empowering Zimbabwean farmers" className="h-20 w-auto rounded-2xl bg-white p-1.5 lg:h-28" />
       </header>
 
       <Carousel />
 
-      <main className="px-6 pb-28 pt-6 lg:col-start-1 lg:flex lg:items-center lg:px-14 lg:py-12">
+      <main className="px-6 pb-28 pt-6 lg:col-start-1 lg:row-start-2 lg:flex lg:items-center lg:px-14 lg:py-12">
         <div className="max-w-xl">
           <h1 className="text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-primary sm:text-5xl lg:text-6xl">
             Records for every animal, field and dollar on your farm.
