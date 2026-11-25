@@ -6,12 +6,13 @@ export type Severity = "danger" | "warning" | "info";
 export type NotificationKind =
   | "Vaccinations" | "Veterinary appointments" | "Animal treatments" | "Pregnancy checks" | "Expected births"
   | "Feed shortages" | "Pasture rotation" | "Crop planting" | "Crop harvesting" | "Irrigation"
-  | "Employee tasks" | "Equipment maintenance" | "Financial payments" | "Weaning" | "Crop health" | "Inventory";
+  | "Employee tasks" | "Equipment maintenance" | "Financial payments" | "Weaning" | "Crop health" | "Inventory"
+  | "Disease outbreaks" | "Weather";
 
 export const NOTIFICATION_KINDS: NotificationKind[] = [
   "Vaccinations", "Veterinary appointments", "Animal treatments", "Pregnancy checks", "Expected births", "Weaning",
   "Feed shortages", "Inventory", "Pasture rotation", "Crop planting", "Crop harvesting", "Crop health", "Irrigation",
-  "Employee tasks", "Equipment maintenance", "Financial payments",
+  "Employee tasks", "Equipment maintenance", "Financial payments", "Disease outbreaks", "Weather",
 ];
 
 export type Alert = {
@@ -29,6 +30,36 @@ type Get = (collection: string) => Row[];
 const sev = (daysLeft: number): Severity => (daysLeft < 0 ? "danger" : daysLeft <= 3 ? "warning" : "info");
 const when = (daysLeft: number) => (daysLeft < 0 ? `${-daysLeft} day${daysLeft === -1 ? "" : "s"} overdue` : daysLeft === 0 ? "due today" : `due in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`);
 const isLive = (a?: Row) => !!a && (a.status === "Active" || a.status === "Quarantined");
+
+const NOTIFIABLE = /foot[ -]?and[ -]?mouth|anthrax|african swine fever|newcastle|lumpy skin|rabies|rinderpest|peste des petits|avian influenza|bird flu/i;
+
+/** Recent disease records are grouped by disease; duplicate records for one animal count only once. */
+export function diseaseOutbreakAlerts(diseases: Row[], today = todayISO()): Alert[] {
+  const groups = new Map<string, { name: string; animalIds: Set<string>; latest: string }>();
+  for (const d of diseases) {
+    const age = daysBetween(d.dateDetected, today);
+    if (!d.disease || age < 0 || age > 30) continue;
+    const key = String(d.disease).trim().toLowerCase();
+    const group = groups.get(key) ?? { name: String(d.disease).trim(), animalIds: new Set<string>(), latest: d.dateDetected };
+    group.animalIds.add(String(d.animalId || d.id));
+    if (d.dateDetected > group.latest) group.latest = d.dateDetected;
+    groups.set(key, group);
+  }
+  const out: Alert[] = [];
+  for (const [key, g] of groups) {
+    const count = g.animalIds.size;
+    const notifiable = NOTIFIABLE.test(g.name);
+    if (count < 2 && !notifiable) continue;
+    const severity: Severity = notifiable || count >= 3 ? "danger" : "warning";
+    const title = count >= 3 || (notifiable && count >= 2) ? `Possible ${g.name} outbreak` : notifiable ? `Report suspected ${g.name}` : `Disease cluster: ${g.name}`;
+    out.push({
+      id: `outbreak-${key}-${g.latest}-${count}`, kind: "Disease outbreaks", severity, title,
+      detail: `${count} affected animal${count === 1 ? "" : "s"} recorded in the last 30 days. Isolate affected animals, stop movements and contact your vet or veterinary officer.${notifiable ? " This may be a notifiable disease." : ""}`,
+      date: g.latest, to: "/livestock/diseases", area: "Livestock",
+    });
+  }
+  return out;
+}
 
 export function computeAlerts(get: Get, today = todayISO()): Alert[] {
   const out: Alert[] = [];
@@ -78,6 +109,9 @@ export function computeAlerts(get: Get, today = todayISO()): Alert[] {
     const d = left(due);
     if (d <= 14) out.push({ id: `wean-${b.id}`, kind: "Weaning", severity: sev(d), title: `Weaning – ${b.calfTag}`, detail: `Weaning ${when(d)}`, date: due, to: "/livestock/births", area: "Livestock" });
   }
+
+  /* disease clusters and possible notifiable outbreaks */
+  out.push(...diseaseOutbreakAlerts(get("diseases"), today));
 
   /* feed + inventory */
   for (const f of get("feed")) {

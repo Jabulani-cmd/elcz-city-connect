@@ -1,6 +1,7 @@
 import { MessageSquare, Send, Sparkles, Stethoscope } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { VetCheck } from "@/components/farm/AiAssistants";
+import { FarmingQuestions } from "@/components/farm/FarmingQuestions";
 import { useEffect, useRef, useState } from "react";
 import { Disclaimer, PageHeader } from "@/components/farm/kit";
 import { Button } from "@/components/ui/button";
@@ -12,16 +13,19 @@ type Msg = { from: "me" | "bot"; text: string; table?: Answer["table"] };
 
 export default function Assistant() {
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") === "vet" ? "vet" : "farm";
+  const requested = params.get("tab");
+  const tab = requested === "vet" || requested === "guide" ? requested : "farm";
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="AI Farm Assistant" description="Ask about your farm records, or get a vet check for a sick animal." />
-      <Tabs value={tab} onValueChange={(v) => setParams(v === "vet" ? { tab: "vet" } : {}, { replace: true })}>
-        <TabsList className="mb-4 grid h-12 w-full grid-cols-2">
-          <TabsTrigger value="farm" className="h-10 text-sm"><MessageSquare className="mr-2 h-4 w-4" />My farm records</TabsTrigger>
-          <TabsTrigger value="vet" className="h-10 text-sm"><Stethoscope className="mr-2 h-4 w-4" />Vet check</TabsTrigger>
+      <PageHeader title="AI Farm Assistant" description="Ask general farming questions, look up your own records, or get a vet check for a sick animal." />
+      <Tabs value={tab} onValueChange={(v) => setParams(v === "farm" ? {} : { tab: v }, { replace: true })}>
+        <TabsList className="mb-4 grid h-12 w-full grid-cols-3">
+          <TabsTrigger value="farm" className="h-10 px-1 text-xs sm:text-sm"><MessageSquare className="mr-1 h-4 w-4 sm:mr-2" />My records</TabsTrigger>
+          <TabsTrigger value="guide" className="h-10 px-1 text-xs sm:text-sm"><Sparkles className="mr-1 h-4 w-4 sm:mr-2" />Farming questions</TabsTrigger>
+          <TabsTrigger value="vet" className="h-10 px-1 text-xs sm:text-sm"><Stethoscope className="mr-1 h-4 w-4 sm:mr-2" />Vet check</TabsTrigger>
         </TabsList>
         <TabsContent value="farm"><FarmChat /></TabsContent>
+        <TabsContent value="guide"><FarmingQuestions /></TabsContent>
         <TabsContent value="vet"><VetCheck /></TabsContent>
       </Tabs>
     </div>

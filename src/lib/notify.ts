@@ -3,6 +3,7 @@ import { LABELS, RESOURCES } from "./schema";
 import { getState, rowsOf } from "./store";
 import { supabase } from "./supabaseClient";
 import type { OutboxItem, Row } from "./types";
+import { getWeatherAlerts } from "./weather";
 
 /**
  * WhatsApp / SMS / email notifications. The browser only says WHAT happened; the `notify` edge function decides who gets it
@@ -92,7 +93,9 @@ export async function notifyAlerts(): Promise<void> {
   lastAlertRun = Date.now();
   const s = getState();
   if (!s.activeFarmId || s.activeFarmId.startsWith("demo-")) return;
-  const alerts = computeAlerts((c) => rowsOf(c));
+  const farm = s.farms.find((f) => f.id === s.activeFarmId);
+  const weather = farm ? await getWeatherAlerts(farm).then((r) => r.alerts).catch(() => []) : [];
+  const alerts = [...computeAlerts((c) => rowsOf(c)), ...weather];
   for (const [channels, events] of alertsToSend(alerts, rowsOf("prefs"))) {
     await send({ farm_id: s.activeFarmId, type: "alert", channels: channels.split(","), events: events.slice(0, 50) });
   }

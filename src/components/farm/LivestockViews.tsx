@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { AGE_GROUPS, ageGroup, avgBy, groupSum, herdSeries, latestWeights, monthlyCounts, type Granularity } from "@/lib/analytics";
-import { feedlotMetrics, fmtMoney, fmtNum, herdCounts, round, sum, toNum, todayISO } from "@/lib/calc";
+import { feedlotMetrics, fmtMoney, fmtNum, herdCounts, lastMonths, round, sum, toNum, todayISO } from "@/lib/calc";
+import { diseaseOutbreakAlerts, type Alert } from "@/lib/alerts";
+import { monthlyThroughput } from "@/lib/livestock";
 import { canWrite } from "@/lib/permissions";
 import { moveAnimals } from "@/lib/rules";
 import { animalCost, labelOf } from "@/lib/schema";
@@ -18,6 +20,48 @@ import { Empty, nativeSelect, Panel, StatCard } from "./kit";
 import { Baby, Beef, Scale, ShieldAlert, Skull, TrendingUp } from "lucide-react";
 
 const isLive = (a: Row) => a.status === "Active" || a.status === "Quarantined";
+
+/** Recent disease clusters, shown where the farmer records disease cases. */
+export function OutbreakWatch() {
+  const diseases = useRows("diseases");
+  const alerts = diseaseOutbreakAlerts(diseases);
+  const recent = diseases.filter((d) => d.dateDetected && d.dateDetected >= todayISO().slice(0, 8) + "01");
+  return (
+    <Panel title="Outbreak watch" className="mb-5">
+      <p className="mb-3 text-sm text-muted-foreground">Checks the last 30 days of disease records. Repeated cases across different animals trigger an alert; possible notifiable diseases trigger one immediately.</p>
+      {alerts.length ? <ul className="space-y-2">{alerts.map((a: Alert) => (
+        <li key={a.id} className={a.severity === "danger" ? "rounded-xl border border-danger/40 bg-danger/10 p-3" : "rounded-xl border border-warning/50 bg-warning/10 p-3"}>
+          <div className="flex items-start gap-2"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-danger" /><div><b className="text-sm">{a.title}</b><p className="mt-1 text-sm text-muted-foreground">{a.detail}</p></div></div>
+        </li>
+      ))}</ul> : <Empty>No outbreak patterns detected. {recent.length ? `${recent.length} case${recent.length === 1 ? "" : "s"} recorded this month.` : "Keep disease records up to date so clusters can be spotted early."}</Empty>}
+    </Panel>
+  );
+}
+
+/** Monthly animal throughput and carcass economics from livestock sales. */
+export function SalesAnalytics() {
+  const sales = useRows("sales");
+  const thisMonth = todayISO().slice(0, 7);
+  const previousDate = new Date(); previousDate.setDate(1); previousDate.setMonth(previousDate.getMonth() - 1);
+  const previousMonth = `${previousDate.getFullYear()}-${String(previousDate.getMonth() + 1).padStart(2, "0")}`;
+  const current = monthlyThroughput(sales, thisMonth);
+  const previous = monthlyThroughput(sales, previousMonth);
+  const trend = lastMonths(6).map((m) => {
+    const x = monthlyThroughput(sales, m);
+    return { month: m.slice(2), "Animals sold": x.animalsSold, "Carcass kg": x.carcassWeightKg };
+  });
+  return (
+    <div className="mb-5 space-y-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatCard label="Monthly throughput" value={`${current.animalsSold} animals`} icon={Beef} hint={thisMonth} />
+        <StatCard label="Previous month" value={`${previous.animalsSold} animals`} hint={previousMonth} />
+        <StatCard label="Carcass weight" value={`${fmtNum(current.carcassWeightKg)} kg`} icon={Scale} hint="This month" />
+        <StatCard label="Average carcass price" value={current.averagePricePerKg ? `${fmtMoney(current.averagePricePerKg)}/kg` : "–"} hint="Gross sales ÷ carcass kg" />
+      </div>
+      <Panel title="Monthly throughput (6 months)"><BarCard data={trend} x="month" bars={[{ key: "Animals sold" }, { key: "Carcass kg", color: "#d98e04" }]} height={220} /></Panel>
+    </div>
+  );
+}
 
 /* ---------- 6. Herd statistics ---------- */
 export function HerdStats() {

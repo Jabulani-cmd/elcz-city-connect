@@ -1,6 +1,7 @@
 import { acquisitionTotal, addDays, animalProfit, averageDailyGain, daysBetween, netSaleRevenue, round, toNum, todayISO } from "./calc";
 import { animalCost } from "./schema";
 import { getState, remove, rowsOf, upsert } from "./store";
+import { carcassPricing } from "./livestock";
 import type { Row } from "./types";
 
 export const ALL_ANIMALS = "__ALL__";
@@ -60,6 +61,7 @@ export function saveRecord(collection: string, values: Partial<Row>): Row {
   }
 
   if (collection === "sales") {
+    values = carcassPricing(values);
     const animal = find("animals", values.animalId as string);
     if (!animal) throw new Error("Choose the animal being sold");
     if (isNew && animal.status === "Sold") throw new Error("This animal is already marked as sold");

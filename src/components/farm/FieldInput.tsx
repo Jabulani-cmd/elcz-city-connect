@@ -27,16 +27,18 @@ function RefOptions({ field, value }: { field: Field; value: unknown }) {
   );
 }
 
-export function FieldInput({ field, value, onChange }: { field: Field; value: Cell; onChange: (v: Cell) => void }) {
+export function FieldInput({ field, value, values, onChange }: { field: Field; value: Cell; values: Values; onChange: (v: Cell) => void }) {
   const id = `f-${field.key}`;
   const [busy, setBusy] = useState(false);
+  const options = typeof field.options === "function" ? field.options(values) : field.options ?? [];
+  const selectOptions = value && !options.includes(String(value)) ? [String(value), ...options] : options;
   let control;
   switch (field.type) {
     case "select":
       control = (
         <select id={id} className={nativeSelect} value={value ?? ""} onChange={(e) => onChange(e.target.value)}>
           <option value="">{field.required ? "Select…" : "None"}</option>
-          {field.options!.map((o) => <option key={o} value={o}>{o}</option>)}
+          {selectOptions.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       );
       break;

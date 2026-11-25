@@ -4,13 +4,13 @@ import { SubscriptionBanner } from "./SubscriptionBanner";
 import { useBilling, useBillingSync } from "@/lib/billing";
 import logoIcon from "@/assets/logo-icon.webp";
 import { Credit } from "./Credit";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { computeAlerts } from "@/lib/alerts";
+import { useAlerts } from "./alertUi";
 import { canRead } from "@/lib/permissions";
-import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useStore, useUser, useFarms, useFarm } from "@/lib/store";
+import { clearDemoData, createFarm, rowsOf, setActiveFarm, usePendingCount, useUser, useFarms, useFarm } from "@/lib/store";
 import { useOnline, useSyncStatus } from "@/lib/sync";
 import { cloudEnabled } from "@/lib/supabaseClient";
 import { signOut } from "@/lib/auth";
@@ -41,9 +41,7 @@ export const NAV: { to: string; label: string; section: Section; icon: LucideIco
 ];
 
 export function useAlertCount() {
-  const data = useStore((s) => s.data);
-  const farmId = useStore((s) => s.activeFarmId);
-  return useMemo(() => computeAlerts((c) => (data[c] ?? []).filter((r) => r.farmId === farmId)).filter((a) => a.severity !== "info").length, [data, farmId]);
+  return useAlerts().filter((a) => a.severity !== "info").length;
 }
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {

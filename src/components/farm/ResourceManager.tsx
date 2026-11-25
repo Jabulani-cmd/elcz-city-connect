@@ -64,7 +64,8 @@ export function ResourceManager({ resource, section, header, rowActions, hideTit
   const filterOptions = useMemo(() => {
     if (!res.filter) return [];
     const f = res.fields.find((x) => x.key === res.filter!.key);
-    return f?.options ?? [...new Set(all.map((r) => String(r[res.filter!.key] ?? "")).filter(Boolean))].sort();
+    const defined = typeof f?.options === "function" ? f.options({}) : f?.options;
+    return defined ?? [...new Set(all.map((r) => String(r[res.filter!.key] ?? "")).filter(Boolean))].sort();
   }, [all, res]);
 
   const open = (row: Row | "new") => setEditing(row);

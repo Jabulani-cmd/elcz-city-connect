@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, CheckCheck, Info, OctagonAlert } from "lucide-react";
+import { AlertTriangle, Bell, CheckCheck, CloudSun, Info, OctagonAlert, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { addContact, CHANNEL_LABEL, kindLabel, listContacts, listMessageLog, rem
 import { upsert, useFarm, useRows, useUser } from "@/lib/store";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
+import { useWeatherAlerts } from "@/lib/useWeatherAlerts";
 
 const ICON = { danger: OctagonAlert, warning: AlertTriangle, info: Info } as const;
 const CHANNELS = [["inApp", "In-app"], ["push", "Push"], ["whatsapp", "WhatsApp"], ["sms", "SMS"], ["email", "Email"]] as const;
@@ -40,6 +41,7 @@ export default function Notifications() {
     <div>
       <PageHeader title="Notifications" description="Everything that needs your attention, worked out automatically from your records."
         actions={<Button variant="outline" onClick={() => unread.forEach((a) => upsert("prefs", { type: "read", alertId: a.id }))} disabled={!unread.length}><CheckCheck className="mr-1.5 h-4 w-4" />Mark all read</Button>} />
+      <WeatherStatusPanel />
       <div className="mb-3 grid grid-cols-2 gap-2 sm:flex">
         <select aria-label="Type" className={cn(nativeSelect, "rounded-full bg-card sm:w-auto")} value={kind} onChange={(e) => setKind(e.target.value)}><option value="">All types</option>{NOTIFICATION_KINDS.map((k) => <option key={k}>{k}</option>)}</select>
         <select aria-label="Urgency" className={cn(nativeSelect, "rounded-full bg-card sm:w-auto")} value={sev} onChange={(e) => setSev(e.target.value)}><option value="">All urgency</option><option value="danger">Urgent</option><option value="warning">Soon</option><option value="info">Upcoming</option></select>
@@ -69,6 +71,24 @@ export default function Notifications() {
         <Button variant="outline" className="mt-4" onClick={testPush}>Send a test push notification</Button>
       </Panel>
     </div>
+  );
+}
+
+function WeatherStatusPanel() {
+  const farm = useFarm();
+  const weather = useWeatherAlerts();
+  return (
+    <Panel title="Weather watch" className="mb-4" action={<Button variant="ghost" size="icon" aria-label="Refresh weather forecast" disabled={weather.status === "loading"} onClick={() => void weather.refresh()}><RefreshCw className={cn("h-4 w-4", weather.status === "loading" && "animate-spin")} /></Button>}>
+      <div className="flex items-start gap-3 text-sm">
+        <CloudSun className="mt-0.5 h-5 w-5 shrink-0 text-info" />
+        <div className="min-w-0">
+          {weather.status === "needs-location" && <p className="text-muted-foreground">Add your farm’s town/district or GPS coordinates in <Link to="/settings" className="font-medium text-primary underline">Settings</Link> to receive weather alerts.</p>}
+          {weather.status === "loading" && <p className="text-muted-foreground">Checking the seven-day forecast for {farm?.location || "your farm"}…</p>}
+          {weather.status === "error" && <p className="text-danger">{weather.error}</p>}
+          {weather.status === "ready" && <p className="text-muted-foreground">Seven-day forecast for <b className="text-foreground">{weather.result?.location}</b>. {weather.alerts.length ? `${weather.alerts.length} weather alert${weather.alerts.length === 1 ? "" : "s"} included below.` : "No severe weather alerts right now."} Forecast data: Open-Meteo.</p>}
+        </div>
+      </div>
+    </Panel>
   );
 }
 

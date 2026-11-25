@@ -63,7 +63,10 @@ export function toDb(collection: string, row: Row): Record<string, unknown> {
   const known = new Map(fields.map((f) => [f.key, f]));
   const out: Record<string, unknown> = { id: row.id, farm_id: row.farmId, created_at: row.createdAt };
   const extra: Record<string, unknown> = {};
-  for (const f of fields) out[snake(f.key)] = toDbValue(f, row[f.key]);
+  for (const f of fields) {
+    if (f.storage === "extra") extra[f.key] = toDbValue(f, row[f.key]);
+    else out[snake(f.key)] = toDbValue(f, row[f.key]);
+  }
   for (const [k, v] of Object.entries(row)) if (!known.has(k) && !BASE.has(k) && v !== undefined) extra[k] = v;
   out.extra = extra;
   return out;
@@ -74,6 +77,7 @@ export function fromDb(collection: string, d: Record<string, unknown>): Row {
   const row: Row = { id: d.id as string, farmId: d.farm_id as string, createdAt: (d.created_at as string) ?? "", updatedAt: (d.updated_at as string) ?? "" };
   Object.assign(row, (d.extra as Record<string, unknown>) ?? {});
   for (const f of fieldsOf(collection)) {
+    if (f.storage === "extra") continue; // already restored from `extra` above
     const v = d[snake(f.key)];
     row[f.key] = v === null || v === undefined ? "" : f.type === "number" || f.type === "money" ? Number(v) : v;
   }

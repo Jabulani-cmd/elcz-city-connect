@@ -41,7 +41,16 @@ export function RecordDialog({ resource, open, row, defaults, onClose, onSaved, 
           <DialogDescription>{res.help ?? "Fields marked * are required."}</DialogDescription>
         </DialogHeader>
         <form className="grid grid-cols-2 gap-x-3 gap-y-3" onSubmit={(e) => { e.preventDefault(); save(); }}>
-          {res.fields.map((f) => <FieldInput key={f.key} field={f} value={values[f.key]} onChange={(v) => setValues((s) => ({ ...s, [f.key]: v }))} />)}
+          {res.fields.map((f) => <FieldInput key={f.key} field={f} value={values[f.key]} values={values} onChange={(v) => setValues((s) => {
+            const next = { ...s, [f.key]: v };
+            if (f.key === "species") {
+              for (const dependent of res.fields.filter((x) => x.dependsOn === "species")) {
+                const options = typeof dependent.options === "function" ? dependent.options(next) : dependent.options ?? [];
+                if (next[dependent.key] && !options.includes(String(next[dependent.key]))) next[dependent.key] = "";
+              }
+            }
+            return next;
+          })} />)}
           <DialogFooter className="col-span-2 mt-2 gap-2 sm:gap-2">
             <Button type="button" variant="outline" size="lg" onClick={onClose}>Cancel</Button>
             <Button type="submit" size="lg">Save</Button>

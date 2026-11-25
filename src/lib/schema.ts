@@ -2,7 +2,10 @@ import {
   acquisitionTotal, ageLabel, addDays, animalProfit, averageDailyGain, daysBetween, feedAvailable, feedlotMetrics,
   netSaleRevenue, round, stockingRate, sum, toNum, todayISO,
 } from "./calc";
-import type { Row } from "./types";
+import { breedOptions, categoryOptions, CATTLE_BREEDS, CATEGORIES, SPECIES } from "./livestock";
+import type { Row, Values } from "./types";
+
+export { CATTLE_BREEDS, CATEGORIES, SPECIES } from "./livestock";
 
 export type FieldType = "text" | "number" | "money" | "date" | "select" | "textarea" | "ref" | "file";
 
@@ -10,7 +13,11 @@ export type Field = {
   key: string;
   label: string;
   type: FieldType;
-  options?: string[];
+  options?: string[] | ((values: Values) => string[]);
+  /** Dependent options are cleared when this parent field changes (for example species → breed). */
+  dependsOn?: string;
+  /** Store a new field in the existing JSON `extra` column; no database change is needed. */
+  storage?: "extra";
   ref?: string;
   allowAll?: boolean;
   required?: boolean;
@@ -51,16 +58,13 @@ const money = f("money");
 const date = f("date");
 const area = f("textarea");
 const file = f("file");
-const sel = (key: string, label: string, options: string[], extra: Partial<Field> = {}): Field => ({ key, label, type: "select", options, ...extra });
+const sel = (key: string, label: string, options: NonNullable<Field["options"]>, extra: Partial<Field> = {}): Field => ({ key, label, type: "select", options, ...extra });
 const ref = (key: string, label: string, collection: string, extra: Partial<Field> = {}): Field => ({ key, label, type: "ref", ref: collection, ...extra });
 const today = () => todayISO();
 
 export const byDateDesc = (key: string) => (a: Row, b: Row) => String(b[key] ?? "").localeCompare(String(a[key] ?? ""));
 
 /* ---------- option lists ---------- */
-export const SPECIES = ["Cattle", "Goats", "Sheep", "Pigs", "Poultry", "Other"];
-export const CATTLE_BREEDS = ["Brahman", "Nguni", "Angus", "Hereford", "Bonsmara", "Boran", "Simmental", "Holstein", "Jersey", "Tuli", "Mashona", "Crossbreed", "Other"];
-export const CATEGORIES = ["Bull", "Cow", "Heifer", "Calf", "Steer"];
 export const ANIMAL_STATUS = ["Active", "Sold", "Deceased", "Missing", "Quarantined", "Transferred"];
 export const SOIL_TYPES = ["Sandy", "Loam", "Clay", "Silt", "Sandy loam", "Clay loam"];
 export const FERTILITY = ["High", "Medium", "Low"];
@@ -273,8 +277,8 @@ export const RESOURCES: Record<string, Resource> = {
       txt("rfid", "RFID number (optional)", { half: true, placeholder: "Leave blank if no electronic tag" }),
       txt("name", "Name / nickname", { half: true }),
       sel("species", "Species", SPECIES, { def: "Cattle", half: true }),
-      sel("breed", "Breed", CATTLE_BREEDS, { half: true }),
-      sel("category", "Type", CATEGORIES, { required: true, half: true }),
+      sel("breed", "Breed / crossbreed", breedOptions, { half: true, dependsOn: "species", help: "The list changes with the species; scroll down for common crossbreeds." }),
+      sel("category", "Type", categoryOptions, { required: true, half: true, dependsOn: "species" }),
       sel("sex", "Sex", ["Female", "Male"], { required: true, half: true }),
       date("dob", "Date of birth", { half: true }),
       txt("color", "Color", { half: true }),
@@ -462,10 +466,11 @@ export const RESOURCES: Record<string, Resource> = {
       { key: "days", label: "Days on feed", kind: "number", value: (r) => feedlotMetrics(r).daysOnFeed },
       { key: "adg", label: "ADG (kg/day)", kind: "number", value: (r) => feedlotMetrics(r).adg },
       { key: "feedCost", label: "Feed cost", kind: "money", value: (r) => feedlotMetrics(r).feedCost },
+      { key: "fcr", label: "Feed conversion rate", kind: "number", value: (r) => feedlotMetrics(r).fcr },
       { key: "finish", label: "Est. finish", kind: "date", value: (r) => feedlotMetrics(r).finishingDate },
       { key: "saleValue", label: "Est. sale value", kind: "money", value: (r) => feedlotMetrics(r).salePrice },
     ],
-    derivedColumns: ["days", "adg", "feedCost", "finish", "saleValue"], search: ["feedlotId", "ration"], filter: { key: "feedlotId", label: "Pen" },
+    derivedColumns: ["days", "adg", "feedCost", "fcr", "finish", "saleValue"], search: ["feedlotId", "ration"], filter: { key: "feedlotId", label: "Pen" },
   },
   purchases: {
     collection: "purchases", title: "Cattle purchases", singular: "purchase",
@@ -490,18 +495,20 @@ export const RESOURCES: Record<string, Resource> = {
     derivedColumns: ["perKg", "total"], search: ["tag", "seller", "breed"], sort: byDateDesc("date"),
   },
   sales: {
-    collection: "sales", title: "Cattle sales", singular: "sale",
+    collection: "sales", title: "Livestock sales", singular: "sale",
     help: "Saving a new sale marks the animal Sold and books the net amount as income.",
     fields: [
       date("date", "Sale date", { required: true, half: true, def: today }), animalRef("animalId", "Animal", { half: true }),
-      txt("buyer", "Buyer", { half: true }), num("weight", "Animal weight (kg)", { half: true }),
-      money("price", "Selling price", { required: true, half: true }),
+      txt("buyer", "Buyer", { half: true }), num("weight", "Live animal weight (kg)", { half: true }),
+      num("carcassWeight", "Carcass weight (kg)", { half: true, storage: "extra" }),
+      money("pricePerKg", "Carcass price per kg", { half: true, storage: "extra", help: "With carcass weight filled in, the total selling price is calculated automatically." }),
+      money("price", "Total selling price", { half: true, help: "Required unless carcass weight and price per kg are both entered." }),
       money("transport", "Transport cost", { half: true }), money("commission", "Commission", { half: true }),
       money("otherCost", "Other expenses", { half: true }), area("notes", "Notes"),
     ],
-    columns: ["date", "animalId", "buyer", "weight", "price"],
+    columns: ["date", "animalId", "buyer", "weight", "carcassWeight", "pricePerKg", "price"],
     derived: [
-      { key: "perKg", label: "Price per kg", kind: "money", value: (r) => (toNum(r.weight) > 0 ? round(toNum(r.price) / toNum(r.weight)) : 0) },
+      { key: "perKg", label: "Live price per kg", kind: "money", value: (r) => (toNum(r.weight) > 0 ? round(toNum(r.price) / toNum(r.weight)) : 0) },
       { key: "net", label: "Net sale value", kind: "money", value: (r) => netSaleRevenue(toNum(r.price), toNum(r.transport), toNum(r.commission), toNum(r.otherCost)) },
       { key: "profit", label: "Profit / loss", kind: "money", value: (r, c) => animalProfit(netSaleRevenue(toNum(r.price), toNum(r.transport), toNum(r.commission), toNum(r.otherCost)), r.costBasis != null ? toNum(r.costBasis) : animalCost(c.rows("animals").find((a) => a.id === r.animalId) ?? {} as Row, c)) },
     ],
